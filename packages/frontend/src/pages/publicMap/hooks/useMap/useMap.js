@@ -5,6 +5,7 @@ import mapboxgl from "!mapbox-gl"; // eslint-disable-line import/no-webpack-load
 import Popup from "../../popup";
 import useSources from "../useSources";
 import useLayers from "../useLayers";
+import useSearchRadius from "../useSearchRadius";
 import { MapLogger } from "./mapUtils";
 import { BASEMAP_STYLES } from "../../constants";
 import debounce from "lodash.debounce";
@@ -73,6 +74,11 @@ const useMap = (ref, mapConfig) => {
   // Fetch a list of sources  and layers to add to the map
   const { sources } = useSources();
   const { layers, setLayers } = useLayers();
+
+  const {
+    controlEnabled: searchRadiusControlEnabled,
+    drawSearchRadiusBuffers,
+  } = useSearchRadius({ enabled: true });
 
   /**
    * Function responsible for initializing the map
@@ -251,6 +257,12 @@ const useMap = (ref, mapConfig) => {
 
       map.on("click", (e) => {
         const features = map.queryRenderedFeatures(e.point);
+
+        drawSearchRadiusBuffers({
+          map: map,
+          coordinates: [e.lngLat.lng, e.lngLat.lat],
+          controlEnabled: searchRadiusControlEnabled,
+        });
 
         //TODO add popup pagination
         // console.log(
