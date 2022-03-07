@@ -76,8 +76,12 @@ const useMap = (ref, mapConfig) => {
   const { layers, setLayers } = useLayers();
 
   const {
+    addBuffersToMap,
+    searchRadiusBuffers,
     controlEnabled: searchRadiusControlEnabled,
-    drawSearchRadiusBuffers,
+    handleSearchRadiusBuffersChange: updateSearchRadiusBuffers,
+    handleClearSearchRadiusBuffers,
+    resetSearchRadiusBuffers,
   } = useSearchRadius({ enabled: true });
 
   /**
@@ -258,10 +262,9 @@ const useMap = (ref, mapConfig) => {
       map.on("click", (e) => {
         const features = map.queryRenderedFeatures(e.point);
 
-        drawSearchRadiusBuffers({
+        addBuffersToMap({
           map: map,
           coordinates: [e.lngLat.lng, e.lngLat.lat],
-          controlEnabled: searchRadiusControlEnabled,
         });
 
         //TODO add popup pagination
@@ -329,7 +332,14 @@ const useMap = (ref, mapConfig) => {
       setEventsRegistered(true);
       mapLogger.log("Event handlers attached to map");
     }
-  }, [map, layers, dataAdded, eventsRegistered, theme.currentTheme]);
+  }, [
+    map,
+    layers,
+    dataAdded,
+    eventsRegistered,
+    theme.currentTheme,
+    addBuffersToMap,
+  ]);
 
   /**
    * Handler used to apply user's filter values to the map instance
@@ -515,6 +525,10 @@ const useMap = (ref, mapConfig) => {
     map,
     sources,
     zoomLevel,
+    searchRadiusBuffers,
+    handleClearSearchRadiusBuffers,
+    resetSearchRadiusBuffers,
+    updateSearchRadiusBuffers,
     updateBasemap,
     updateLayerFilters,
     updateLayerStyles,

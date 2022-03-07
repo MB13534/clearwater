@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import * as turfHelpers from "@turf/helpers";
 import buffer from "@turf/buffer";
 import mask from "@turf/mask";
@@ -11,31 +11,38 @@ import mask from "@turf/mask";
  * through and finding the specific object to update
  */
 const INIT_SEARCH_RADIUS_BUFFERS = {
-  "buffer-1": {
+  buffer1: {
     color: "#bf810f",
-    layerId: "search-radius-circle-1",
-    value: 1,
-    unit: "miles",
+    layerIdPrefix: "search-circle-radius",
+    bufferAmount: 2,
+    units: "miles",
   },
-  "buffer-2": {
+  buffer2: {
     color: "#f27d65",
-    layerId: "search-radius-circle-2",
-    value: 2,
-    unit: "miles",
+    layerIdPrefix: "search-circle-radius",
+    bufferAmount: 0.5,
+    units: "miles",
   },
-  "buffer-3": {
+  buffer3: {
     color: "#f27d65",
-    layerId: "search-radius-circle-3",
-    value: 0,
-    unit: "miles",
+    layerIdPrefix: "search-circle-radius",
+    bufferAmount: 0,
+    units: "miles",
   },
-  "buffer-4": {
+  buffer4: {
     color: "#f27d65",
-    layerId: "search-radius-circle-4",
-    value: 0,
-    unit: "miles",
+    layerIdPrefix: "search-circle-radius",
+    bufferAmount: 0,
+    units: "miles",
   },
 };
+
+const EMPTY_GEOJSON = {
+  type: "FeatureCollection",
+  features: [],
+};
+
+const FEET_TO_MILES = 0.0001893939;
 
 /**
  * Generates a GeoJSON circle feature based on the provided
@@ -79,11 +86,14 @@ function createMask(polygonToSubtract, polygonToSubtractFrom) {
  * @returns
  */
 function convertRadiusBuffersToArray(radiusBuffers) {
-  return Object.values(radiusBuffers).map(({ color, layerId, value }) => ({
-    color,
-    layerId,
-    value,
-  }));
+  return Object.values(radiusBuffers).map(
+    ({ color, layerIdPrefix, bufferAmount, units }) => ({
+      color,
+      layerIdPrefix,
+      bufferAmount,
+      units,
+    })
+  );
 }
 
 /**
@@ -94,7 +104,8 @@ function convertRadiusBuffersToArray(radiusBuffers) {
  */
 const useSearchRadius = ({ enabled = false }) => {
   const [controlEnabled, setControlEnabled] = useState(enabled);
-  const [controlUnits, setControlUnits] = useState("miles");
+  const [coordinates, setCoordinates] = useState(null);
+  const [map, setMap] = useState(null);
   const [searchRadiusBuffers, setSearchRadiusBuffers] = useState(
     INIT_SEARCH_RADIUS_BUFFERS
   );
@@ -105,13 +116,13 @@ const useSearchRadius = ({ enabled = false }) => {
    * search radius control are changed by the user
    * @param {object} event Native JS event object
    */
-  const handleSearchRadiusBuffersChange = (event) => {
+  const handleSearchRadiusBuffersChange = (event, bufferName) => {
     const { name, value } = event?.target;
     setSearchRadiusBuffers((prevState) => ({
       ...prevState,
-      [name]: {
-        ...prevState[name],
-        value: value,
+      [bufferName]: {
+        ...prevState[bufferName],
+        [name]: value,
       },
     }));
   };
@@ -130,8 +141,10 @@ const useSearchRadius = ({ enabled = false }) => {
    * should add the layers too
    * @returns
    */
-  const drawSearchRadiusBuffers = ({ coordinates, controlEnabled, map }) => {
+  const drawSearchRadiusBuffers = ({ coordinates, map }) => {
     if (!map || !controlEnabled) return;
+
+    clearSearchRadiusBuffers({ map });
 
     /**
      * Convert the search radius buffers state value associated with
@@ -140,7 +153,7 @@ const useSearchRadius = ({ enabled = false }) => {
      */
     const radiusBuffersArray = convertRadiusBuffersToArray(
       searchRadiusBuffers
-    )?.filter(({ value }) => value > 0);
+    )?.filter(({ bufferAmount }) => +bufferAmount > 0);
 
     /**
      * Loop through the populated buffers and generate the buffer circle
@@ -148,12 +161,28 @@ const useSearchRadius = ({ enabled = false }) => {
      */
     const searchRadiusLayers = radiusBuffersArray.reduce(
       (acc, buffer, index) => {
-        const searchRadius = createRadiusFeature(coordinates, buffer.value);
+        let bufferAmount = +buffer.bufferAmount;
+
+        // convert from feet to miles if provided value is in feet
+        if (buffer.units === "feet") {
+          bufferAmount = bufferAmount * FEET_TO_MILES;
+        }
+
+        /**
+         * The buffer rings are set up to be additive so we need to
+         * make sure we reflect that in the math
+         */
+        if (index > 0) {
+          bufferAmount = +acc[index - 1].bufferAmount + bufferAmount;
+        }
+
+        const searchRadius = createRadiusFeature(coordinates, bufferAmount);
         if (index === 0) {
           acc.push({
             color: buffer.color,
-            layerId: buffer.layerId,
+            layerIdPrefix: buffer.layerIdPrefix,
             data: searchRadius,
+            bufferAmount,
           });
           return acc;
         }
@@ -163,8 +192,9 @@ const useSearchRadius = ({ enabled = false }) => {
         );
         acc.push({
           color: buffer.color,
-          layerId: buffer.layerId,
+          layerIdPrefix: buffer.layerIdPrefix,
           data: maskedSearchRadius,
+          bufferAmount,
         });
         return acc;
       },
@@ -175,56 +205,91 @@ const useSearchRadius = ({ enabled = false }) => {
      * Set the data for the layer associated with each buffer circle
      * to the generated feature
      */
-    searchRadiusLayers.forEach((layer) => {
-      map.getSource(layer.layerId).setData(layer.data);
+    searchRadiusLayers.forEach((layer, index) => {
+      map
+        .getSource(`${layer.layerIdPrefix}-fill-${index + 1}`)
+        .setData(layer.data);
+
+      if (index > 0 && searchRadiusLayers?.length > 1) {
+        map
+          .getSource(`${layer.layerIdPrefix}-line-${index + 1}`)
+          .setData(layer.data);
+      }
     });
 
     /**
+     * TODO determine if client wants this
      * Generate some data driven styles for the circle color
      * paint property for the clearwater wells layer
      * We distinctly color the wells that intersect the buffers
      * TODO make sure to handle dynamic well styles that are set in the UI
+     * and use those as fallback value
+     * instead of color to keep it simple
      */
-    const circleColorExpression = searchRadiusLayers
-      .map((layer) => {
-        return [["==", ["within", layer?.data], true], layer?.color];
-      })
-      .flat();
+    // const circleColorExpression = searchRadiusLayers
+    //   .map((layer) => {
+    //     return [["==", ["within", layer?.data], true], layer?.color];
+    //   })
+    //   .flat();
 
-    circleColorExpression.unshift("case");
-    circleColorExpression.push("#1e8dd2");
+    // circleColorExpression.unshift("case");
+    // circleColorExpression.push("#1e8dd2");
 
-    map.setPaintProperty(
-      "clearwater-wells-circle",
-      "circle-color",
-      circleColorExpression
-    );
+    // map.setPaintProperty(
+    //   "clearwater-wells-circle",
+    //   "circle-color",
+    //   circleColorExpression
+    // );
   };
+
+  const addBuffersToMap = ({ coordinates, map }) => {
+    setCoordinates(coordinates);
+    setMap(map);
+  };
+
+  useEffect(() => {
+    drawSearchRadiusBuffers({
+      map,
+      coordinates,
+    });
+  }, [coordinates, map]); //eslint-disable-line
 
   /**
    * Handler responsible for clearing the radius buffer circles from the map
    * and resetting the clearwater wells styles
    * TODO make sure to handle dynamic well styles that are set in the UI
+   * TODO potentially just change opacity for non-intersected features
+   * instead of color to keep it simple
    * @param {object} options.map Mapbox GL map instance to update
    */
-  const clearSearchRadiusBuffers = ({ map }) => {
+  const clearSearchRadiusBuffers = () => {
     const radiusBuffersArray = convertRadiusBuffersToArray(searchRadiusBuffers);
 
-    radiusBuffersArray.forEach((layer) => {
-      map.getSource(layer.layerId).setData(null);
+    radiusBuffersArray.forEach((layer, index) => {
+      map
+        .getSource(`${layer.layerIdPrefix}-fill-${index + 1}`)
+        .setData(EMPTY_GEOJSON);
+      map
+        .getSource(`${layer.layerIdPrefix}-line-${index + 1}`)
+        .setData(EMPTY_GEOJSON);
     });
+  };
 
-    map.setPaintProperty("clearwater-wells-circle", "circle-color", "#1e8dd2");
+  /**
+   * Handler for resetting the radius buffers form back to the initial state
+   */
+  const resetSearchRadiusBuffers = () => {
+    setSearchRadiusBuffers(INIT_SEARCH_RADIUS_BUFFERS);
   };
 
   return {
+    addBuffersToMap,
     controlEnabled,
-    controlUnits,
     drawSearchRadiusBuffers,
     handleClearSearchRadiusBuffers: clearSearchRadiusBuffers,
     handleControlEnabled: setControlEnabled,
-    handleControlUnitsChange: setControlUnits,
     handleSearchRadiusBuffersChange,
+    resetSearchRadiusBuffers,
     searchRadiusBuffers,
   };
 };
