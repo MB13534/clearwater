@@ -10,17 +10,28 @@ import AccordionSummary from "@material-ui/core/AccordionSummary";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import debounce from "lodash.debounce";
 import DragCircleControl from "./DragCircleControl";
-import { handleCopyCoords, updateArea } from "../../utils/map";
+import {
+  bellParcelsFill,
+  bellParcelsLine,
+  bellParcelsSymbol,
+  DUMMY_BASEMAP_LAYERS,
+  handleCopyCoords,
+  updateArea,
+} from "../../utils/map";
 import CoordinatesPopup from "./components/CoordinatesPopup";
 import MeasurementsPopup from "./components/MeasurementsPopup";
 import { isTouchScreenDevice } from "../../utils";
 import MapboxGeocoder from "@mapbox/mapbox-gl-geocoder";
 import "@mapbox/mapbox-gl-geocoder/dist/mapbox-gl-geocoder.css";
+import { coordinatesGeocoder } from "../../pages/publicMap/hooks/useMap/mapUtils";
+import ToggleBasemapControl from "./ToggleBasemapControl";
+import ParcelsControl from "./ParcelsControl";
+import MeasurementsControl from "../../pages/publicMap/controls/MeasurementsControl";
 
 mapboxgl.accessToken = process.env.REACT_APP_MAPBOX_TOKEN;
 
 const Container = styled.div`
-  height: 300px;
+  height: 320px;
   width: 100%;
 `;
 
@@ -49,6 +60,8 @@ const Instructions = styled.div`
 const Map = ({ config }) => {
   const [map, setMap] = useState();
   const [mapIsLoaded, setMapIsLoaded] = useState(false);
+  const [measurementsVisible, setMeasurementsVisible] = useState(false);
+  const [parcelsVisible, setParcelsVisible] = useState(false);
   const coordinatesContainerRef = useRef(null);
   const instructionsRef = useRef(null);
   const longRef = useRef(null);
@@ -57,6 +70,7 @@ const Map = ({ config }) => {
   const polygonRef = useRef(null);
   const radiusRef = useRef(null);
   const pointRef = useRef(null);
+  const lineRef = useRef(null);
   const measurementsContainerRef = useRef(null);
   const mapContainerRef = useRef(null); // create a reference to the map container
 
@@ -78,59 +92,35 @@ const Map = ({ config }) => {
       config.setFieldValue("elevation_ftabmsl", eleRef.current.innerHTML);
     }
   }
+  //adds control features as extended by MapboxDrawGeodesic (draw circle)
+  let modes = MapboxDraw.modes;
+  modes = MapboxDrawGeodesic.enable(modes);
 
-  const coordinatesGeocoder = function (query) {
-    // Match anything which looks like
-    // decimal degrees coordinate pair.
-    const matches = query.match(
-      /^[ ]*(?:Lat: )?(-?\d+\.?\d*)[, ]+(?:Lng: )?(-?\d+\.?\d*)[ ]*$/i
-    );
-    if (!matches) {
-      return null;
-    }
+  const [draw] = useState(
+    new MapboxDraw({
+      modes,
+      controls: {
+        polygon: true,
+        point: true,
+        trash: true,
+        line_string: true,
+      },
+      displayControlsDefault: false,
+      userProperties: true,
+    })
+  );
 
-    function coordinateFeature(lng, lat) {
-      return {
-        center: [lng, lat],
-        geometry: {
-          type: "Point",
-          coordinates: [lng, lat],
-        },
-        place_name: "Lat: " + lat + " Lng: " + lng,
-        place_type: ["coordinate"],
-        properties: {},
-        type: "Feature",
-      };
-    }
-
-    const coord1 = Number(matches[1]);
-    const coord2 = Number(matches[2]);
-    const geocodes = [];
-
-    if (coord1 >= -90 && coord1 <= 90 && coord2 >= -180 && coord2 <= 180) {
-      // must be lat, lng
-      geocodes.push(coordinateFeature(coord2, coord1));
-    }
-
-    if (coord2 >= -90 && coord2 <= 90 && coord1 >= -180 && coord1 <= 180) {
-      // must be lng, lat
-      geocodes.push(coordinateFeature(coord1, coord2));
-    }
-
-    // if (geocodes.length === 0) {
-    //   // else could be either lng, lat or lat, lng
-    //   geocodes.push(coordinateFeature(coord1, coord2));
-    //   // geocodes.push(coordinateFeature(coord2, coord1));
-    // }
-
-    return geocodes;
-  };
+  useEffect(() => {
+    measurementsVisible
+      ? (measurementsContainerRef.current.style.display = "block")
+      : (measurementsContainerRef.current.style.display = "none");
+  }, [measurementsVisible]);
 
   //create map and apply all controls
   useEffect(() => {
     const map = new mapboxgl.Map({
       container: mapContainerRef.current,
-      style: "mapbox://styles/mapbox/satellite-streets-v11",
+      style: "mapbox://styles/mapbox/" + DUMMY_BASEMAP_LAYERS[0].url,
       center:
         config.data.longitude_dd === "" || config.data.latitude_dd === ""
           ? STARTING_LOCATION
@@ -139,20 +129,6 @@ const Map = ({ config }) => {
         config.data.longitude_dd === "" || config.data.latitude_dd === ""
           ? 9
           : 16,
-    });
-
-    //adds control features as extended by MapboxDrawGeodesic (draw circle)
-    let modes = MapboxDraw.modes;
-    modes = MapboxDrawGeodesic.enable(modes);
-    const draw = new MapboxDraw({
-      modes,
-      controls: {
-        polygon: true,
-        point: true,
-        trash: true,
-      },
-      displayControlsDefault: false,
-      userProperties: true,
     });
 
     //event listener to run function updateArea during each draw action to handle measurements popup
@@ -167,20 +143,15 @@ const Map = ({ config }) => {
           polygonRef,
           radiusRef,
           pointRef,
+          lineRef,
           measurementsContainerRef,
-          draw
+          draw,
+          setMeasurementsVisible
         );
       });
     });
 
     //top left controls
-    //none
-
-    //top right controls
-    map.addControl(new mapboxgl.FullscreenControl(), "top-right");
-
-    //bottom right controls
-    //draw controls do not work correctly on touch screens
     map.addControl(
       new MapboxGeocoder({
         accessToken: mapboxgl.accessToken,
@@ -188,24 +159,39 @@ const Map = ({ config }) => {
         zoom: 16,
         mapboxgl: mapboxgl,
         reverseGeocode: true,
+        placeholder: "Address/Coords Search",
+        limit: 3,
       }),
-      "bottom-right"
+      "top-left"
     );
+    map.addControl(new mapboxgl.FullscreenControl(), "top-left");
+
+    //top right controls
+    //loop through each base layer and add a layer toggle for that layer
+    DUMMY_BASEMAP_LAYERS.forEach((layer) => {
+      return map.addControl(
+        new ToggleBasemapControl(layer.url, layer.icon),
+        "top-right"
+      );
+    });
+
+    //bottom right controls
+    //draw controls do not work correctly on touch screens
     !isTouchScreenDevice() &&
       map.addControl(draw, "bottom-right") &&
       !isTouchScreenDevice() &&
       map.addControl(new DragCircleControl(draw), "bottom-right");
+
+    //bottom left controls
+    map.addControl(
+      new mapboxgl.ScaleControl({ unit: "imperial" }),
+      "bottom-left"
+    );
     map.addControl(
       new RulerControl({
         units: "feet",
         labelFormat: (n) => `${n.toFixed(2)} ft`,
       }),
-      "bottom-right"
-    );
-
-    //bottom left controls
-    map.addControl(
-      new mapboxgl.ScaleControl({ unit: "imperial" }),
       "bottom-left"
     );
 
@@ -248,6 +234,17 @@ const Map = ({ config }) => {
         getElevation(!config.data.elevation_ftabmsl);
       }
 
+      if (!map.getSource("bell-parcels")) {
+        map.addSource("bell-parcels", {
+          type: "vector",
+          url: "mapbox://txclearwater.bell_cad_parcels",
+        });
+
+        map.addLayer(bellParcelsFill);
+        map.addLayer(bellParcelsLine);
+        map.addLayer(bellParcelsSymbol);
+      }
+
       const onDragEnd = (marker) => {
         const lngLat = marker.getLngLat();
         coordinatesContainerRef.current.style.display = "block";
@@ -270,6 +267,7 @@ const Map = ({ config }) => {
         polygonRef,
         radiusRef,
         pointRef,
+        lineRef,
       ];
       copyableRefs.forEach((ref) => {
         ref.current.addEventListener("click", (e) =>
@@ -278,6 +276,34 @@ const Map = ({ config }) => {
       });
     }
   }, [mapIsLoaded, map]); //eslint-disable-line
+
+  useEffect(() => {
+    if (
+      map !== undefined &&
+      map.getLayer("bell-parcels-fill") &&
+      map.getLayer("bell-parcels-line") &&
+      map.getLayer("bell-parcels-symbol")
+    ) {
+      if (!parcelsVisible) {
+        map.setLayoutProperty("bell-parcels-fill", "visibility", "none");
+        map.setLayoutProperty("bell-parcels-line", "visibility", "none");
+        map.setLayoutProperty("bell-parcels-symbol", "visibility", "none");
+      } else {
+        map.setLayoutProperty("bell-parcels-fill", "visibility", "visible");
+        map.setLayoutProperty("bell-parcels-line", "visibility", "visible");
+        map.setLayoutProperty("bell-parcels-symbol", "visibility", "visible");
+      }
+    }
+  }, [parcelsVisible]); // eslint-disable-line
+
+  const handleClearMeasurements = () => {
+    draw.deleteAll();
+    polygonRef.current.innerHTML = "";
+    radiusRef.current.innerHTML = "";
+    pointRef.current.innerHTML = "";
+    lineRef.current.innerHTML = "";
+    setMeasurementsVisible(false);
+  };
 
   return (
     <>
@@ -295,26 +321,40 @@ const Map = ({ config }) => {
         <AccordionDetails style={{ padding: "0" }}>
           <Container>
             <MapContainer ref={mapContainerRef}>
+              <ParcelsControl
+                open={parcelsVisible}
+                onToggle={() => setParcelsVisible(!parcelsVisible)}
+              />
+
               <CoordinatesPopup
                 coordinatesContainerRef={coordinatesContainerRef}
                 longRef={longRef}
                 latRef={latRef}
                 eleRef={eleRef}
                 title="Blue marker:"
-                top={"49px"}
-                left={"10px"}
               />
               <MeasurementsPopup
                 measurementsContainerRef={measurementsContainerRef}
                 radiusRef={radiusRef}
                 polygonRef={polygonRef}
                 pointRef={pointRef}
+                lineRef={lineRef}
+                onHide={() => setMeasurementsVisible(false)}
+                onClear={handleClearMeasurements}
               />
               <Instructions ref={instructionsRef}>
                 Drag and place marker to generate coordinates and elevation
                 fields
               </Instructions>
             </MapContainer>
+            {!measurementsVisible && (
+              <MeasurementsControl
+                open={measurementsVisible}
+                onToggle={() => setMeasurementsVisible(!measurementsVisible)}
+                right={49}
+                bottom={30}
+              />
+            )}
           </Container>
         </AccordionDetails>
       </Accordion>

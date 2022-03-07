@@ -22,16 +22,15 @@ import { INIT_MAP_CONFIG, WELLS_SEARCH_OPTIONS } from "./constants";
 
 import DisclaimerDialog from "./components/DisclaimerDialog";
 import MeasurementsPopup from "../../components/map/components/MeasurementsPopup";
-import DataVizControl from "./controls/dataVizControl";
 import DataViz from "./components/DataViz";
 import MainControl from "./controls/mainControl/";
-import AddressSearchControl from "./controls/addressSearchControl";
 import CommaSeparatedWellsSearch from "./filters/commaSeparatedWellsSearch";
 
 import PrintReportDialog from "./components/PrintReportDialog";
 import { useReactToPrint } from "react-to-print";
 import PrintMapFormat from "./components/PrintMapFormat";
 import SplitButton from "../../components/SplitButton";
+import MeasurementsControl from "./controls/MeasurementsControl";
 
 const FiltersBar = styled(Paper)`
   align-items: center;
@@ -92,9 +91,13 @@ const PublicMap = () => {
     updateLayerStyles,
     updateLayerVisibility,
     updateBasemap,
+    measurementsVisible,
+    handleClearMeasurements,
+    setMeasurementsVisible,
     polygonRef,
     radiusRef,
     pointRef,
+    lineRef,
     measurementsContainerRef,
     dataVizVisible,
     setDataVizVisible,
@@ -333,12 +336,15 @@ const PublicMap = () => {
           radiusRef={radiusRef}
           polygonRef={polygonRef}
           pointRef={pointRef}
+          lineRef={lineRef}
+          onHide={() => setMeasurementsVisible(false)}
+          onClear={handleClearMeasurements}
         />
-        <AddressSearchControl
-          onSelect={(coordinates) =>
-            map?.flyTo({ center: coordinates, zoom: 16 })
-          }
-        />
+        {/*<AddressSearchControl*/}
+        {/*  onSelect={(coordinates) =>*/}
+        {/*    map?.flyTo({ center: coordinates, zoom: 16 })*/}
+        {/*  }*/}
+        {/*/>*/}
         {eventsRegistered && (
           <MainControl
             activeBasemap={activeBasemap}
@@ -352,16 +358,25 @@ const PublicMap = () => {
         {process.env.NODE_ENV === "development" && (
           <ZoomInfo zoomLevel={zoomLevel} />
         )}
-        <DataVizControl
-          open={dataVizVisible}
-          onClose={() => setDataVizVisible(!dataVizVisible)}
-        />
+        {/*<DataVizControl*/}
+        {/*  open={dataVizVisible}*/}
+        {/*  onClose={() => setDataVizVisible(!dataVizVisible)}*/}
+        {/*/>*/}
         <DataViz
           open={dataVizVisible}
           dataVizWellNumber={dataVizWellNumber}
           dataVizGraphType={dataVizGraphType}
           onClose={() => setDataVizVisible(false)}
         />
+
+        {!measurementsVisible && (
+          <MeasurementsControl
+            open={measurementsVisible}
+            onToggle={() => setMeasurementsVisible(!measurementsVisible)}
+            right={49}
+            bottom={30}
+          />
+        )}
       </Map>
 
       {eventsRegistered && printReportDialogOpen && (

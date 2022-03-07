@@ -1,4 +1,5 @@
 import area from "@turf/area";
+import length from "@turf/length";
 import { lineColors } from "./index";
 
 const mapboxToken = process.env.REACT_APP_MAPBOX_TOKEN;
@@ -29,7 +30,7 @@ export const handleCopyCoords = (value) => {
 };
 
 export const DUMMY_BASEMAP_LAYERS = [
-  { url: "streets-v11", icon: "commute" },
+  // { url: "streets-v11", icon: "commute" },
   { url: "outdoors-v11", icon: "park" },
   { url: "satellite-streets-v11", icon: "satellite_alt" },
 ];
@@ -40,15 +41,24 @@ export function updateArea(
   polygonRef,
   radiusRef,
   pointRef,
+  lineRef,
   measurementsContainerRef,
-  draw
+  draw,
+  setMeasurementsVisible
 ) {
   const data = draw.getAll();
-  measurementsContainerRef.current.style.display = "block";
+  setMeasurementsVisible(true);
 
   const answerArea = polygonRef.current;
   const answerRadius = radiusRef.current;
   const answerPoint = pointRef.current;
+  const answerLength = lineRef.current;
+
+  if (geojson.geometry.type === "LineString" && type !== "draw.delete") {
+    const exactLengthFeet = length(geojson, { units: "feet" });
+    const roundedLength = exactLengthFeet.toFixed(2);
+    answerLength.innerHTML = roundedLength + " ft";
+  }
 
   if (geojson.properties.circleRadius && type !== "draw.delete") {
     const exactRadiusKm = geojson.properties.circleRadius;
@@ -58,13 +68,23 @@ export function updateArea(
   }
 
   if (geojson.geometry.type === "Point" && type !== "draw.delete") {
-    answerPoint.innerHTML = `<strong>lat:</strong> ${geojson.geometry.coordinates[1]} <br /><strong>long:</strong> ${geojson.geometry.coordinates[0]}`;
+    answerPoint.innerHTML = `<strong>lat:</strong> ${geojson.geometry.coordinates[1].toFixed(
+      5
+    )} <br /><strong>long:</strong> ${geojson.geometry.coordinates[0].toFixed(
+      5
+    )}`;
   }
 
   if (
     data.features.filter((item) => item.geometry.type === "Point").length === 0
   ) {
     answerPoint.innerHTML = "--";
+  }
+  if (
+    data.features.filter((item) => item.geometry.type === "LineString")
+      .length === 0
+  ) {
+    answerLength.innerHTML = "--";
   }
   if (
     data.features.filter((item) => item.properties.circleRadius).length === 0
@@ -75,13 +95,17 @@ export function updateArea(
   if (data.features.length > 0) {
     const exactAreaMeters = area(data);
     const exactAreaFeet = exactAreaMeters * 10.7639;
-    const roundedArea = exactAreaFeet.toFixed(2);
-    answerArea.innerHTML = roundedArea + " sq ft";
+    const exactAreaAcre = exactAreaMeters / 4047;
+    const roundedAreaFeet = exactAreaFeet.toFixed(2);
+    const roundedAreaAcre = exactAreaAcre.toFixed(2);
+    answerArea.innerHTML =
+      roundedAreaAcre + " acres or " + roundedAreaFeet + " sq ft";
   } else {
     answerArea.innerHTML = "";
     answerRadius.innerHTML = "";
     answerPoint.innerHTML = "";
-    measurementsContainerRef.current.style.display = "none";
+    answerLength.innerHTML = "";
+    setMeasurementsVisible(false);
     // if (e.type !== "draw.delete") alert("Click the map to draw a polygon.");
   }
 }
@@ -159,9 +183,9 @@ export const bellParcelsFill = {
     "fill-color": "#9a184e",
     "fill-opacity": 0,
   },
-  // layout: {
-  //   visibility: "none",
-  // },
+  layout: {
+    visibility: "none",
+  },
   lreProperties: {
     layerGroup: "bell-parcels",
   },
@@ -177,9 +201,9 @@ export const bellParcelsLine = {
     "line-color": "#e02675",
     "line-width": 2,
   },
-  // layout: {
-  //   visibility: "none",
-  // },
+  layout: {
+    visibility: "none",
+  },
   lreProperties: {
     layerGroup: "bell-parcels",
   },
@@ -200,7 +224,7 @@ export const bellParcelsSymbol = {
     "text-field": ["get", "PROP_ID"],
     "text-size": 14,
     "text-font": ["literal", ["Roboto Black", "Arial Unicode MS Bold"]],
-    // visibility: "none",
+    visibility: "none",
   },
   minzoom: 16.5,
   lreProperties: {

@@ -13,7 +13,7 @@ const CoordinatesContainer = styled.pre`
   font-size: 11px;
   line-height: 18px;
   border-radius: 3px;
-  z-index: 1000;
+  z-index: 1;
   display: none;
 `;
 
@@ -32,7 +32,7 @@ const CoordinatesPopup = ({
   latRef,
   eleRef,
   title = "Most recently selected marker:",
-  top = "10px",
+  top = "57px",
   left = "49px",
 }) => {
   return (

@@ -39,6 +39,9 @@ import debounce from "lodash.debounce";
 import { isTouchScreenDevice } from "../../utils";
 import Search from "./components/search";
 import Popup from "../../pages/publicMap/popup";
+import { coordinatesGeocoder } from "../../pages/publicMap/hooks/useMap/mapUtils";
+import MeasurementsControl from "../../pages/publicMap/controls/MeasurementsControl";
+import ParcelsControl from "./ParcelsControl";
 
 mapboxgl.accessToken = process.env.REACT_APP_MAPBOX_TOKEN;
 
@@ -74,61 +77,41 @@ const DashboardMap = ({
 
   const [mapIsLoaded, setMapIsLoaded] = useState(false);
 
+  const [parcelsVisible, setParcelsVisible] = useState(false);
+  const [measurementsVisible, setMeasurementsVisible] = useState(false);
   const polygonRef = useRef(null);
   const radiusRef = useRef(null);
   const pointRef = useRef(null);
+  const lineRef = useRef(null);
   const measurementsContainerRef = useRef(null);
   const mapContainerRef = useRef(null); // create a reference to the map container
   const popUpRef = useRef(
     new mapboxgl.Popup({ maxWidth: "310px", offset: 15, focusAfterOpen: false })
   );
 
-  const coordinatesGeocoder = function (query) {
-    // Match anything which looks like
-    // decimal degrees coordinate pair.
-    const matches = query.match(
-      /^[ ]*(?:Lat: )?(-?\d+\.?\d*)[, ]+(?:Lng: )?(-?\d+\.?\d*)[ ]*$/i
-    );
-    if (!matches) {
-      return null;
-    }
+  //adds control features as extended by MapboxDrawGeodesic (draw circle)
+  let modes = MapboxDraw.modes;
+  modes = MapboxDrawGeodesic.enable(modes);
 
-    function coordinateFeature(lng, lat) {
-      return {
-        center: [lng, lat],
-        geometry: {
-          type: "Point",
-          coordinates: [lng, lat],
-        },
-        place_name: "Lat: " + lat + " Lng: " + lng,
-        place_type: ["coordinate"],
-        properties: {},
-        type: "Feature",
-      };
-    }
+  const [draw] = useState(
+    new MapboxDraw({
+      modes,
+      controls: {
+        polygon: true,
+        point: true,
+        trash: true,
+        line_string: true,
+      },
+      displayControlsDefault: false,
+      userProperties: true,
+    })
+  );
 
-    const coord1 = Number(matches[1]);
-    const coord2 = Number(matches[2]);
-    const geocodes = [];
-
-    if (coord1 >= -90 && coord1 <= 90 && coord2 >= -180 && coord2 <= 180) {
-      // must be lat, lng
-      geocodes.push(coordinateFeature(coord2, coord1));
-    }
-
-    if (coord2 >= -90 && coord2 <= 90 && coord1 >= -180 && coord1 <= 180) {
-      // must be lng, lat
-      geocodes.push(coordinateFeature(coord1, coord2));
-    }
-
-    // if (geocodes.length === 0) {
-    //   // else could be either lng, lat or lat, lng
-    //   geocodes.push(coordinateFeature(coord1, coord2));
-    //   // geocodes.push(coordinateFeature(coord2, coord1));
-    // }
-
-    return geocodes;
-  };
+  useEffect(() => {
+    measurementsVisible
+      ? (measurementsContainerRef.current.style.display = "block")
+      : (measurementsContainerRef.current.style.display = "none");
+  }, [measurementsVisible]);
 
   //create map and apply all controls
   useEffect(() => {
@@ -137,20 +120,6 @@ const DashboardMap = ({
       style: "mapbox://styles/mapbox/" + DUMMY_BASEMAP_LAYERS[0].url,
       center: STARTING_LOCATION,
       zoom: 9,
-    });
-
-    //adds control features as extended by MapboxDrawGeodesic (draw circle)
-    let modes = MapboxDraw.modes;
-    modes = MapboxDrawGeodesic.enable(modes);
-    const draw = new MapboxDraw({
-      modes,
-      controls: {
-        polygon: true,
-        point: true,
-        trash: true,
-      },
-      displayControlsDefault: false,
-      userProperties: true,
     });
 
     //event listener to run function updateArea during each draw action to handle measurements popup
@@ -165,14 +134,28 @@ const DashboardMap = ({
           polygonRef,
           radiusRef,
           pointRef,
+          lineRef,
           measurementsContainerRef,
-          draw
+          draw,
+          setMeasurementsVisible
         );
       });
     });
 
     //top left controls
+    map.addControl(
+      new MapboxGeocoder({
+        accessToken: mapboxgl.accessToken,
+        localGeocoder: coordinatesGeocoder,
+        zoom: 16,
+        mapboxgl: mapboxgl,
+        reverseGeocode: true,
+        placeholder: "Address/Coords Search",
+      }),
+      "top-left"
+    );
     map.addControl(new mapboxgl.NavigationControl(), "top-left");
+    map.addControl(new mapboxgl.FullscreenControl(), "top-left");
     map.addControl(
       new mapboxgl.GeolocateControl({
         positionOptions: {
@@ -188,7 +171,6 @@ const DashboardMap = ({
     map.addControl(new ResetZoomControl(), "top-left");
 
     //top right controls
-    map.addControl(new mapboxgl.FullscreenControl(), "top-right");
     //loop through each base layer and add a layer toggle for that layer
     DUMMY_BASEMAP_LAYERS.forEach((layer) => {
       return map.addControl(
@@ -198,16 +180,6 @@ const DashboardMap = ({
     });
 
     //bottom right controls
-    map.addControl(
-      new MapboxGeocoder({
-        accessToken: mapboxgl.accessToken,
-        localGeocoder: coordinatesGeocoder,
-        zoom: 16,
-        mapboxgl: mapboxgl,
-        reverseGeocode: true,
-      }),
-      "bottom-right"
-    );
     //draw controls do not work correctly on touch screens
     !isTouchScreenDevice() &&
       map.addControl(draw, "bottom-right") &&
@@ -442,6 +414,7 @@ const DashboardMap = ({
           polygonRef,
           radiusRef,
           pointRef,
+          lineRef,
         ];
         copyableRefs.forEach((ref) => {
           ref.current.addEventListener("click", (e) =>
@@ -512,6 +485,25 @@ const DashboardMap = ({
     }
   }, [isLoading, mapIsLoaded, map, data]); // eslint-disable-line
 
+  useEffect(() => {
+    if (
+      map !== undefined &&
+      map.getLayer("bell-parcels-fill") &&
+      map.getLayer("bell-parcels-line") &&
+      map.getLayer("bell-parcels-symbol")
+    ) {
+      if (!parcelsVisible) {
+        map.setLayoutProperty("bell-parcels-fill", "visibility", "none");
+        map.setLayoutProperty("bell-parcels-line", "visibility", "none");
+        map.setLayoutProperty("bell-parcels-symbol", "visibility", "none");
+      } else {
+        map.setLayoutProperty("bell-parcels-fill", "visibility", "visible");
+        map.setLayoutProperty("bell-parcels-line", "visibility", "visible");
+        map.setLayoutProperty("bell-parcels-symbol", "visibility", "visible");
+      }
+    }
+  }, [parcelsVisible]); // eslint-disable-line
+
   //filters the table based on the selected radioValues filters
   useEffect(() => {
     if (map !== undefined && map.getLayer("locations")) {
@@ -527,22 +519,14 @@ const DashboardMap = ({
 
   if (error) return "An error has occurred: " + error.message;
 
-  // {drawControl && (
-  //   <>
-  //     <Button
-  //       style={{ zIndex: "10000" }}
-  //       onClick={() => map.removeControl(drawControl)}
-  //     >
-  //       Remove
-  //     </Button>
-  //     <Button
-  //       style={{ zIndex: "10000" }}
-  //       onClick={() => map.addControl(drawControl)}
-  //     >
-  //       Add
-  //     </Button>
-  //   </>
-  // )}
+  const handleClearMeasurements = () => {
+    draw.deleteAll();
+    polygonRef.current.innerHTML = "";
+    radiusRef.current.innerHTML = "";
+    pointRef.current.innerHTML = "";
+    lineRef.current.innerHTML = "";
+    setMeasurementsVisible(false);
+  };
 
   return (
     <>
@@ -550,21 +534,34 @@ const DashboardMap = ({
         {radioValue === "search" && (
           <Search map={map} radioValue={radioValue} />
         )}
+        <ParcelsControl
+          open={parcelsVisible}
+          onToggle={() => setParcelsVisible(!parcelsVisible)}
+        />
+
         <CoordinatesPopup
           coordinatesContainerRef={coordinatesContainerRef}
           longRef={longRef}
           latRef={latRef}
           eleRef={eleRef}
           title="Most recently selected well:"
-          top={radioValue === "search" ? "57px" : "10px"}
         />
         <MeasurementsPopup
           measurementsContainerRef={measurementsContainerRef}
           radiusRef={radiusRef}
           polygonRef={polygonRef}
           pointRef={pointRef}
+          lineRef={lineRef}
+          onHide={() => setMeasurementsVisible(false)}
+          onClear={handleClearMeasurements}
         />
       </MapContainer>
+      {!measurementsVisible && (
+        <MeasurementsControl
+          open={measurementsVisible}
+          onToggle={() => setMeasurementsVisible(!measurementsVisible)}
+        />
+      )}
     </>
   );
 };

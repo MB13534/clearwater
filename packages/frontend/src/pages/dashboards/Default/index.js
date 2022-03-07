@@ -150,7 +150,7 @@ function Default() {
     has_production: "Well Production",
     has_waterlevels: "Water Levels",
     has_wqdata: "Water Quality",
-    search: "Map Wells Search",
+    search: "Wells Search",
   };
 
   const handleRadioChange = (event) => {
