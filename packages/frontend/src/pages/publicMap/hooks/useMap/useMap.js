@@ -78,7 +78,6 @@ const useMap = (ref, mapConfig) => {
   const {
     addBuffersToMap,
     searchRadiusBuffers,
-    controlEnabled: searchRadiusControlEnabled,
     handleControlEnabled: handleEnableSearchRadiusControl,
     handleSearchRadiusBuffersChange: updateSearchRadiusBuffers,
     handleClearSearchRadiusBuffers,
