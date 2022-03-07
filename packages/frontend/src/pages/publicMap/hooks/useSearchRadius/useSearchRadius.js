@@ -101,6 +101,10 @@ function convertRadiusBuffersToArray(radiusBuffers) {
  * associated with the Search Radius control
  * @param {boolean} options.enabled Whether the control is enabled
  * i.e. currently being used/open
+ * These references were helpful when building this out
+ * https://labs.mapbox.com/education/proximity-analysis/selecting-within-a-distance/
+ * http://turfjs.org/docs/#buffer
+ * https://github.com/mapbox/mapbox-gl-js/blob/v1.9.0/CHANGELOG.md
  */
 const useSearchRadius = ({ enabled = false }) => {
   const [controlEnabled, setControlEnabled] = useState(enabled);

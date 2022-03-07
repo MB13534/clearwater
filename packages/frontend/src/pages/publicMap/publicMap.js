@@ -91,6 +91,7 @@ const PublicMap = () => {
     searchRadiusBuffers,
     resetSearchRadiusBuffers,
     handleClearSearchRadiusBuffers,
+    handleEnableSearchRadiusControl,
     updateSearchRadiusBuffers,
     updateLayerFilters,
     updateLayerStyles,
@@ -352,6 +353,7 @@ const PublicMap = () => {
             onBasemapChange={updateBasemap}
             onBufferValuesChange={updateSearchRadiusBuffers}
             onClearBuffers={handleClearSearchRadiusBuffers}
+            onEnableSearchRadiusControl={handleEnableSearchRadiusControl}
             onLayerChange={updateLayerVisibility}
             onResetBuffers={resetSearchRadiusBuffers}
             value={filterValues?.search?.value}

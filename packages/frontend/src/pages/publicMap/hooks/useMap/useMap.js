@@ -79,10 +79,11 @@ const useMap = (ref, mapConfig) => {
     addBuffersToMap,
     searchRadiusBuffers,
     controlEnabled: searchRadiusControlEnabled,
+    handleControlEnabled: handleEnableSearchRadiusControl,
     handleSearchRadiusBuffersChange: updateSearchRadiusBuffers,
     handleClearSearchRadiusBuffers,
     resetSearchRadiusBuffers,
-  } = useSearchRadius({ enabled: true });
+  } = useSearchRadius({ enabled: false });
 
   /**
    * Function responsible for initializing the map
@@ -527,6 +528,7 @@ const useMap = (ref, mapConfig) => {
     zoomLevel,
     searchRadiusBuffers,
     handleClearSearchRadiusBuffers,
+    handleEnableSearchRadiusControl,
     resetSearchRadiusBuffers,
     updateSearchRadiusBuffers,
     updateBasemap,

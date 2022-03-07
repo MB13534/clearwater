@@ -49,12 +49,20 @@ const MainControl = ({
   onClearBuffers,
   onLayerChange,
   onResetBuffers,
+  onEnableSearchRadiusControl,
   value,
 }) => {
   const [expandedItem, setExpandedItem] = useState("layers");
 
   const handleChange = (panel) => (event, isExpanded) => {
     setExpandedItem(isExpanded ? panel : false);
+
+    if (panel === "search-radius") {
+      onEnableSearchRadiusControl(isExpanded);
+      if (!isExpanded) {
+        onClearBuffers();
+      }
+    }
   };
 
   return (
