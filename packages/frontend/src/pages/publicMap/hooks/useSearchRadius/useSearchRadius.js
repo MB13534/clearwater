@@ -42,7 +42,7 @@ const EMPTY_GEOJSON = {
   features: [],
 };
 
-const FEET_TO_MILES = 0.0001893939;
+// const FEET_TO_MILES = 0.0001893939;
 
 /**
  * Generates a GeoJSON circle feature based on the provided
@@ -168,9 +168,9 @@ const useSearchRadius = ({ enabled = false }) => {
         let bufferAmount = +buffer.bufferAmount;
 
         // convert from feet to miles if provided value is in feet
-        if (buffer.units === "feet") {
-          bufferAmount = bufferAmount * FEET_TO_MILES;
-        }
+        // if (buffer.units === "feet") {
+        //   bufferAmount = bufferAmount * FEET_TO_MILES;
+        // }
 
         /**
          * The buffer rings are set up to be additive so we need to
@@ -179,8 +179,11 @@ const useSearchRadius = ({ enabled = false }) => {
         if (index > 0) {
           bufferAmount = +acc[index - 1].bufferAmount + bufferAmount;
         }
-
-        const searchRadius = createRadiusFeature(coordinates, bufferAmount);
+        const searchRadius = createRadiusFeature(
+          coordinates,
+          bufferAmount,
+          buffer.units
+        );
         if (index === 0) {
           acc.push({
             color: buffer.color,
