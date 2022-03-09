@@ -5,7 +5,8 @@ module.exports = {
   source: 'proposed-management-zones',
   'source-layer': 'Proposed_Management_Zones-bd97ag',
   paint: {
-    'line-color': '#87a225',
+    'line-color': 'hsl(60,20%,18%)',
+    'line-width': 3,
   },
   layout: {
     visibility: 'none',

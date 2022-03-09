@@ -2,7 +2,7 @@ import React, { useEffect, useLayoutEffect, useState } from "react";
 import { InputAdornment, TextField as MuiTextField } from "@material-ui/core";
 import SearchIcon from "@material-ui/icons/Search";
 import styled from "styled-components/macro";
-import { WELLS_LAYER_ID } from "../../constants";
+import { WELLS_LABELS_LAYER_ID, WELLS_LAYER_ID } from "../../constants";
 import mapboxgl from "!mapbox-gl"; // eslint-disable-line import/no-webpack-loader-syntax
 import { lineColors } from "../../../../utils";
 
@@ -64,7 +64,19 @@ const CommaSeparatedWellsSearch = ({ map }) => {
   //when the user submits, the wells array gets created
   //when the wells array changes, the filter gets applied
   useEffect(() => {
-    if (map !== undefined && map.getLayer(WELLS_LAYER_ID) && wells) {
+    if (
+      map !== undefined &&
+      map.getLayer(WELLS_LAYER_ID) &&
+      map.getLayer(WELLS_LABELS_LAYER_ID) &&
+      wells
+    ) {
+      map.setFilter(WELLS_LABELS_LAYER_ID, [
+        "match",
+        ["get", "cuwcd_well_number"],
+        ...wells,
+        true,
+        false,
+      ]);
       map.setFilter(WELLS_LAYER_ID, [
         "match",
         ["get", "cuwcd_well_number"],

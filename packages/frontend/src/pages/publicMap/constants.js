@@ -36,6 +36,7 @@ export const INIT_MAP_CONFIG = {
 };
 
 export const WELLS_LAYER_ID = "clearwater-wells-circle";
+export const WELLS_LABELS_LAYER_ID = "clearwater-wells-symbol";
 export const INIT_FILTER_VALUES = {
   aquifers: {
     layerId: WELLS_LAYER_ID,
