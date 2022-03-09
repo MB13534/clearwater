@@ -87,6 +87,11 @@ const PublicMap = () => {
     layers,
     map,
     zoomLevel,
+    searchRadiusBuffers,
+    resetSearchRadiusBuffers,
+    handleClearSearchRadiusBuffers,
+    handleEnableSearchRadiusControl,
+    updateSearchRadiusBuffers,
     updateLayerFilters,
     updateLayerStyles,
     updateLayerVisibility,
@@ -349,9 +354,14 @@ const PublicMap = () => {
           <MainControl
             activeBasemap={activeBasemap}
             basemaps={basemaps}
+            bufferValues={searchRadiusBuffers}
             layers={layers}
             onBasemapChange={updateBasemap}
+            onBufferValuesChange={updateSearchRadiusBuffers}
+            onClearBuffers={handleClearSearchRadiusBuffers}
+            onEnableSearchRadiusControl={handleEnableSearchRadiusControl}
             onLayerChange={updateLayerVisibility}
+            onResetBuffers={resetSearchRadiusBuffers}
             value={filterValues?.search?.value}
           />
         )}
