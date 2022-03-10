@@ -80,7 +80,8 @@ const wellStatusesData = [
 const toGeoJSON = ({data, geometryField}) => {
   return {
     type: 'FeatureCollection',
-    features: data.map((d) => ({
+    features: data.map((d, i) => ({
+      id: i,
       type: 'Feature',
       geometry: d[geometryField],
       properties: (() => {
