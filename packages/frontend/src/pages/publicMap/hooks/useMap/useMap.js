@@ -26,6 +26,7 @@ import { handleCopyCoords, updateArea } from "../../../../utils/map";
 import ResetZoomControl from "../../../../components/map/ResetZoomControl";
 import { isTouchScreenDevice } from "../../../../utils";
 import MapboxGeocoder from "@mapbox/mapbox-gl-geocoder";
+import { useApp } from "../../../../AppProvider";
 
 const mapLogger = new MapLogger({
   enabled: process.env.NODE_ENV === "development",
@@ -50,6 +51,7 @@ const jss = create({
  * see https://docs.mapbox.com/mapbox-gl-js/api/map/
  */
 const useMap = (ref, mapConfig) => {
+  const { currentUser } = useApp();
   const theme = useSelector((state) => state.themeReducer);
   const [map, setMap] = useState(null);
   const [zoomLevel, setZoomLevel] = useState(0);
@@ -330,6 +332,7 @@ const useMap = (ref, mapConfig) => {
               <MuiThemeProvider theme={createTheme(theme.currentTheme)}>
                 <ThemeProvider theme={createTheme(theme.currentTheme)}>
                   <Popup
+                    currentUser={currentUser}
                     layers={layers}
                     setDataVizVisible={setDataVizVisible}
                     setDataVizWellNumber={setDataVizWellNumber}
@@ -366,6 +369,7 @@ const useMap = (ref, mapConfig) => {
     eventsRegistered,
     theme.currentTheme,
     addBuffersToMap,
+    currentUser,
   ]);
 
   /**

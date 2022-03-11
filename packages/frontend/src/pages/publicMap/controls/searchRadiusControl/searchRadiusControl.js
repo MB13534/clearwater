@@ -56,11 +56,11 @@ const SearchRadiusControl = ({
 
   return (
     <Box p={1} mb={2}>
-      <Typography variant="body1">
-        This control can be used to create radius rings to easily identify if
-        features fall within a specified area. To use the tool, click anywhere
-        on the map.
-      </Typography>
+      {/*<Typography variant="body1">*/}
+      {/*  This control can be used to create radius rings to easily identify if*/}
+      {/*  features fall within a specified area. To use the tool, click anywhere*/}
+      {/*  on the map.*/}
+      {/*</Typography>*/}
       <Box my={2} width="100%">
         <Typography variant="subtitle1">Buffers</Typography>
         <form onSubmit={handleClearBuffers}>

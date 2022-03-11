@@ -5,6 +5,7 @@ import parse from "html-react-parser";
 
 import { formatBooleanTrueFalse } from "../../../utils";
 import { isNullOrUndef } from "chart.js/helpers";
+import { titleize } from "inflected";
 import { locationsRowTitles } from "../../../utils/map";
 
 const PopupWrap = styled.div`
@@ -37,30 +38,35 @@ const PopupUl = styled.ul`
 `;
 
 const MainPopup = ({ excludeFields, feature, currentUser }) => {
+  const { properties } = feature;
   return (
     <>
       <PopupWrap>
         <h3>Properties</h3>
         <PopupTable>
           <tbody>
-            {!currentUser.isUser && (
+            {!currentUser.isUser && feature.source === "locations" && (
               <PopupRow>
                 <PopupCell>
                   <strong>Edit Well</strong>
                 </PopupCell>
                 <PopupCell>
-                  <a href={`/models/dm-wells/${feature.id}`}>Link</a>
+                  <a href={`/models/dm-wells/${properties.id}`}>Link</a>
                 </PopupCell>
               </PopupRow>
             )}
-            {Object.entries(feature).map(([k, v]) => {
+            {Object.entries(properties).map(([k, v]) => {
               //excludes 'excludedFields' and all values of "", null, or undefined
               if (excludeFields.includes(k) || v === "" || isNullOrUndef(v))
                 return null;
               return (
                 <PopupRow key={k}>
                   <PopupCell>
-                    <strong>{locationsRowTitles[k]}</strong>
+                    <strong>
+                      {feature.source === "locations"
+                        ? locationsRowTitles[k]
+                        : titleize(k)}
+                    </strong>
                   </PopupCell>
                   <PopupCell>
                     {/*parses html if value starts with <a otherwise value*/}

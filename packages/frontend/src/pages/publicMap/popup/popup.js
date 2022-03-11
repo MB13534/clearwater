@@ -45,6 +45,7 @@ const Popup = ({
   setDataVizGraphType,
   features,
   layers,
+  currentUser,
 }) => {
   const dataVizTypes = {
     count_production: "Production Graph",
@@ -148,20 +149,71 @@ const Popup = ({
       <PopupWrap>
         <PopupTable>
           <tbody>
+            {currentUser?.isAdmin && feature.source === "clearwater-wells" && (
+              <PopupRow>
+                <PopupCell>
+                  <strong>Edit Well</strong>
+                </PopupCell>
+                <PopupCell>
+                  <a href={`/models/dm-wells/${feature?.properties?.id}`}>
+                    Link
+                  </a>
+                </PopupCell>
+              </PopupRow>
+            )}
             {popupData?.map(([key, value]) => {
               return (
                 <PopupRow key={key}>
-                  <PopupCell>{titleize(key)}</PopupCell>
+                  <PopupCell>
+                    <strong>{titleize(key)}</strong>
+                  </PopupCell>
                   <PopupCell>
                     {/*MJB temporary logic to render links
               PROP_ID from Bell CAD Parcels for external id
               list_of_attachments from Clearwater Wells to link attachments
               parse renders string html element into
               */}
-                    {key === "PROP_ID" ? (
+                    {feature?.source === "bell-parcels" && key === "PROP_ID" ? (
                       <a
                         target="_blank"
                         href={`https://esearch.bellcad.org/Property/View/${value}`}
+                        rel="noreferrer"
+                      >
+                        <>{value}</>
+                      </a>
+                    ) : feature?.source === "twdb-groundwater-wells" &&
+                      key === "StateWellNumber" ? (
+                      <div>
+                        <a
+                          target="_blank"
+                          href={`https://www3.twdb.texas.gov/apps/waterdatainteractive//GetReports.aspx?Num=${value}&Type=GWDB`}
+                          rel="noreferrer"
+                        >
+                          <>{value}</>
+                        </a>
+                        {" - "}
+                        <a
+                          target="_blank"
+                          href={`http://s3.amazonaws.com/wellpdfs/documents/${value}/${value}.pdf`}
+                          rel="noreferrer"
+                        >
+                          <>Scanned Documents</>
+                        </a>
+                      </div>
+                    ) : feature?.source === "twdb-well-reports" &&
+                      key === "WellInfoId" ? (
+                      <a
+                        target="_blank"
+                        href={`https://www3.twdb.texas.gov/apps/waterdatainteractive//GetReports.aspx?Num=${value}&Type=SDR-Well`}
+                        rel="noreferrer"
+                      >
+                        <>{value}</>
+                      </a>
+                    ) : feature?.source === "twdb-plugging-reports" &&
+                      key === "PluggingReportTrackingNumber" ? (
+                      <a
+                        target="_blank"
+                        href={`https://www3.twdb.texas.gov/apps/waterdatainteractive//GetReports.aspx?Num=${value}&Type=SDR-Plug`}
                         rel="noreferrer"
                       >
                         <>{value}</>

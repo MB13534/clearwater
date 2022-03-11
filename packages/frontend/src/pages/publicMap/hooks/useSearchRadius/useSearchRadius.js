@@ -270,6 +270,9 @@ const useSearchRadius = ({ enabled = false }) => {
    * @param {object} options.map Mapbox GL map instance to update
    */
   const clearSearchRadiusBuffers = () => {
+    //MJB ADDED THIS CHECK
+    if (!map || !controlEnabled) return;
+
     const radiusBuffersArray = convertRadiusBuffersToArray(searchRadiusBuffers);
 
     radiusBuffersArray.forEach((layer, index) => {

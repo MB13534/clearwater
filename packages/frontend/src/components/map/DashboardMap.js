@@ -38,7 +38,6 @@ import { useApp } from "../../AppProvider";
 import debounce from "lodash.debounce";
 import { isTouchScreenDevice } from "../../utils";
 import Search from "./components/search";
-import Popup from "../../pages/publicMap/popup";
 import { coordinatesGeocoder } from "../../pages/publicMap/hooks/useMap/mapUtils";
 import MeasurementsControl from "../../pages/publicMap/controls/MeasurementsControl";
 import ParcelsControl from "./ParcelsControl";
@@ -335,7 +334,7 @@ const DashboardMap = ({
             "tableData",
           ];
 
-          let feature = e.features[0].properties;
+          let feature = e.features[0];
 
           const popupNode = document.createElement("div");
           ReactDOM.render(
@@ -380,7 +379,6 @@ const DashboardMap = ({
             popupLayerIds.includes(features[0].layer.id)
           ) {
             const feature = features[0];
-            const popup = {};
 
             // create popup node
             const popupNode = document.createElement("div");
@@ -389,10 +387,10 @@ const DashboardMap = ({
               <StylesProvider jss={jss}>
                 <MuiThemeProvider theme={createTheme(theme.currentTheme)}>
                   <ThemeProvider theme={createTheme(theme.currentTheme)}>
-                    <Popup
-                      excludeFields={popup?.excludeFields}
+                    <MainPopup
+                      excludeFields={[]}
                       feature={feature}
-                      titleField={popup?.titleField}
+                      currentUser={currentUser}
                     />
                   </ThemeProvider>
                 </MuiThemeProvider>
