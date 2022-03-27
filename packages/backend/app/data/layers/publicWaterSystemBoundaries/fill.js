@@ -5,7 +5,8 @@ module.exports = {
   source: 'public-water-system-boundaries',
   'source-layer': 'PublicWaterSystem_Boundaries-85nriy',
   paint: {
-    'fill-color': 'hsla(240, 96%, 60%, 0.1)',
+    'fill-color': 'hsl(240, 96%, 60%)',
+    'fill-opacity': 0.1,
   },
   layout: {
     visibility: 'none',

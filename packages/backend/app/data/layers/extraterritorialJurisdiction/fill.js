@@ -5,7 +5,8 @@ module.exports = {
   source: 'extraterritorial-jurisdiction',
   'source-layer': 'Extraterritorial_Jurisdiction-1fwi5b',
   paint: {
-    'fill-color': 'hsla(73,100%,38%, .1)',
+    'fill-color': 'hsl(73,100%,38%)',
+    'fill-opacity': 0.1,
   },
   layout: {
     visibility: 'none',

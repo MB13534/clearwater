@@ -5,7 +5,8 @@ module.exports = {
   source: 'bell-county-boundary',
   'source-layer': 'Bell_CAD_County_Boundary-5z61n9',
   paint: {
-    'fill-color': 'hsla(330,53%,53%, 0.32)',
+    'fill-color': 'hsl(330,53%,53%)',
+    'fill-opacity': 0.32,
   },
   layout: {
     visibility: 'none',

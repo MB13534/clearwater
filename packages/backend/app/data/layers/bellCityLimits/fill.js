@@ -5,7 +5,8 @@ module.exports = {
   source: 'bell-city-limits',
   'source-layer': 'Bell_CAD_City_Limits-141v43',
   paint: {
-    'fill-color': 'hsla(264,100%,65%, 0.32)',
+    'fill-color': 'hsl(264,100%,65%)',
+    'fill-opacity': 0.32,
   },
   layout: {
     visibility: 'none',

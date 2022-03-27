@@ -509,6 +509,26 @@ const useMap = (ref, mapConfig) => {
     }
   };
 
+  const updateLayerOpacity = ({ id, opacity }) => {
+    if (!!map) {
+      const updatedLayers = layers.map((layer) => {
+        if (!!map.getLayer(id) && layer.id === id) {
+          map.setPaintProperty(id, "fill-opacity", opacity);
+          return {
+            ...layer,
+            paint: {
+              ...layer?.paint,
+              "fill-opacity": opacity,
+            },
+          };
+        }
+        return layer;
+      });
+      setLayers(updatedLayers);
+      mapLogger.log(`Opacity set to ${opacity} for the ${id} layer`);
+    }
+  };
+
   const updateBasemap = (style) => {
     map?.setStyle(style.url);
 
@@ -565,6 +585,7 @@ const useMap = (ref, mapConfig) => {
     updateLayerFilters,
     updateLayerStyles,
     updateLayerVisibility,
+    updateLayerOpacity,
     measurementsVisible,
     setMeasurementsVisible,
     polygonRef,

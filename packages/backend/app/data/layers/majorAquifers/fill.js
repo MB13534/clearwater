@@ -4,8 +4,9 @@ module.exports = {
   type: 'fill',
   source: 'major-aquifers',
   'source-layer': 'Aquifers_major_dd-1n355v',
+  drawOrder: 100,
   paint: {
-    'fill-opacity': 0.65,
+    'fill-opacity': 0.3,
     'fill-color': [
       'match',
       ['get', 'AqName'],

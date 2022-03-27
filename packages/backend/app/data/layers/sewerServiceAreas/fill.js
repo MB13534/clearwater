@@ -5,7 +5,8 @@ module.exports = {
   source: 'sewer-service-areas',
   'source-layer': 'CCN_SEWER_GCS_PUC-7mos8f',
   paint: {
-    'fill-color': 'hsla(37, 88%, 45%, 0.18)',
+    'fill-color': 'hsl(37, 88%, 45%)',
+    'fill-opacity': 0.18,
   },
   layout: {
     visibility: 'none',

@@ -5,7 +5,8 @@ module.exports = {
   source: 'fema-flood-plains-bell',
   'source-layer': 'FEMA_Bell_S_FLD_HAZ_AR-437w4k',
   paint: {
-    'fill-color': 'hsla(217, 80%, 70%, 0.38)',
+    'fill-color': 'hsl(217, 80%, 70%)',
+    'fill-opacity': 0.38,
   },
   layout: {
     visibility: 'none',

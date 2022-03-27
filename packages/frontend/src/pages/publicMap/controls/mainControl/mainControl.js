@@ -48,6 +48,7 @@ const MainControl = ({
   onBufferValuesChange,
   onClearBuffers,
   onLayerChange,
+  onOpacityChange,
   onResetBuffers,
   onEnableSearchRadiusControl,
   value,
@@ -103,7 +104,11 @@ const MainControl = ({
           </Box>
         </AccordionSummary>
         <AccordionDetails>
-          <LayersControl items={layers} onLayerChange={onLayerChange} />
+          <LayersControl
+            items={layers}
+            onLayerChange={onLayerChange}
+            onOpacityChange={onOpacityChange}
+          />
         </AccordionDetails>
       </Accordion>
       <Accordion

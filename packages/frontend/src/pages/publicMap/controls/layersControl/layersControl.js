@@ -7,12 +7,17 @@ import {
   ListItem,
   ListItemText,
   ListItemSecondaryAction,
-  Typography,
+  Slider,
+  Typography as MuiTypography,
 } from "@material-ui/core";
 // import SearchIcon from "@material-ui/icons/Search";
 
 import ExpandMore from "@material-ui/icons/ExpandMore";
 import ChevronRight from "@material-ui/icons/ChevronRight";
+import styled from "styled-components/macro";
+import { spacing } from "@material-ui/system";
+
+const Typography = styled(MuiTypography)(spacing);
 
 /**
  * Utility used to translate a Mapbox paint style
@@ -90,7 +95,40 @@ const LegendSymbol = ({ color }) => (
 const LayerLegendIcon = ({ open }) =>
   open ? <ExpandMore /> : <ChevronRight />;
 
-const LayerLegend = ({ item, open }) => {
+const handleSliderChange = (event, newValue, item, onOpacityChange) => {
+  const itemId = item.id;
+
+  onOpacityChange({
+    id: itemId,
+    opacity: parseInt(newValue, 10) / 100,
+  });
+};
+
+const LayerSlider = ({ item, onOpacityChange }) => {
+  const layerFillOpacity =
+    item?.type === "fill" &&
+    (item?.paint["fill-opacity"] === 0 || item?.paint["fill-opacity"])
+      ? item?.paint["fill-opacity"]
+      : null;
+
+  return layerFillOpacity || layerFillOpacity === 0 ? (
+    <Box mb={-2}>
+      <Typography id="fill-opacity" mt={1} mb={-1}>
+        Fill Opacity
+      </Typography>
+      <Slider
+        valueLabelDisplay="auto"
+        value={+(item.paint["fill-opacity"] * 100).toFixed(0)}
+        onChange={(event, newValue) =>
+          handleSliderChange(event, newValue, item, onOpacityChange)
+        }
+        aria-labelledby="continuous-slider"
+      />
+    </Box>
+  ) : null;
+};
+
+const LayerLegend = ({ item, open, onOpacityChange }) => {
   if (!open) return null;
   const legendItems = getLegendOptions(item);
   return (
@@ -103,6 +141,7 @@ const LayerLegend = ({ item, open }) => {
           </Typography>
         </Box>
       ))}
+      <LayerSlider item={item} onOpacityChange={onOpacityChange} />
     </Box>
   );
 };
@@ -111,7 +150,7 @@ const LayerLegend = ({ item, open }) => {
  * TODOS
  * [] Add support for layers search
  */
-const LayersControl = ({ items, onLayerChange }) => {
+const LayersControl = ({ items, onLayerChange, onOpacityChange }) => {
   const [expandedItems, setExpandedItems] = useState(["Clearwater Wells"]);
 
   /**
@@ -213,7 +252,11 @@ const LayersControl = ({ items, onLayerChange }) => {
                     </IconButton>
                   </ListItemSecondaryAction>
                 </ListItem>
-                <LayerLegend open={open} item={item} />
+                <LayerLegend
+                  open={open}
+                  item={item}
+                  onOpacityChange={onOpacityChange}
+                />
               </Box>
             );
           })}

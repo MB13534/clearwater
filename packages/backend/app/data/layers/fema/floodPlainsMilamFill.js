@@ -5,7 +5,8 @@ module.exports = {
   source: 'fema-flood-plains-milam',
   'source-layer': 'FEMA_Milam_S_FLD_HAZ_AR-ckbcnb',
   paint: {
-    'fill-color': 'hsla(217, 80%, 70%, 0.38)',
+    'fill-color': 'hsl(217, 80%, 70%)',
+    'fill-opacity': 0.38,
   },
   layout: {
     visibility: 'none',
