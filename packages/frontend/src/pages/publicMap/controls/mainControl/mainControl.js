@@ -60,9 +60,8 @@ const MainControl = ({
 
     if (panel === "search-radius") {
       onEnableSearchRadiusControl(isExpanded);
-      if (!isExpanded) {
-        onClearBuffers();
-      }
+    } else {
+      onEnableSearchRadiusControl(false);
     }
   };
 
@@ -122,7 +121,7 @@ const MainControl = ({
         >
           <Box alignItems="center" display="flex" gridColumnGap={8}>
             <SearchRadiusIcon />
-            <Typography variant="subtitle1">Search Radius Control</Typography>
+            <Typography variant="subtitle1">Search Radius Tool</Typography>
           </Box>
         </AccordionSummary>
         <AccordionDetails>

@@ -14,7 +14,7 @@ const INIT_SEARCH_RADIUS_BUFFERS = {
   buffer1: {
     color: "#bf810f",
     layerIdPrefix: "search-circle-radius",
-    bufferAmount: 2,
+    bufferAmount: 0.25,
     units: "miles",
   },
   buffer2: {
@@ -41,8 +41,6 @@ const EMPTY_GEOJSON = {
   type: "FeatureCollection",
   features: [],
 };
-
-// const FEET_TO_MILES = 0.0001893939;
 
 /**
  * Generates a GeoJSON circle feature based on the provided
@@ -166,19 +164,15 @@ const useSearchRadius = ({ enabled = false }) => {
     const searchRadiusLayers = radiusBuffersArray.reduce(
       (acc, buffer, index) => {
         let bufferAmount = +buffer.bufferAmount;
-
-        // convert from feet to miles if provided value is in feet
-        // if (buffer.units === "feet") {
-        //   bufferAmount = bufferAmount * FEET_TO_MILES;
-        // }
-
         /**
          * The buffer rings are set up to be additive so we need to
          * make sure we reflect that in the math
          */
-        if (index > 0) {
-          bufferAmount = +acc[index - 1].bufferAmount + bufferAmount;
-        }
+
+        //MJB removed to make each circle from the center, rather than additive
+        // if (index > 0) {
+        //   bufferAmount = +acc[index - 1].bufferAmount + bufferAmount;
+        // }
         const searchRadius = createRadiusFeature(
           coordinates,
           bufferAmount,
