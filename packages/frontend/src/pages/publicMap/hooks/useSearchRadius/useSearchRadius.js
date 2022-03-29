@@ -111,6 +111,13 @@ const useSearchRadius = ({ enabled = false }) => {
   const [searchRadiusBuffers, setSearchRadiusBuffers] = useState(
     INIT_SEARCH_RADIUS_BUFFERS
   );
+  const [geojson, setGeojson] = useState({
+    type: "FeatureCollection",
+    name: "search-radius-tool-layers",
+    features: [],
+  });
+
+  console.log(geojson);
 
   /**
    * Event handler dedicated to updating the search radius
@@ -202,7 +209,16 @@ const useSearchRadius = ({ enabled = false }) => {
       []
     );
 
+    setGeojson((prevState) => {
+      const updated = { ...prevState };
+      updated.features.push(searchRadiusLayers);
+      updated.features = updated.features.flat();
+      return updated;
+    });
+
     /**
+     * TODO make sure to grab the existing layers in addition to the new
+     * ones that just got added and loop through and add them to map
      * Set the data for the layer associated with each buffer circle
      * to the generated feature
      */
