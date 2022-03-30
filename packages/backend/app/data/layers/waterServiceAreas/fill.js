@@ -5,7 +5,8 @@ module.exports = {
   source: 'water-service-areas',
   'source-layer': 'CCN_WATER_GCS_PUC-7ukl7v',
   paint: {
-    'fill-color': 'hsla(200, 93%, 58%, 0.18)',
+    'fill-color': 'hsl(200, 93%, 58%)',
+    'fill-opacity': 0.18,
   },
   layout: {
     visibility: 'none',

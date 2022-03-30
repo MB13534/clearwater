@@ -94,6 +94,8 @@ function convertRadiusBuffersToArray(radiusBuffers) {
   );
 }
 
+let cumulativeBuffers = {};
+
 /**
  * Custom React hook used to manage all of the state
  * associated with the Search Radius control
@@ -111,13 +113,6 @@ const useSearchRadius = ({ enabled = false }) => {
   const [searchRadiusBuffers, setSearchRadiusBuffers] = useState(
     INIT_SEARCH_RADIUS_BUFFERS
   );
-  const [geojson, setGeojson] = useState({
-    type: "FeatureCollection",
-    name: "search-radius-tool-layers",
-    features: [],
-  });
-
-  console.log(geojson);
 
   /**
    * Event handler dedicated to updating the search radius
@@ -153,7 +148,7 @@ const useSearchRadius = ({ enabled = false }) => {
   const drawSearchRadiusBuffers = ({ coordinates, map }) => {
     if (!map || !controlEnabled) return;
 
-    clearSearchRadiusBuffers({ map });
+    // clearSearchRadiusBuffers({ map });
 
     /**
      * Convert the search radius buffers state value associated with
@@ -209,13 +204,6 @@ const useSearchRadius = ({ enabled = false }) => {
       []
     );
 
-    setGeojson((prevState) => {
-      const updated = { ...prevState };
-      updated.features.push(searchRadiusLayers);
-      updated.features = updated.features.flat();
-      return updated;
-    });
-
     /**
      * TODO make sure to grab the existing layers in addition to the new
      * ones that just got added and loop through and add them to map
@@ -223,14 +211,33 @@ const useSearchRadius = ({ enabled = false }) => {
      * to the generated feature
      */
     searchRadiusLayers.forEach((layer, index) => {
-      map
-        .getSource(`${layer.layerIdPrefix}-fill-${index + 1}`)
-        .setData(layer.data);
+      if (!cumulativeBuffers[`${layer.layerIdPrefix}-fill-${index + 1}`]) {
+        cumulativeBuffers[`${layer.layerIdPrefix}-fill-${index + 1}`] = [
+          layer.data,
+        ];
+        cumulativeBuffers[`${layer.layerIdPrefix}-line-${index + 1}`] = [
+          layer.data,
+        ];
+      } else {
+        cumulativeBuffers[`${layer.layerIdPrefix}-fill-${index + 1}`].push(
+          layer.data
+        );
+        cumulativeBuffers[`${layer.layerIdPrefix}-line-${index + 1}`].push(
+          layer.data
+        );
+      }
+
+      map.getSource(`${layer.layerIdPrefix}-fill-${index + 1}`).setData({
+        type: "FeatureCollection",
+        features: cumulativeBuffers[`${layer.layerIdPrefix}-fill-${index + 1}`],
+      });
 
       if (index > 0 && searchRadiusLayers?.length > 1) {
-        map
-          .getSource(`${layer.layerIdPrefix}-line-${index + 1}`)
-          .setData(layer.data);
+        map.getSource(`${layer.layerIdPrefix}-line-${index + 1}`).setData({
+          type: "FeatureCollection",
+          features:
+            cumulativeBuffers[`${layer.layerIdPrefix}-line-${index + 1}`],
+        });
       }
     });
 
@@ -284,6 +291,7 @@ const useSearchRadius = ({ enabled = false }) => {
     if (!map || !controlEnabled) return;
 
     const radiusBuffersArray = convertRadiusBuffersToArray(searchRadiusBuffers);
+    cumulativeBuffers = {};
 
     radiusBuffersArray.forEach((layer, index) => {
       map
