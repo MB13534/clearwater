@@ -1,6 +1,7 @@
 module.exports = {
   id: 'fema-base-flood-elevation-burnet-symbol',
-  name: 'FEMA',
+  name: 'FEMA Flood Elevations',
+  drawOrder: 100,
   type: 'symbol',
   source: 'fema-base-flood-elevation-burnet',
   'source-layer': 'FEMA_Burnet_S_BFE-4ws3y2',

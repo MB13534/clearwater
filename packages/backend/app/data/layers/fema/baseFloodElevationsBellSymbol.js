@@ -1,6 +1,7 @@
 module.exports = {
   id: 'fema-base-flood-elevation-bell-symbol',
-  name: 'FEMA',
+  name: 'FEMA Flood Elevations',
+  drawOrder: 100,
   type: 'symbol',
   source: 'fema-base-flood-elevation-bell',
   'source-layer': 'FEMA_Bell_S_BFE-3gheia',

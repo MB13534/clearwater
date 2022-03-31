@@ -1,6 +1,7 @@
 module.exports = {
   id: 'fema-base-flood-elevation-milam-line',
-  name: 'FEMA',
+  name: 'FEMA Flood Elevations',
+  drawOrder: 100,
   type: 'line',
   source: 'fema-base-flood-elevation-milam',
   'source-layer': 'FEMA_Milam_S_BFE-2wkgfk',

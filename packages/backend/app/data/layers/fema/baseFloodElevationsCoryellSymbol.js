@@ -1,6 +1,7 @@
 module.exports = {
   id: 'fema-base-flood-elevation-coryell-symbol',
-  name: 'FEMA',
+  name: 'FEMA Flood Elevations',
+  drawOrder: 100,
   type: 'symbol',
   source: 'fema-base-flood-elevation-coryell',
   'source-layer': 'FEMA_Coryell_S_BFE-8n07in',

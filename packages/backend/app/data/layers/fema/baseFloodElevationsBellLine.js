@@ -1,7 +1,8 @@
 module.exports = {
   id: 'fema-base-flood-elevation-bell-line',
-  name: 'FEMA',
+  name: 'FEMA Flood Elevations',
   type: 'line',
+  drawOrder: 100,
   source: 'fema-base-flood-elevation-bell',
   'source-layer': 'FEMA_Bell_S_BFE-3gheia',
   paint: {
