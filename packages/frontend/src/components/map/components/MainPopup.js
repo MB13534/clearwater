@@ -38,20 +38,26 @@ const PopupUl = styled.ul`
 `;
 
 const MainPopup = ({ excludeFields, feature, currentUser }) => {
-  const { properties } = feature;
+  const properties = feature?.properties || feature;
   return (
     <>
       <PopupWrap>
         <h3>Properties</h3>
         <PopupTable>
           <tbody>
-            {!currentUser.isUser && feature.source === "locations" && (
+            {!currentUser?.isUser && properties.cuwcd_well_number && (
               <PopupRow>
                 <PopupCell>
                   <strong>Edit Well</strong>
                 </PopupCell>
                 <PopupCell>
-                  <a href={`/models/dm-wells/${properties.id}`}>Link</a>
+                  <a
+                    href={`/models/dm-wells/${properties.id}`}
+                    target="_blank"
+                    rel="noreferrer noopener"
+                  >
+                    Link
+                  </a>
                 </PopupCell>
               </PopupRow>
             )}

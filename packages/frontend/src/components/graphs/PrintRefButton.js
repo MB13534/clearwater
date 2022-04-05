@@ -3,32 +3,35 @@ import React, { forwardRef } from "react";
 import { withTheme } from "styled-components/macro";
 import { Tooltip as MuiTooltip } from "@material-ui/core";
 import IconButton from "@material-ui/core/IconButton";
-import SaveIcon from "@material-ui/icons/Save";
+import PrintIcon from "@material-ui/icons/Print";
 import { spacing } from "@material-ui/system";
 
 import styled from "styled-components/macro";
 
-import { downloadRef } from "../../utils";
+import { useReactToPrint } from "react-to-print";
 
 const Tooltip = styled(MuiTooltip)(spacing);
 
-const SaveRefButton = forwardRef(({ theme, title }, ref) => {
+const PrintRefButton = forwardRef(({ theme, title }, ref) => {
+  const handlePrintMapClick = useReactToPrint({
+    content: () => ref.current,
+  });
   return (
-    <Tooltip title="Save PNG" arrow ml={2}>
+    <Tooltip title="Print PDF" arrow ml={2}>
       <IconButton
-        onClick={() => downloadRef(title, "png", ref)}
+        onClick={() => handlePrintMapClick()}
         style={{
           color:
             theme.palette.type === "dark"
               ? "rgba(255, 255, 255, 0.5)"
               : "rgb(117, 117, 117)",
         }}
-        aria-label="download graph"
+        aria-label="print graph"
         component="span"
       >
-        <SaveIcon />
+        <PrintIcon />
       </IconButton>
     </Tooltip>
   );
 });
-export default withTheme(SaveRefButton);
+export default withTheme(PrintRefButton);

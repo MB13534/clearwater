@@ -5,8 +5,8 @@ import React from "react";
 import styled from "styled-components/macro";
 import { Chip as MuiChip } from "@material-ui/core";
 import { spacing } from "@material-ui/system";
-import html2canvas from "html2canvas";
 import { add } from "date-fns";
+import * as htmlToImage from "html-to-image";
 
 export const scrollWindowToTop = (smooth = true) => {
   window.scrollTo({ top: 0, behavior: smooth ? "smooth" : "auto" });
@@ -43,39 +43,72 @@ export const formatBooleanTrueFalse = (value) => {
   return "No";
 };
 
-export const downloadChartImage = (title, extension, ref) => {
-  const base64 = ref.current.toBase64Image();
-  const downloadLink = document.createElement("a");
-  downloadLink.href = base64;
-  downloadLink.download = `${title} ${dateFormatter(
-    new Date(),
-    "MM/DD/YYYY, h:mm A"
-  )}.${extension}`;
-  downloadLink.click();
+// export const downloadChartImage = (title, extension, ref) => {
+//   const base64 = ref.current.toBase64Image();
+//   const downloadLink = document.createElement("a");
+//   downloadLink.href = base64;
+//   downloadLink.download = `${title} ${dateFormatter(
+//     new Date(),
+//     "MM/DD/YYYY, h:mm A"
+//   )}.${extension}`;
+//   downloadLink.click();
+// };
+//
+// export const downloadRef = (title, extension, ref) => {
+//   html2canvas(ref.current, { allowTaint: true }).then(function (canvas) {
+//     let link = document.createElement("a");
+//
+//     if (typeof link.download === "string") {
+//       link.href = canvas.toDataURL();
+//       link.download = `${title} ${dateFormatter(
+//         new Date(),
+//         "MM/DD/YYYY, h:mm A"
+//       )}.${extension}`;
+//
+//       //Firefox requires the link to be in the body
+//       document.body.appendChild(link);
+//
+//       //simulate click
+//       link.click();
+//
+//       //remove the link when done
+//       document.body.removeChild(link);
+//     } else {
+//       window.open(link.href);
+//     }
+//   });
+// };
+
+const saveAs = (blob, fileName) => {
+  var elem = window.document.createElement("a");
+  elem.href = blob;
+  elem.download = fileName;
+  elem.style = "display:none;";
+  (document.body || document.documentElement).appendChild(elem);
+  if (typeof elem.click === "function") {
+    elem.click();
+  } else {
+    elem.target = "_blank";
+    elem.dispatchEvent(
+      new MouseEvent("click", {
+        view: window,
+        bubbles: true,
+        cancelable: true,
+      })
+    );
+  }
+  URL.revokeObjectURL(elem.href);
+  elem.remove();
 };
 
+//todo debug all the errors that this causes
 export const downloadRef = (title, extension, ref) => {
-  html2canvas(ref.current).then(function (canvas) {
-    let link = document.createElement("a");
-
-    if (typeof link.download === "string") {
-      link.href = canvas.toDataURL();
-      link.download = `${title} ${dateFormatter(
-        new Date(),
-        "MM/DD/YYYY, h:mm A"
-      )}.${extension}`;
-
-      //Firefox requires the link to be in the body
-      document.body.appendChild(link);
-
-      //simulate click
-      link.click();
-
-      //remove the link when done
-      document.body.removeChild(link);
-    } else {
-      window.open(link.href);
-    }
+  htmlToImage.toPng(ref.current).then(function (canvas) {
+    const newTitle = `${title} ${dateFormatter(
+      new Date(),
+      "MM/DD/YYYY, h:mm A"
+    )}.${extension}`;
+    saveAs(canvas, newTitle);
   });
 };
 

@@ -61,6 +61,8 @@ const useMap = (ref, mapConfig) => {
   const [dataVizWellNumber, setDataVizWellNumber] = useState(null);
   const [dataVizGraphType, setDataVizGraphType] = useState(null);
   const [measurementsVisible, setMeasurementsVisible] = useState(false);
+  const [virtualBoreCoordinates, setVirtualBoreCoordinates] = useState(null);
+  const [virtualBoreVisible, setVirtualBoreVisible] = useState(false);
 
   const [eventsRegistered, setEventsRegistered] = useState(false);
   const popUpRef = useRef(
@@ -297,6 +299,11 @@ const useMap = (ref, mapConfig) => {
       });
 
       map.on("click", (e) => {
+        setVirtualBoreCoordinates({
+          lat: e.lngLat.lat,
+          lon: e.lngLat.lng,
+        });
+
         const features = map.queryRenderedFeatures(e.point);
 
         addBuffersToMap({
@@ -601,6 +608,10 @@ const useMap = (ref, mapConfig) => {
     dataVizGraphType,
     setDataVizGraphType,
     eventsRegistered,
+    virtualBoreCoordinates,
+    setVirtualBoreCoordinates,
+    virtualBoreVisible,
+    setVirtualBoreVisible,
   };
 };
 

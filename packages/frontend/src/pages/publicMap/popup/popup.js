@@ -155,7 +155,11 @@ const Popup = ({
                   <strong>Edit Well</strong>
                 </PopupCell>
                 <PopupCell>
-                  <a href={`/models/dm-wells/${feature?.properties?.id}`}>
+                  <a
+                    href={`/models/dm-wells/${feature?.properties?.id}`}
+                    target="_blank"
+                    rel="noreferrer noopener"
+                  >
                     Link
                   </a>
                 </PopupCell>

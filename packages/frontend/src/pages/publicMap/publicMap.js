@@ -31,9 +31,8 @@ import { useReactToPrint } from "react-to-print";
 import PrintMapFormat from "./components/PrintMapFormat";
 import SplitButton from "../../components/SplitButton";
 import MeasurementsControl from "./controls/MeasurementsControl";
-// import { useQuery } from "react-query";
-// import { findRawRecords } from "../../services/crudService";
-// import useService from "../../hooks/useService";
+import VirtualBoreControl from "./controls/virtualBoreControl";
+import VirtualBore from "./components/VirtualBore";
 
 const FiltersBar = styled(Paper)`
   align-items: center;
@@ -83,7 +82,6 @@ const getMoreFiltersCount = (filterValues) => {
 };
 
 const PublicMap = () => {
-  // const service = useService();
   const mapContainer = useRef(null);
   const {
     activeBasemap,
@@ -114,6 +112,10 @@ const PublicMap = () => {
     dataVizWellNumber,
     dataVizGraphType,
     eventsRegistered,
+    virtualBoreVisible,
+    setVirtualBoreVisible,
+    virtualBoreCoordinates,
+    setVirtualBoreCoordinates,
   } = useMap(mapContainer, INIT_MAP_CONFIG);
   const {
     filterValues,
@@ -153,26 +155,6 @@ const PublicMap = () => {
       handleSavePNG();
     }
   };
-
-  // const { data, isLoading, error } = useQuery(
-  //   ["UiVirtualBoreDataRecords"],
-  //   async () => {
-  //     try {
-  //       const response = await service([
-  //         findRawRecords,
-  //         ["UiVirtualBoreDataRecords"],
-  //       ]);
-  //       console.log(response);
-  //       return response;
-  //     } catch (err) {
-  //       console.error(err);
-  //     }
-  //   },
-  //   {
-  //     keepPreviousData: true,
-  //     refetchOnWindowFocus: false,
-  //   }
-  // );
 
   return (
     <>
@@ -398,6 +380,17 @@ const PublicMap = () => {
         {/*  open={dataVizVisible}*/}
         {/*  onClose={() => setDataVizVisible(!dataVizVisible)}*/}
         {/*/>*/}
+        <VirtualBoreControl
+          open={virtualBoreVisible}
+          onClose={() => setVirtualBoreVisible(!virtualBoreVisible)}
+        />
+        <VirtualBore
+          open={virtualBoreVisible}
+          coordinates={virtualBoreCoordinates}
+          setCoordinates={setVirtualBoreCoordinates}
+          onClose={() => setVirtualBoreVisible(false)}
+          map={map}
+        />
         <DataViz
           open={dataVizVisible}
           dataVizWellNumber={dataVizWellNumber}

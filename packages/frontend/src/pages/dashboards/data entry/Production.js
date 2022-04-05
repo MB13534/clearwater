@@ -1121,6 +1121,8 @@ function Production() {
                                 component={NavLink}
                                 exact
                                 to={"/models/dm-wells/" + rowData.id}
+                                target="_blank"
+                                rel="noreferrer noopener"
                               >
                                 <Edit />
                               </Link>

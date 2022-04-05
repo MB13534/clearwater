@@ -10,6 +10,7 @@ import {
   Card,
   CardHeader,
   Tooltip,
+  Paper,
 } from "@material-ui/core";
 import styled, { keyframes } from "styled-components";
 import axios from "axios";
@@ -548,7 +549,7 @@ const DataViz = ({
             {Boolean(filteredMutatedGraphData) ? (
               <Grid container spacing={6}>
                 <Grid item xs={12}>
-                  <div ref={divSaveRef}>
+                  <Paper ref={divSaveRef}>
                     <TitleContainer>
                       {formatTableTitle(
                         currentTableLabel,
@@ -681,7 +682,7 @@ const DataViz = ({
                         />
                       </TimeseriesWrapper>
                     </TimeseriesContainer>
-                  </div>
+                  </Paper>
                 </Grid>
               </Grid>
             ) : (
