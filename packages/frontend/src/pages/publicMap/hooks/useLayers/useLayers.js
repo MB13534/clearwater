@@ -10,7 +10,8 @@ const useLayers = () => {
   const { isAuthenticated, getAccessTokenSilently } = useAuth0();
 
   const { data, isError, isLoading } = useQuery(
-    ["Layers"],
+    ["Layers", isAuthenticated],
+
     async () => {
       let headers = {};
       if (isAuthenticated) {
