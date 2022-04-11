@@ -63,6 +63,8 @@ import { create } from "jss";
 import { useSelector } from "react-redux";
 import OptionsPicker from "../../../components/pickers/OptionsPicker";
 import NumberFormat from "react-number-format";
+import { DateTimePicker, MuiPickersUtilsProvider } from "@material-ui/pickers";
+import DateFnsUtils from "@date-io/date-fns";
 
 const jss = create({
   ...jssPreset(),
@@ -549,12 +551,30 @@ function WaterQuality() {
       field: "test_datetime",
       initialEditValue: new Date(),
       type: "datetime",
+      editComponent: (props) => (
+        <MuiPickersUtilsProvider
+          utils={DateFnsUtils}
+          // locale={props.dateTimePickerLocalization}
+        >
+          <DateTimePicker
+            format="MM/dd/yyyy, h:mm a"
+            value={props.value || null}
+            onChange={props.onChange}
+            clearable
+            InputProps={{
+              style: {
+                fontSize: 13,
+              },
+            }}
+          />
+        </MuiPickersUtilsProvider>
+      ),
       render: (rowData) => {
         return dateFormatter(rowData.test_datetime, "MM/DD/YYYY, h:mm A");
       },
       cellStyle: {
-        width: 175,
-        minWidth: 175,
+        width: 300,
+        minWidth: 300,
       },
       validate: (rowData) =>
         !rowData.test_datetime
