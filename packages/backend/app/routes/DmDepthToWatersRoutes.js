@@ -21,7 +21,7 @@ router.get('/', (req, res, next) => {
 
 router.post('/:ndx', (req, res, next) => {
   const where = {};
-  where.ndx = req.params.ndx;
+  where.cuwcd_well_number = req.params.ndx;
   model
     .findAll({where})
     .then((data) => {

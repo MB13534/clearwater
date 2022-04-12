@@ -1,14 +1,9 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { useQuery } from "react-query";
-import { NavLink } from "react-router-dom";
-import { Helmet } from "react-helmet-async";
 import DateFnsUtils from "@date-io/date-fns";
 import axios from "axios";
 import { useAuth0 } from "@auth0/auth0-react";
 
-import useService from "../../../hooks/useService";
 import { useApp } from "../../../AppProvider";
-import { findRawRecords } from "../../../services/crudService";
 
 import MaterialTable from "material-table";
 import {
@@ -18,13 +13,8 @@ import {
 import { Autocomplete } from "@material-ui/lab";
 import styled from "styled-components/macro";
 import { spacing } from "@material-ui/system";
-import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import CopyIcon from "@material-ui/icons/FileCopy";
 import {
-  Accordion,
-  AccordionDetails,
-  Breadcrumbs as MuiBreadcrumbs,
-  Divider as MuiDivider,
   FormControl as MuiFormControl,
   FormControlLabel,
   FormLabel,
@@ -33,9 +23,7 @@ import {
   Radio,
   RadioGroup,
   TextField,
-  Link,
   Button,
-  AccordionSummary,
   Typography as MuiTypography,
 } from "@material-ui/core";
 
@@ -43,9 +31,7 @@ import Panel from "../../../components/panels/Panel";
 import Loader from "../../../components/Loader";
 import { copyToClipboard, dateFormatter } from "../../../utils";
 
-const Divider = styled(MuiDivider)(spacing);
 const Grid = styled(MuiGrid)(spacing);
-const Breadcrumbs = styled(MuiBreadcrumbs)(spacing);
 const Typography = styled(MuiTypography)(spacing);
 
 const TableWrapper = styled.div`
@@ -59,8 +45,7 @@ const FormControl = styled(MuiFormControl)`
   width: 100%;
 `;
 
-function WaterLevels() {
-  const service = useService({ toast: false });
+const WaterLevels = ({ data, wellData, currentSelectedPoint }) => {
   const { doToast, lookupTableCache } = useApp();
   const { getAccessTokenSilently } = useAuth0();
 
@@ -82,6 +67,12 @@ function WaterLevels() {
     qtr_mile_wells_exist: null,
     static_water_level_ft: null,
   };
+
+  useEffect(() => {
+    if (currentSelectedPoint) {
+      setSelectedRow(null);
+    }
+  }, [currentSelectedPoint]);
 
   const handleUpdateSelectedRow = (name, value) => {
     const prevState = { ...selectedRow };
@@ -127,22 +118,6 @@ function WaterLevels() {
     setSelectedRow(prevState);
   };
 
-  const { data } = useQuery(
-    ["DmDepthToWaters"],
-    async () => {
-      try {
-        const response = await service([findRawRecords, ["DmDepthToWaters"]]);
-        return response;
-      } catch (err) {
-        console.error(err);
-      }
-    },
-    {
-      keepPreviousData: true,
-      refetchOnWindowFocus: false,
-    }
-  );
-
   const [filteredData, setFilteredData] = useState(null);
   useEffect(() => {
     if (data) {
@@ -152,21 +127,21 @@ function WaterLevels() {
 
   const listCuwcdWell = useMemo(() => {
     let converted;
-    if (data?.length) {
-      converted = [...new Set(data.map((item) => item.cuwcd_well_number))];
+    if (wellData?.length) {
+      converted = [...new Set(wellData.map((item) => item.cuwcd_well_number))];
     }
     return converted;
-  }, [data]);
+  }, [wellData]);
 
   const listWellNdx = useMemo(() => {
     let converted = {};
-    if (data?.length) {
-      data.forEach((d) => {
+    if (wellData?.length) {
+      wellData.forEach((d) => {
         converted[d.cuwcd_well_number] = d.well_ndx;
       });
     }
     return converted;
-  }, [data]);
+  }, [wellData]);
 
   //TODO figure out how to sort correctly
   const listMeasurementSource = useMemo(() => {
@@ -331,15 +306,23 @@ function WaterLevels() {
         const token = await getAccessTokenSilently();
         const headers = { Authorization: `Bearer ${token}` };
 
+        const submition = selectedRow;
+        if (!submition.well_ndx) {
+          submition.well_ndx = listWellNdx[currentSelectedPoint];
+        }
+
         const { data: addedEntry } = await axios.post(
           `${process.env.REACT_APP_ENDPOINT}/api/dm-depth-to-waters`,
-          selectedRow,
+          submition,
           { headers }
         );
+
         //update the material table
         setFilteredData((prevState) => {
           let data = [...prevState];
-          data.unshift(addedEntry);
+          if (addedEntry.cuwcd_well_number === currentSelectedPoint) {
+            data.unshift(addedEntry);
+          }
           return data;
         });
         doToast("success", "New entry was saved to the database");
@@ -367,9 +350,18 @@ function WaterLevels() {
           //update the material table
           setFilteredData((prevState) => {
             const data = [...prevState];
+
             data[data.findIndex((item) => item.ndx === selectedRow.ndx)] =
               selectedRow;
-            return data;
+
+            if (selectedRow.cuwcd_well_number !== currentSelectedPoint) {
+              return data.filter(
+                (item) =>
+                  item.cuwcd_well_number !== selectedRow.cuwcd_well_number
+              );
+            } else {
+              return data;
+            }
           });
           doToast("success", "New data was updated to the database");
           //clear the currentRow and removes the form
@@ -416,610 +408,434 @@ function WaterLevels() {
 
   return (
     <React.Fragment>
-      <Helmet title="Well Production" />
-      <Typography variant="h3" gutterBottom display="inline">
-        Well Water Levels Data
-      </Typography>
-
-      <Breadcrumbs aria-label="Breadcrumb" mt={2}>
-        <Link component={NavLink} exact to="/dashboard">
-          Dashboard
-        </Link>
-        <Typography>Well Water Levels</Typography>
-      </Breadcrumbs>
-
-      <Divider my={6} />
-
       <Grid container spacing={6}>
         <Grid item xs={12}>
-          <Accordion defaultExpanded>
-            <AccordionSummary
-              expandIcon={<ExpandMoreIcon />}
-              aria-controls="table-content"
-              id="table-header"
-            >
-              <Typography variant="h4" ml={2}>
-                Well Water Levels Data
-              </Typography>
-            </AccordionSummary>
-            <Panel>
-              <AccordionDetails>
-                <TableWrapper>
-                  {filteredData && !Array.isArray(lookupTableCache) ? (
-                    <MaterialTable
-                      id="Well Water Levels Data"
-                      title={`Well Water Levels Data ${dateFormatter(
-                        new Date(),
-                        "MM/DD/YYYY, h:mm A"
-                      )}`}
-                      columns={editTableColumns}
-                      data={filteredData}
-                      editable={{
-                        onRowDelete: handleDelete,
-                      }}
-                      localization={{
-                        toolbar: { searchPlaceholder: "Search Wells" },
-                      }}
-                      components={{
-                        Container: (props) => <div {...props} />,
-                      }}
-                      actions={[
-                        {
-                          icon: CopyIcon,
-                          tooltip: "Copy Data",
-                          isFreeAction: true,
-                          onClick: () => {
-                            try {
-                              copyToClipboard(
-                                filteredData,
-                                editTableColumns,
-                                () =>
-                                  doToast(
-                                    "success",
-                                    "Data was copied to your clipboard."
-                                  )
-                              );
-                            } catch (error) {
-                              const message =
-                                error?.message ?? "Something went wrong";
-                              doToast("error", message);
-                            }
-                          },
-                        },
-                        () => ({
-                          icon: "edit",
-                          tooltip: "Edit",
-                          onClick: (event, rowData) => {
-                            setSelectedRow(rowData);
-                          },
-                        }),
-                        {
-                          icon: "add_box",
-                          tooltip: "Add",
-                          isFreeAction: true,
-                          onClick: () => {
-                            setSelectedRow(defaultRowValues);
-                          },
-                        },
-                      ]}
-                      options={{
-                        emptyRowsWhenPaging: false,
-                        columnsButton: true,
-                        exportButton: true,
-                        exportAllData: true,
-                        addRowPosition: "first",
-                        pageSize: 30,
-                        pageSizeOptions: [5, 10, 30, 60],
-                        padding: "dense",
-                        searchFieldAlignment: "left",
-                        showTitle: false,
-                        maxBodyHeight: "400px",
-                      }}
-                    />
-                  ) : (
-                    <Loader />
-                  )}
-                </TableWrapper>
-              </AccordionDetails>
-            </Panel>
-          </Accordion>
+          <Panel>
+            <TableWrapper>
+              {filteredData && !Array.isArray(lookupTableCache) ? (
+                <MaterialTable
+                  id="Well Water Levels Data"
+                  title={`Well Water Levels Data ${dateFormatter(
+                    new Date(),
+                    "MM/DD/YYYY, h:mm A"
+                  )}`}
+                  columns={editTableColumns}
+                  data={filteredData}
+                  editable={{
+                    onRowDelete: handleDelete,
+                  }}
+                  localization={{
+                    toolbar: { searchPlaceholder: "Search Wells" },
+                  }}
+                  components={{
+                    Container: (props) => <div {...props} />,
+                  }}
+                  actions={[
+                    {
+                      icon: CopyIcon,
+                      tooltip: "Copy Data",
+                      isFreeAction: true,
+                      onClick: () => {
+                        try {
+                          copyToClipboard(filteredData, editTableColumns, () =>
+                            doToast(
+                              "success",
+                              "Data was copied to your clipboard."
+                            )
+                          );
+                        } catch (error) {
+                          const message =
+                            error?.message ?? "Something went wrong";
+                          doToast("error", message);
+                        }
+                      },
+                    },
+                    () => ({
+                      icon: "edit",
+                      tooltip: "Edit",
+                      onClick: (event, rowData) => {
+                        setSelectedRow(rowData);
+                      },
+                    }),
+                    {
+                      icon: "add_box",
+                      tooltip: "Add",
+                      isFreeAction: true,
+                      onClick: () => {
+                        setSelectedRow({
+                          ...defaultRowValues,
+                          ...{ cuwcd_well_number: currentSelectedPoint },
+                          // ...{ ndx: listWellNdx[currentSelectedPoint] },
+                        });
+                      },
+                    },
+                  ]}
+                  options={{
+                    emptyRowsWhenPaging: false,
+                    columnsButton: true,
+                    exportButton: true,
+                    exportAllData: true,
+                    addRowPosition: "first",
+                    pageSize: 30,
+                    pageSizeOptions: [5, 10, 30, 60],
+                    padding: "dense",
+                    search: false,
+                    showTitle: false,
+                    maxBodyHeight: "400px",
+                  }}
+                />
+              ) : (
+                <Loader />
+              )}
+            </TableWrapper>
+          </Panel>
         </Grid>
       </Grid>
 
       {selectedRow && (
         <Grid container spacing={6}>
           <Grid item xs={12}>
-            <Accordion defaultExpanded>
-              <AccordionSummary
-                expandIcon={<ExpandMoreIcon />}
-                aria-controls="table-content"
-                id="table-header"
-              >
-                <Typography variant="h4" ml={2}>
-                  {!selectedRow.ndx
-                    ? "New Water Level Data Entry Form"
-                    : `Water Level Data Entry Form for Well: ${selectedRow.cuwcd_well_number}`}
-                </Typography>
-              </AccordionSummary>
-              <Panel>
-                <AccordionDetails>
-                  <Grid container spacing={10}>
-                    <Grid
-                      item
-                      xs={12}
-                      md={6}
-                      style={{
-                        position: "relative",
-                      }}
-                    >
-                      <Autocomplete
-                        id="well"
-                        options={listCuwcdWell}
-                        getOptionLabel={(option) => option || ""}
-                        onChange={(e, value) => {
-                          handleUpdateSelectedRow("cuwcd_well_number", value);
-                        }}
-                        value={selectedRow.cuwcd_well_number}
-                        renderInput={(params) => (
-                          <TextField
-                            style={{ width: "100%" }}
-                            {...params}
-                            variant="outlined"
-                            label="Well"
-                            required
-                            error={!selectedRow.cuwcd_well_number}
-                            helperText={
-                              !selectedRow.cuwcd_well_number
-                                ? "Well Name is Required"
-                                : ""
-                            }
-                          />
-                        )}
-                      />
-                    </Grid>
-                    <Grid
-                      item
-                      xs={12}
-                      md={6}
-                      style={{
-                        position: "relative",
-                      }}
-                    >
-                      <MuiPickersUtilsProvider utils={DateFnsUtils}>
-                        <FormControl>
-                          <KeyboardDateTimePicker
-                            format="LLLL do, yyyy, h:mm a"
-                            inputVariant="outlined"
-                            autoOk
-                            required
-                            error={!selectedRow.collected_datetime}
-                            helperText={
-                              !selectedRow.collected_datetime
-                                ? "Measurement Date/Time is Required"
-                                : ""
-                            }
-                            id="collected-datetime"
-                            label="Measurement Date/Time"
-                            value={selectedRow.collected_datetime}
-                            onChange={(date) => {
-                              handleUpdateSelectedRow(
-                                "collected_datetime",
-                                date
-                              );
-                            }}
-                            InputAdornmentProps={{
-                              "aria-label": "change date",
-                            }}
-                          />
-                        </FormControl>
-                      </MuiPickersUtilsProvider>
-                    </Grid>
-                    <Grid
-                      item
-                      xs={12}
-                      md={6}
-                      style={{
-                        position: "relative",
-                      }}
-                    >
+            <Typography variant="h4" ml={2}>
+              {!selectedRow.ndx
+                ? "New Water Level Data Entry Form"
+                : `Water Level Data Entry Form for Well: ${selectedRow.cuwcd_well_number}`}
+            </Typography>
+
+            <Panel>
+              <Grid container spacing={10}>
+                <Grid
+                  item
+                  xs={12}
+                  md={6}
+                  style={{
+                    position: "relative",
+                  }}
+                >
+                  <Autocomplete
+                    id="well"
+                    options={listCuwcdWell}
+                    getOptionLabel={(option) => option || ""}
+                    onChange={(e, value) => {
+                      handleUpdateSelectedRow("cuwcd_well_number", value);
+                    }}
+                    value={selectedRow.cuwcd_well_number}
+                    renderInput={(params) => (
                       <TextField
+                        style={{ width: "100%" }}
+                        {...params}
+                        variant="outlined"
+                        label="Well"
                         required
-                        error={!selectedRow.collected_by_ndx}
+                        error={!selectedRow.cuwcd_well_number}
                         helperText={
-                          !selectedRow.collected_by_ndx
+                          !selectedRow.cuwcd_well_number
                             ? "Well Name is Required"
                             : ""
                         }
-                        variant="outlined"
-                        select
-                        label="Measurement Source"
-                        style={{ width: "100%" }}
-                        onChange={(e) =>
-                          handleUpdateSelectedRow(
-                            "collected_by_ndx",
-                            e.target.value
-                          )
-                        }
-                        value={selectedRow.collected_by_ndx || ""}
-                      >
-                        {Object.keys(listMeasurementSource).map((key) => {
-                          return (
-                            <MenuItem key={key} value={key}>
-                              {listMeasurementSource[key]}
-                            </MenuItem>
-                          );
-                        })}
-                      </TextField>
-                    </Grid>
-                    <Grid
-                      item
-                      xs={12}
-                      md={6}
-                      style={{
-                        position: "relative",
-                      }}
-                    >
-                      <TextField
-                        required
-                        error={!selectedRow.pumping_status_ndx}
-                        helperText={
-                          !selectedRow.pumping_status_ndx
-                            ? "Pumping Status is Required"
-                            : ""
-                        }
-                        variant="outlined"
-                        select
-                        label="Pumping Status"
-                        style={{ width: "100%" }}
-                        onChange={(e) =>
-                          handleUpdateSelectedRow(
-                            "pumping_status_ndx",
-                            e.target.value
-                          )
-                        }
-                        value={selectedRow.pumping_status_ndx || ""}
-                      >
-                        {Object.keys(listPumpingStatus).map((key) => {
-                          return (
-                            <MenuItem key={key} value={key}>
-                              {listPumpingStatus[key]}
-                            </MenuItem>
-                          );
-                        })}
-                      </TextField>
-                    </Grid>
-                    <Grid
-                      item
-                      xs={12}
-                      md={12}
-                      style={{
-                        position: "relative",
-                      }}
-                    >
-                      <TextField
-                        required
-                        error={!selectedRow.measurement_method_ndx}
-                        helperText={
-                          !selectedRow.measurement_method_ndx
-                            ? "Measurement Method is Required"
-                            : ""
-                        }
-                        variant="outlined"
-                        select
-                        label="Measurement Method"
-                        style={{ width: "100%" }}
-                        onChange={(e) =>
-                          handleUpdateSelectedRow(
-                            "measurement_method_ndx",
-                            e.target.value
-                          )
-                        }
-                        value={selectedRow.measurement_method_ndx || ""}
-                      >
-                        {Object.keys(listMeasurementMethods).map((key) => {
-                          return (
-                            <MenuItem key={key} value={key}>
-                              {listMeasurementMethods[key]}
-                            </MenuItem>
-                          );
-                        })}
-                      </TextField>
-                    </Grid>
-
-                    {selectedRow.measurement_method_ndx && (
-                      <>
-                        <Grid
-                          item
-                          xs={12}
-                          md={3}
-                          style={{
-                            position: "relative",
-                          }}
-                        >
-                          <TextField
-                            required
-                            error={
-                              !selectedRow.meas_1 && selectedRow.meas_1 !== 0
-                            }
-                            helperText={
-                              !selectedRow.meas_1 && selectedRow.meas_1 !== 0
-                                ? "This measurement is Required"
-                                : ""
-                            }
-                            variant="outlined"
-                            label={
-                              [2, "2"].includes(
-                                selectedRow.measurement_method_ndx
-                              )
-                                ? "PSI 1"
-                                : "Depth 1 (ft)"
-                            }
-                            type="number"
-                            style={{ width: "100%" }}
-                            onChange={(e) =>
-                              handleUpdateSelectedRow("meas_1", e.target.value)
-                            }
-                            value={selectedRow.meas_1 || ""}
-                          />
-                        </Grid>
-                        <Grid
-                          item
-                          xs={12}
-                          md={3}
-                          style={{
-                            position: "relative",
-                          }}
-                        >
-                          {!["4", "6", 4, 6].includes(
-                            selectedRow.measurement_method_ndx
-                          ) && (
-                            <TextField
-                              variant="outlined"
-                              label={
-                                [2, "2"].includes(
-                                  selectedRow.measurement_method_ndx
-                                )
-                                  ? "PSI 2"
-                                  : "Depth 2 (ft)"
-                              }
-                              type="number"
-                              style={{ width: "100%" }}
-                              onChange={(e) =>
-                                handleUpdateSelectedRow(
-                                  "meas_2",
-                                  e.target.value
-                                )
-                              }
-                              value={selectedRow.meas_2 || ""}
-                            />
-                          )}
-                        </Grid>
-                        <Grid
-                          item
-                          xs={12}
-                          md={3}
-                          style={{
-                            position: "relative",
-                          }}
-                        >
-                          {!["4", "6", 4, 6].includes(
-                            selectedRow.measurement_method_ndx
-                          ) && (
-                            <TextField
-                              variant="outlined"
-                              label={
-                                [2, "2"].includes(
-                                  selectedRow.measurement_method_ndx
-                                )
-                                  ? "PSI 3"
-                                  : "Depth 3 (ft)"
-                              }
-                              type="number"
-                              style={{ width: "100%" }}
-                              onChange={(e) =>
-                                handleUpdateSelectedRow(
-                                  "meas_3",
-                                  e.target.value
-                                )
-                              }
-                              value={selectedRow.meas_3 || ""}
-                            />
-                          )}
-                        </Grid>
-                        <Grid
-                          item
-                          xs={12}
-                          md={3}
-                          style={{
-                            position: "relative",
-                          }}
-                        >
-                          <TextField
-                            variant="outlined"
-                            label="Static Water Level (ft)"
-                            type="number"
-                            style={{ width: "100%" }}
-                            onChange={(e) =>
-                              handleUpdateSelectedRow(
-                                "static_water_level_ft",
-                                e.target.value
-                              )
-                            }
-                            value={selectedRow.static_water_level_ft || ""}
-                          />
-                        </Grid>
-                        <Grid
-                          item
-                          xs={12}
-                          md={3}
-                          style={{
-                            position: "relative",
-                          }}
-                        >
-                          {!["4", "6", 4, 6].includes(
-                            selectedRow.measurement_method_ndx
-                          ) && (
-                            <TextField
-                              required
-                              error={
-                                !selectedRow.meas_4 && selectedRow.meas_4 !== 0
-                              }
-                              helperText={
-                                !selectedRow.meas_4 && selectedRow.meas_4 !== 0
-                                  ? "This measurement is Required"
-                                  : ""
-                              }
-                              variant="outlined"
-                              label={
-                                [2, "2"].includes(
-                                  selectedRow.measurement_method_ndx
-                                )
-                                  ? "Pump Depth (ft)"
-                                  : "Measuring Point Cut (ft)"
-                              }
-                              type="number"
-                              style={{ width: "100%" }}
-                              onChange={(e) =>
-                                handleUpdateSelectedRow(
-                                  "meas_4",
-                                  e.target.value
-                                )
-                              }
-                              value={selectedRow.meas_4 ?? ""}
-                            />
-                          )}
-                        </Grid>
-                        <Grid
-                          item
-                          xs={12}
-                          md={3}
-                          style={{
-                            position: "relative",
-                          }}
-                        />
-                        <Grid
-                          item
-                          xs={12}
-                          md={3}
-                          style={{
-                            position: "relative",
-                          }}
-                        >
-                          <TextField
-                            required
-                            error={
-                              !selectedRow.final_dtw_ft &&
-                              selectedRow.final_dtw_ft !== 0
-                            }
-                            helperText={
-                              !selectedRow.final_dtw_ft &&
-                              selectedRow.final_dtw_ft !== 0
-                                ? "Final Depth is Required"
-                                : ""
-                            }
-                            variant="outlined"
-                            label="Final Depth (ft)"
-                            // disabled
-                            type="number"
-                            style={{ width: "100%" }}
-                            onChange={(e) =>
-                              handleUpdateSelectedRow(
-                                "final_dtw_ft",
-                                e.target.value
-                              )
-                            }
-                            value={selectedRow.final_dtw_ft || ""}
-                          />
-                        </Grid>
-                        <Grid
-                          item
-                          xs={12}
-                          md={3}
-                          style={{
-                            position: "relative",
-                          }}
-                        >
-                          <Button
-                            disabled={isCalculateButtonDisabled}
-                            variant="contained"
-                            size="small"
-                            color="primary"
-                            style={{ width: "100%", height: "100%" }}
-                            onClick={() => calculateNewFinalDepth()}
-                          >
-                            Calculate Final Depth (ft)
-                          </Button>
-                        </Grid>
-                      </>
+                      />
                     )}
+                  />
+                </Grid>
+                <Grid
+                  item
+                  xs={12}
+                  md={6}
+                  style={{
+                    position: "relative",
+                  }}
+                >
+                  <MuiPickersUtilsProvider utils={DateFnsUtils}>
+                    <FormControl>
+                      <KeyboardDateTimePicker
+                        format="LLLL do, yyyy, h:mm a"
+                        inputVariant="outlined"
+                        autoOk
+                        required
+                        error={!selectedRow.collected_datetime}
+                        helperText={
+                          !selectedRow.collected_datetime
+                            ? "Measurement Date/Time is Required"
+                            : ""
+                        }
+                        id="collected-datetime"
+                        label="Measurement Date/Time"
+                        value={selectedRow.collected_datetime}
+                        onChange={(date) => {
+                          handleUpdateSelectedRow("collected_datetime", date);
+                        }}
+                        InputAdornmentProps={{
+                          "aria-label": "change date",
+                        }}
+                      />
+                    </FormControl>
+                  </MuiPickersUtilsProvider>
+                </Grid>
+                <Grid
+                  item
+                  xs={12}
+                  md={6}
+                  style={{
+                    position: "relative",
+                  }}
+                >
+                  <TextField
+                    required
+                    error={!selectedRow.collected_by_ndx}
+                    helperText={
+                      !selectedRow.collected_by_ndx
+                        ? "Well Name is Required"
+                        : ""
+                    }
+                    variant="outlined"
+                    select
+                    label="Measurement Source"
+                    style={{ width: "100%" }}
+                    onChange={(e) =>
+                      handleUpdateSelectedRow(
+                        "collected_by_ndx",
+                        e.target.value
+                      )
+                    }
+                    value={selectedRow.collected_by_ndx || ""}
+                  >
+                    {Object.keys(listMeasurementSource).map((key) => {
+                      return (
+                        <MenuItem key={key} value={key}>
+                          {listMeasurementSource[key]}
+                        </MenuItem>
+                      );
+                    })}
+                  </TextField>
+                </Grid>
+                <Grid
+                  item
+                  xs={12}
+                  md={6}
+                  style={{
+                    position: "relative",
+                  }}
+                >
+                  <TextField
+                    required
+                    error={!selectedRow.pumping_status_ndx}
+                    helperText={
+                      !selectedRow.pumping_status_ndx
+                        ? "Pumping Status is Required"
+                        : ""
+                    }
+                    variant="outlined"
+                    select
+                    label="Pumping Status"
+                    style={{ width: "100%" }}
+                    onChange={(e) =>
+                      handleUpdateSelectedRow(
+                        "pumping_status_ndx",
+                        e.target.value
+                      )
+                    }
+                    value={selectedRow.pumping_status_ndx || ""}
+                  >
+                    {Object.keys(listPumpingStatus).map((key) => {
+                      return (
+                        <MenuItem key={key} value={key}>
+                          {listPumpingStatus[key]}
+                        </MenuItem>
+                      );
+                    })}
+                  </TextField>
+                </Grid>
+                <Grid
+                  item
+                  xs={12}
+                  md={12}
+                  style={{
+                    position: "relative",
+                  }}
+                >
+                  <TextField
+                    required
+                    error={!selectedRow.measurement_method_ndx}
+                    helperText={
+                      !selectedRow.measurement_method_ndx
+                        ? "Measurement Method is Required"
+                        : ""
+                    }
+                    variant="outlined"
+                    select
+                    label="Measurement Method"
+                    style={{ width: "100%" }}
+                    onChange={(e) =>
+                      handleUpdateSelectedRow(
+                        "measurement_method_ndx",
+                        e.target.value
+                      )
+                    }
+                    value={selectedRow.measurement_method_ndx || ""}
+                  >
+                    {Object.keys(listMeasurementMethods).map((key) => {
+                      return (
+                        <MenuItem key={key} value={key}>
+                          {listMeasurementMethods[key]}
+                        </MenuItem>
+                      );
+                    })}
+                  </TextField>
+                </Grid>
 
+                {selectedRow.measurement_method_ndx && (
+                  <>
                     <Grid
                       item
                       xs={12}
-                      md={12}
-                      style={{
-                        position: "relative",
-                      }}
-                    >
-                      <FormControl component="fieldset">
-                        <FormLabel component="legend">
-                          Are there registered wells active in "same source
-                          aquifer" within 1/4 mile radius of this well?
-                        </FormLabel>
-                        <RadioGroup
-                          row
-                          aria-label="qtr_mile_wells_exist"
-                          name="qtr_mile_wells_exist"
-                          onChange={(e) => {
-                            handleUpdateSelectedRow(
-                              "qtr_mile_wells_exist",
-                              e.target.value
-                            );
-                          }}
-                          value={selectedRow.qtr_mile_wells_exist ?? "unknown"}
-                        >
-                          <FormControlLabel
-                            value={false}
-                            control={<Radio />}
-                            label="No"
-                          />
-                          <FormControlLabel
-                            value={true}
-                            control={<Radio />}
-                            label="Yes"
-                          />
-                          <FormControlLabel
-                            value="unknown"
-                            control={<Radio />}
-                            label="Unknown"
-                          />
-                        </RadioGroup>
-                      </FormControl>
-                    </Grid>
-                    <Grid
-                      item
-                      xs={12}
-                      md={12}
+                      md={3}
                       style={{
                         position: "relative",
                       }}
                     >
                       <TextField
+                        required
+                        error={!selectedRow.meas_1 && selectedRow.meas_1 !== 0}
+                        helperText={
+                          !selectedRow.meas_1 && selectedRow.meas_1 !== 0
+                            ? "This measurement is Required"
+                            : ""
+                        }
                         variant="outlined"
-                        label="Notes"
-                        multiline
-                        rows={2}
+                        label={
+                          [2, "2"].includes(selectedRow.measurement_method_ndx)
+                            ? "PSI 1"
+                            : "Depth 1 (ft)"
+                        }
+                        type="number"
                         style={{ width: "100%" }}
                         onChange={(e) =>
-                          handleUpdateSelectedRow("dtw_notes", e.target.value)
+                          handleUpdateSelectedRow("meas_1", e.target.value)
                         }
-                        value={selectedRow.dtw_notes || ""}
+                        value={selectedRow.meas_1 || ""}
                       />
                     </Grid>
                     <Grid
                       item
                       xs={12}
-                      md={8}
+                      md={3}
+                      style={{
+                        position: "relative",
+                      }}
+                    >
+                      {!["4", "6", 4, 6].includes(
+                        selectedRow.measurement_method_ndx
+                      ) && (
+                        <TextField
+                          variant="outlined"
+                          label={
+                            [2, "2"].includes(
+                              selectedRow.measurement_method_ndx
+                            )
+                              ? "PSI 2"
+                              : "Depth 2 (ft)"
+                          }
+                          type="number"
+                          style={{ width: "100%" }}
+                          onChange={(e) =>
+                            handleUpdateSelectedRow("meas_2", e.target.value)
+                          }
+                          value={selectedRow.meas_2 || ""}
+                        />
+                      )}
+                    </Grid>
+                    <Grid
+                      item
+                      xs={12}
+                      md={3}
+                      style={{
+                        position: "relative",
+                      }}
+                    >
+                      {!["4", "6", 4, 6].includes(
+                        selectedRow.measurement_method_ndx
+                      ) && (
+                        <TextField
+                          variant="outlined"
+                          label={
+                            [2, "2"].includes(
+                              selectedRow.measurement_method_ndx
+                            )
+                              ? "PSI 3"
+                              : "Depth 3 (ft)"
+                          }
+                          type="number"
+                          style={{ width: "100%" }}
+                          onChange={(e) =>
+                            handleUpdateSelectedRow("meas_3", e.target.value)
+                          }
+                          value={selectedRow.meas_3 || ""}
+                        />
+                      )}
+                    </Grid>
+                    <Grid
+                      item
+                      xs={12}
+                      md={3}
+                      style={{
+                        position: "relative",
+                      }}
+                    >
+                      <TextField
+                        variant="outlined"
+                        label="Static Water Level (ft)"
+                        type="number"
+                        style={{ width: "100%" }}
+                        onChange={(e) =>
+                          handleUpdateSelectedRow(
+                            "static_water_level_ft",
+                            e.target.value
+                          )
+                        }
+                        value={selectedRow.static_water_level_ft || ""}
+                      />
+                    </Grid>
+                    <Grid
+                      item
+                      xs={12}
+                      md={3}
+                      style={{
+                        position: "relative",
+                      }}
+                    >
+                      {!["4", "6", 4, 6].includes(
+                        selectedRow.measurement_method_ndx
+                      ) && (
+                        <TextField
+                          required
+                          error={
+                            !selectedRow.meas_4 && selectedRow.meas_4 !== 0
+                          }
+                          helperText={
+                            !selectedRow.meas_4 && selectedRow.meas_4 !== 0
+                              ? "This measurement is Required"
+                              : ""
+                          }
+                          variant="outlined"
+                          label={
+                            [2, "2"].includes(
+                              selectedRow.measurement_method_ndx
+                            )
+                              ? "Pump Depth (ft)"
+                              : "Measuring Point Cut (ft)"
+                          }
+                          type="number"
+                          style={{ width: "100%" }}
+                          onChange={(e) =>
+                            handleUpdateSelectedRow("meas_4", e.target.value)
+                          }
+                          value={selectedRow.meas_4 ?? ""}
+                        />
+                      )}
+                    </Grid>
+                    <Grid
+                      item
+                      xs={12}
+                      md={3}
                       style={{
                         position: "relative",
                       }}
@@ -1027,20 +843,36 @@ function WaterLevels() {
                     <Grid
                       item
                       xs={12}
-                      md={1}
+                      md={3}
                       style={{
                         position: "relative",
                       }}
                     >
-                      <Button
-                        style={{ width: "100%", height: "44px" }}
-                        size="small"
-                        color="secondary"
-                        variant="contained"
-                        onClick={() => setSelectedRow(null)}
-                      >
-                        Cancel
-                      </Button>
+                      <TextField
+                        required
+                        error={
+                          !selectedRow.final_dtw_ft &&
+                          selectedRow.final_dtw_ft !== 0
+                        }
+                        helperText={
+                          !selectedRow.final_dtw_ft &&
+                          selectedRow.final_dtw_ft !== 0
+                            ? "Final Depth is Required"
+                            : ""
+                        }
+                        variant="outlined"
+                        label="Final Depth (ft)"
+                        // disabled
+                        type="number"
+                        style={{ width: "100%" }}
+                        onChange={(e) =>
+                          handleUpdateSelectedRow(
+                            "final_dtw_ft",
+                            e.target.value
+                          )
+                        }
+                        value={selectedRow.final_dtw_ft || ""}
+                      />
                     </Grid>
                     <Grid
                       item
@@ -1051,26 +883,135 @@ function WaterLevels() {
                       }}
                     >
                       <Button
-                        disabled={isSubmitButtonDisabled}
-                        style={{ width: "100%", height: "44px" }}
-                        type="submit"
+                        disabled={isCalculateButtonDisabled}
+                        variant="contained"
                         size="small"
                         color="primary"
-                        variant="contained"
-                        onClick={handleSubmit}
+                        style={{ width: "100%", height: "100%" }}
+                        onClick={() => calculateNewFinalDepth()}
                       >
-                        Save
+                        Calculate Final Depth (ft)
                       </Button>
                     </Grid>
-                  </Grid>
-                </AccordionDetails>
-              </Panel>
-            </Accordion>
+                  </>
+                )}
+
+                <Grid
+                  item
+                  xs={12}
+                  md={12}
+                  style={{
+                    position: "relative",
+                  }}
+                >
+                  <FormControl component="fieldset">
+                    <FormLabel component="legend">
+                      Are there registered wells active in "same source aquifer"
+                      within 1/4 mile radius of this well?
+                    </FormLabel>
+                    <RadioGroup
+                      row
+                      aria-label="qtr_mile_wells_exist"
+                      name="qtr_mile_wells_exist"
+                      onChange={(e) => {
+                        handleUpdateSelectedRow(
+                          "qtr_mile_wells_exist",
+                          e.target.value
+                        );
+                      }}
+                      value={selectedRow.qtr_mile_wells_exist ?? "unknown"}
+                    >
+                      <FormControlLabel
+                        value={false}
+                        control={<Radio />}
+                        label="No"
+                      />
+                      <FormControlLabel
+                        value={true}
+                        control={<Radio />}
+                        label="Yes"
+                      />
+                      <FormControlLabel
+                        value="unknown"
+                        control={<Radio />}
+                        label="Unknown"
+                      />
+                    </RadioGroup>
+                  </FormControl>
+                </Grid>
+                <Grid
+                  item
+                  xs={12}
+                  md={12}
+                  style={{
+                    position: "relative",
+                  }}
+                >
+                  <TextField
+                    variant="outlined"
+                    label="Notes"
+                    multiline
+                    rows={2}
+                    style={{ width: "100%" }}
+                    onChange={(e) =>
+                      handleUpdateSelectedRow("dtw_notes", e.target.value)
+                    }
+                    value={selectedRow.dtw_notes || ""}
+                  />
+                </Grid>
+                <Grid
+                  item
+                  xs={12}
+                  md={8}
+                  style={{
+                    position: "relative",
+                  }}
+                />
+                <Grid
+                  item
+                  xs={12}
+                  md={1}
+                  style={{
+                    position: "relative",
+                  }}
+                >
+                  <Button
+                    style={{ width: "100%", height: "44px" }}
+                    size="small"
+                    color="secondary"
+                    variant="contained"
+                    onClick={() => setSelectedRow(null)}
+                  >
+                    Cancel
+                  </Button>
+                </Grid>
+                <Grid
+                  item
+                  xs={12}
+                  md={3}
+                  style={{
+                    position: "relative",
+                  }}
+                >
+                  <Button
+                    disabled={isSubmitButtonDisabled}
+                    style={{ width: "100%", height: "44px" }}
+                    type="submit"
+                    size="small"
+                    color="primary"
+                    variant="contained"
+                    onClick={handleSubmit}
+                  >
+                    Save
+                  </Button>
+                </Grid>
+              </Grid>
+            </Panel>
           </Grid>
         </Grid>
       )}
     </React.Fragment>
   );
-}
+};
 
 export default WaterLevels;
