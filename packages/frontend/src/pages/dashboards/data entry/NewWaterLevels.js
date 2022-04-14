@@ -763,7 +763,7 @@ function NewWaterLevels() {
                           isLoading={isLoading}
                           yLLabel="Water Level (Feet Below Ground Level)"
                           reverseLegend={false}
-                          yLReverse={false}
+                          yLReverse={true}
                           ref={graphSaveRef}
                           filterValues={filterValues}
                           type="scatter"
