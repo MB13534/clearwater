@@ -205,7 +205,7 @@ const Popup = ({
                         </a>
                       </div>
                     ) : feature?.source === "twdb-well-reports" &&
-                      key === "WellInfoId" ? (
+                      key === "WellReportTrackingNumber" ? (
                       <a
                         target="_blank"
                         href={`https://www3.twdb.texas.gov/apps/waterdatainteractive//GetReports.aspx?Num=${value}&Type=SDR-Well`}

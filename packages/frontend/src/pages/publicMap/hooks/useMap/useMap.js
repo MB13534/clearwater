@@ -323,7 +323,11 @@ const useMap = (ref, mapConfig) => {
           : [e.lngLat.lng, e.lngLat.lat];
 
         //MJB add check for popups so they only appear on our dynamic layers
-        const popupLayerIds = layers.map((layer) => layer.id);
+        //also remove any layer that has the property:
+        //lreProperties.popup.blockPopup
+        const popupLayerIds = layers
+          .filter((layer) => !layer?.lreProperties?.popup?.blockPopup)
+          .map((layer) => layer.id);
         if (
           features.length > 0 &&
           popupLayerIds.includes(features[0].layer.id)

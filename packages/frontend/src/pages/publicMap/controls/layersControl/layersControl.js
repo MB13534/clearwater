@@ -107,7 +107,6 @@ const handleSliderChange = (event, newValue, item, onOpacityChange) => {
 const LayerSlider = ({ item, onOpacityChange }) => {
   const layerFillOpacity =
     item?.type === "fill" &&
-    item.name !== "Search Circle Radius" &&
     (item?.paint["fill-opacity"] === 0 || item?.paint["fill-opacity"])
       ? item?.paint["fill-opacity"]
       : null;

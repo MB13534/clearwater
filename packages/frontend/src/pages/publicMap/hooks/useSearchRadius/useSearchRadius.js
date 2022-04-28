@@ -211,34 +211,39 @@ const useSearchRadius = ({ enabled = false }) => {
      * to the generated feature
      */
     searchRadiusLayers.forEach((layer, index) => {
-      if (!cumulativeBuffers[`${layer.layerIdPrefix}-fill-${index + 1}`]) {
-        cumulativeBuffers[`${layer.layerIdPrefix}-fill-${index + 1}`] = [
-          layer.data,
-        ];
+      if (!cumulativeBuffers[`${layer.layerIdPrefix}-line-${index + 1}`]) {
         cumulativeBuffers[`${layer.layerIdPrefix}-line-${index + 1}`] = [
           layer.data,
         ];
       } else {
-        cumulativeBuffers[`${layer.layerIdPrefix}-fill-${index + 1}`].push(
-          layer.data
-        );
         cumulativeBuffers[`${layer.layerIdPrefix}-line-${index + 1}`].push(
           layer.data
         );
       }
 
-      map.getSource(`${layer.layerIdPrefix}-fill-${index + 1}`).setData({
-        type: "FeatureCollection",
-        features: cumulativeBuffers[`${layer.layerIdPrefix}-fill-${index + 1}`],
-      });
-
-      if (index > 0 && searchRadiusLayers?.length > 1) {
-        map.getSource(`${layer.layerIdPrefix}-line-${index + 1}`).setData({
-          type: "FeatureCollection",
-          features:
-            cumulativeBuffers[`${layer.layerIdPrefix}-line-${index + 1}`],
-        });
+      if (!cumulativeBuffers[`${layer.layerIdPrefix}-fill-${1}`]) {
+        cumulativeBuffers[`${layer.layerIdPrefix}-fill-${1}`] = [layer.data];
+      } else {
+        cumulativeBuffers[`${layer.layerIdPrefix}-fill-${1}`].push(layer.data);
       }
+
+      map.getSource(`${layer.layerIdPrefix}-line-${index + 1}`).setData({
+        type: "FeatureCollection",
+        features: cumulativeBuffers[`${layer.layerIdPrefix}-line-${index + 1}`],
+      });
+      //mjb change index from 0 to -1 to and length from 1 to 0 to make a single circle have a border
+      // if (index > 0 && searchRadiusLayers?.length > 1) {
+      //   map.getSource(`${layer.layerIdPrefix}-line-${index + 1}`).setData({
+      //     type: "FeatureCollection",
+      //     features:
+      //       cumulativeBuffers[`${layer.layerIdPrefix}-line-${index + 1}`],
+      //   });
+      // }
+    });
+
+    map.getSource("search-circle-radius-fill-1").setData({
+      type: "FeatureCollection",
+      features: cumulativeBuffers["search-circle-radius-fill-1"],
     });
 
     /**

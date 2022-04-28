@@ -30,4 +30,9 @@ module.exports = {
   layout: {
     visibility: 'none',
   },
+  lreProperties: {
+    popup: {
+      excludeFields: ['ObjectId', 'LocationError'],
+    },
+  },
 };
