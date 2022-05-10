@@ -18,7 +18,7 @@ module.exports = {
   lreProperties: {
     layerGroup: 'Search Radius Rings',
     popup: {
-      blockPopup: true,
+      excludePopup: true,
     },
   },
 };

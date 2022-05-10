@@ -44,5 +44,8 @@ module.exports = {
   },
   lreProperties: {
     layerGroup: 'major-aquifers',
+    popup: {
+      titleField: 'AqName',
+    },
   },
 };

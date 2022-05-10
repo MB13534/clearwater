@@ -13,5 +13,8 @@ module.exports = {
   },
   lreProperties: {
     layerGroup: 'water-service-areas',
+    popup: {
+      titleField: 'UTILITY',
+    },
   },
 };

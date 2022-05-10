@@ -12,6 +12,9 @@ module.exports = {
     visibility: 'none',
   },
   lreProperties: {
+    popup: {
+      titleField: 'Name',
+    },
     layerGroup: 'proposed-management-zones',
     permissions: {
       roles: ['Administrator', 'Developer'],

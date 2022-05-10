@@ -44,5 +44,8 @@ module.exports = {
   },
   lreProperties: {
     layerGroup: 'fema-fill',
+    popup: {
+      titleField: 'Zone',
+    },
   },
 };

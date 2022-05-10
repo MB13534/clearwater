@@ -13,5 +13,8 @@ module.exports = {
   },
   lreProperties: {
     layerGroup: 'public-water-system-boundaries',
+    popup: {
+      titleField: 'pwsName',
+    },
   },
 };

@@ -80,6 +80,7 @@ const Popup = ({
   const [page, setPage] = useState(1);
   const [feature, setFeature] = useState(uniqueFeatures?.[0]);
   const [excludeFields, setExcludeFields] = useState([]);
+  const [titleField, setTitleField] = useState("");
 
   const handlePageChange = (e, p) => {
     setPage(p);
@@ -96,6 +97,20 @@ const Popup = ({
       (layer) => layer?.id === feature?.layer?.id
     )?.lreProperties?.popup?.excludeFields;
     setExcludeFields(excludedFields || []);
+  }, [feature, layers]);
+
+  useEffect(() => {
+    const title = layers?.find((layer) => layer?.id === feature?.layer?.id)
+      ?.lreProperties?.popup?.titleField;
+    console.log(title);
+    setTitleField(
+      (title &&
+        feature?.properties[title] &&
+        `${feature?.properties[title]} (${titleize(
+          feature?.layer?.source
+        )})`) ||
+        titleize(feature?.layer?.source)
+    );
   }, [feature, layers]);
 
   const addViewDataVizButtons = (key, value) => {
@@ -145,7 +160,7 @@ const Popup = ({
   if (!popupData) return null;
   return (
     <>
-      <h2>{titleize(feature?.layer?.id)}</h2>
+      <h2>{titleField}</h2>
       <PopupWrap>
         <PopupTable>
           <tbody>

@@ -13,5 +13,8 @@ module.exports = {
   },
   lreProperties: {
     layerGroup: 'extraterritorial-jurisdiction',
+    popup: {
+      titleField: 'CITY_NAME',
+    },
   },
 };

@@ -13,5 +13,8 @@ module.exports = {
   },
   lreProperties: {
     layerGroup: 'bell-city-limits',
+    popup: {
+      titleField: 'NAME',
+    },
   },
 };

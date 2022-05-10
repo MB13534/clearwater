@@ -17,5 +17,8 @@ module.exports = {
   },
   lreProperties: {
     layerGroup: 'extraterritorial-jurisdiction',
+    popup: {
+      excludePopup: true,
+    },
   },
 };

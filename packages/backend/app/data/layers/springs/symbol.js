@@ -21,5 +21,8 @@ module.exports = {
   },
   lreProperties: {
     layerGroup: 'springs',
+    popup: {
+      titleField: 'spring_nm',
+    },
   },
 };

@@ -30,4 +30,10 @@ module.exports = {
   layout: {
     visibility: 'none',
   },
+  lreProperties: {
+    layerGroup: 'fema-fill',
+    popup: {
+      titleField: 'StateWellNumber',
+    },
+  },
 };

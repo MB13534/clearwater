@@ -18,5 +18,8 @@ module.exports = {
   minzoom: 16.5,
   lreProperties: {
     layerGroup: 'bell-parcels',
+    popup: {
+      excludePopup: true,
+    },
   },
 };

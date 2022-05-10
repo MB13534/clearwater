@@ -19,5 +19,8 @@ module.exports = {
     permissions: {
       roles: ['Administrator', 'Developer'],
     },
+    popup: {
+      titleField: 'CUWCD_Well',
+    },
   },
 };

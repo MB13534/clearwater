@@ -33,6 +33,7 @@ module.exports = {
   lreProperties: {
     popup: {
       excludeFields: ['ObjectId', 'LocationError'],
+      titleField: 'WellReportTrackingNumber',
     },
   },
 };

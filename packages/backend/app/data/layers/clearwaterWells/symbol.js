@@ -17,4 +17,9 @@ module.exports = {
     'text-halo-color': 'rgba(255,255,255,1)',
     'text-halo-width': 3,
   },
+  lreProperties: {
+    popup: {
+      excludePopup: true,
+    },
+  },
 };

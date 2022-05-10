@@ -13,5 +13,8 @@ module.exports = {
   },
   lreProperties: {
     layerGroup: 'bell-parcels',
+    popup: {
+      titleField: 'PROP_ID',
+    },
   },
 };

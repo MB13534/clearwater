@@ -13,5 +13,8 @@ module.exports = {
   },
   lreProperties: {
     layerGroup: 'bell-streets',
+    popup: {
+      titleField: 'FULL_NAME',
+    },
   },
 };

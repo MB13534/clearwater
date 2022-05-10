@@ -34,7 +34,7 @@ module.exports = {
   },
   lreProperties: {
     popup: {
-      titleField: 'cucwcd_well_number',
+      titleField: 'cuwcd_well_number',
       excludeFields: [
         'well_ndx',
         'longitude_dd',

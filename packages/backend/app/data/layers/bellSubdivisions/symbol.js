@@ -18,5 +18,8 @@ module.exports = {
   },
   lreProperties: {
     layerGroup: 'bell-subdivisions',
+    popup: {
+      excludePopup: true,
+    },
   },
 };

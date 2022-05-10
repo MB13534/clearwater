@@ -32,5 +32,8 @@ module.exports = {
   },
   lreProperties: {
     layerGroup: 'public-water-system-wells',
+    popup: {
+      titleField: 'Zone',
+    },
   },
 };
