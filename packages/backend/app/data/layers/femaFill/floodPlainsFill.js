@@ -37,7 +37,7 @@ module.exports = {
       '#B9903F',
       '#ADADAD',
     ],
-    'fill-opacity': 1,
+    'fill-opacity': 0.5,
   },
   layout: {
     visibility: 'none',
