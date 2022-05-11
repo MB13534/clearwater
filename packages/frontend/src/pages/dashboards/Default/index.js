@@ -354,9 +354,10 @@ function Default() {
     }
   }, [currentSelectedPoint]); // eslint-disable-line
 
+  const [annotatedLines, setAnnotatedLines] = useState({});
   const [filteredMutatedGraphData, setFilteredMutatedGraphData] = useState({});
   useEffect(() => {
-    if (currentSelectedTimeseriesData?.length) {
+    if (currentSelectedTimeseriesData?.length && currentTableLabel) {
       //mutate data for chartJS to use
       let graphData;
       if (radioValue === "has_production") {
@@ -512,6 +513,64 @@ function Default() {
             },
           ],
         };
+
+        const annotations = {
+          annotations: {
+            ...(currentTableLabel.screen_top_depth_ft !== null && {
+              topOfScreenLine: {
+                type: "line",
+                yScaleID: "yL",
+                yMin: currentTableLabel.screen_top_depth_ft,
+                yMax: currentTableLabel.screen_top_depth_ft,
+                borderColor: "black",
+                borderWidth: 3,
+                borderDash: [6, 6],
+                borderDashOffset: 0,
+                display: false,
+                label: {
+                  position: "start",
+                  yAdjust: -20,
+                  enabled: true,
+                  backgroundColor: "black",
+                  borderColor: "black",
+                  borderRadius: 10,
+                  borderWidth: 2,
+                  content: () =>
+                    "Top of Screen: " + currentTableLabel.screen_top_depth_ft,
+                  rotation: "auto",
+                },
+              },
+            }),
+            ...(currentTableLabel.screen_bottom_depth_ft !== null && {
+              bottomOfScreenLine: {
+                type: "line",
+                yScaleID: "yL",
+                yMin: currentTableLabel.screen_bottom_depth_ft,
+                yMax: currentTableLabel.screen_bottom_depth_ft,
+                borderColor: "black",
+                borderWidth: 3,
+                borderDash: [6, 6],
+                borderDashOffset: 0,
+                display: false,
+                label: {
+                  position: "end",
+                  yAdjust: 20,
+                  enabled: true,
+                  backgroundColor: "black",
+                  borderColor: "black",
+                  borderRadius: 10,
+                  borderWidth: 2,
+                  content: () =>
+                    "Bottom of Screen: " +
+                    currentTableLabel.screen_bottom_depth_ft,
+                  rotation: "auto",
+                },
+              },
+            }),
+          },
+        };
+
+        setAnnotatedLines(annotations);
       } else if (radioValue === "has_wqdata") {
         const parameterFilteredData = currentSelectedTimeseriesData.filter(
           (item) => item.wq_parameter_ndx === selectedWQParameter
@@ -547,7 +606,18 @@ function Default() {
     } else {
       setFilteredMutatedGraphData(null);
     }
-  }, [currentSelectedTimeseriesData, selectedWQParameter]); // eslint-disable-line
+  }, [currentSelectedTimeseriesData, selectedWQParameter, currentTableLabel]); // eslint-disable-line
+
+  const handleToggleAnnotation = () => {
+    setAnnotatedLines((prevState) => {
+      let newState = { ...prevState };
+      newState.annotations.topOfScreenLine.display =
+        !newState.annotations.topOfScreenLine.display;
+      newState.annotations.bottomOfScreenLine.display =
+        !newState.annotations.bottomOfScreenLine.display;
+      return newState;
+    });
+  };
 
   const statusChipColors = {
     Active: lineColors.blue,
@@ -1034,6 +1104,26 @@ function Default() {
                                       </Button>
                                     </>
                                   )}
+                                {radioValue === "has_waterlevels" &&
+                                  isGraphRefCurrent && (
+                                    <>
+                                      <Button
+                                        size="small"
+                                        style={{ width: "180px" }}
+                                        color="primary"
+                                        variant="contained"
+                                        onClick={handleToggleAnnotation}
+                                        disabled={
+                                          currentTableLabel?.screen_bottom_depth_ft ===
+                                            null ||
+                                          currentTableLabel?.screen_bottom_depth_ft ===
+                                            null
+                                        }
+                                      >
+                                        Toggle Screening Interval
+                                      </Button>
+                                    </>
+                                  )}
                               </Grid>
                               <Grid
                                 item
@@ -1106,6 +1196,7 @@ function Default() {
                                   ? "start"
                                   : "center"
                               }
+                              annotatedLines={annotatedLines}
                             />
                           </TimeseriesWrapper>
                         </TimeseriesContainer>

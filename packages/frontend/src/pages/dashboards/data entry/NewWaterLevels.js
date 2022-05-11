@@ -381,9 +381,20 @@ function NewWaterLevels() {
     }
   }, [filterValues]); // eslint-disable-line
 
+  useEffect(() => {
+    if (currentSelectedPoint) {
+      setCurrentTableLabel(
+        filteredData.filter(
+          (item) => item.cuwcd_well_number === currentSelectedPoint
+        )[0]
+      );
+    }
+  }, [currentSelectedPoint, filteredData]);
+
+  const [annotatedLines, setAnnotatedLines] = useState({});
   const [filteredMutatedGraphData, setFilteredMutatedGraphData] = useState({});
   useEffect(() => {
-    if (currentSelectedTimeseriesData?.length) {
+    if (currentSelectedTimeseriesData?.length && currentTableLabel) {
       //mutate data for chartJS to use
       let graphData;
       if (radioValue === "has_waterlevels") {
@@ -404,12 +415,82 @@ function NewWaterLevels() {
           ],
         };
       }
+      const annotations = {
+        annotations: {
+          ...(currentTableLabel.screen_top_depth_ft !== null && {
+            topOfScreenLine: {
+              type: "line",
+              yScaleID: "yL",
+              yMin: currentTableLabel.screen_top_depth_ft,
+              yMax: currentTableLabel.screen_top_depth_ft,
+              borderColor: "black",
+              borderWidth: 3,
+              borderDash: [6, 6],
+              borderDashOffset: 0,
+              display: false,
+              label: {
+                position: "start",
+                yAdjust: -20,
+                enabled: true,
+                backgroundColor: "black",
+                borderColor: "black",
+                borderRadius: 10,
+                borderWidth: 2,
+                content: () =>
+                  "Top of Screen: " + currentTableLabel.screen_top_depth_ft,
+                rotation: "auto",
+              },
+            },
+          }),
+          ...(currentTableLabel.screen_bottom_depth_ft !== null && {
+            bottomOfScreenLine: {
+              type: "line",
+              yScaleID: "yL",
+              yMin: currentTableLabel.screen_bottom_depth_ft,
+              yMax: currentTableLabel.screen_bottom_depth_ft,
+              borderColor: "black",
+              borderWidth: 3,
+              borderDash: [6, 6],
+              borderDashOffset: 0,
+              display: false,
+              label: {
+                position: "end",
+                yAdjust: 20,
+                enabled: true,
+                backgroundColor: "black",
+                borderColor: "black",
+                borderRadius: 10,
+                borderWidth: 2,
+                content: () =>
+                  "Bottom of Screen: " +
+                  currentTableLabel.screen_bottom_depth_ft,
+                rotation: "auto",
+              },
+            },
+          }),
+        },
+      };
+
+      setAnnotatedLines(annotations);
 
       setFilteredMutatedGraphData(graphData);
     } else {
       setFilteredMutatedGraphData(null);
     }
-  }, [currentSelectedTimeseriesData]); // eslint-disable-line
+  }, [currentSelectedTimeseriesData, currentTableLabel]); // eslint-disable-line
+
+  const [isGraphRefCurrent, setIsGraphRefCurrent] = useState(false);
+
+  const handleToggleAnnotation = () => {
+    setAnnotatedLines((prevState) => {
+      let newState = { ...prevState };
+      newState.annotations.topOfScreenLine.display =
+        !newState.annotations.topOfScreenLine.display;
+      newState.annotations.bottomOfScreenLine.display =
+        !newState.annotations.bottomOfScreenLine.display;
+      return newState;
+    });
+  };
 
   const statusChipColors = {
     Active: lineColors.blue,
@@ -441,16 +522,6 @@ function NewWaterLevels() {
       },
     },
   ];
-
-  useEffect(() => {
-    if (currentSelectedPoint) {
-      setCurrentTableLabel(
-        filteredData.filter(
-          (item) => item.cuwcd_well_number === currentSelectedPoint
-        )[0]
-      );
-    }
-  }, [currentSelectedPoint, filteredData]);
 
   const formatTableTitle = (location, graphType) => {
     if (!location) return null;
@@ -731,7 +802,28 @@ function NewWaterLevels() {
                               flexDirection: "column",
                               justifyContent: "center",
                             }}
-                          />
+                          >
+                            {radioValue === "has_waterlevels" &&
+                              isGraphRefCurrent && (
+                                <>
+                                  <Button
+                                    size="small"
+                                    style={{ width: "180px" }}
+                                    color="primary"
+                                    variant="contained"
+                                    onClick={handleToggleAnnotation}
+                                    disabled={
+                                      currentTableLabel?.screen_bottom_depth_ft ===
+                                        null ||
+                                      currentTableLabel?.screen_bottom_depth_ft ===
+                                        null
+                                    }
+                                  >
+                                    Toggle Screening Interval
+                                  </Button>
+                                </>
+                              )}
+                          </Grid>
                           <Grid
                             item
                             style={{ display: "flex", alignItems: "flex-end" }}
@@ -765,15 +857,17 @@ function NewWaterLevels() {
                           reverseLegend={false}
                           yLReverse={true}
                           ref={graphSaveRef}
+                          setIsGraphRefCurrent={setIsGraphRefCurrent}
                           filterValues={filterValues}
                           type="scatter"
                           displayLegend={false}
-                          stacked={true}
+                          stacked={false}
                           xLabelUnit="day"
                           maxTicksX={12}
                           maxTicksYL={6}
                           maxTicksYR={5}
                           align="center"
+                          annotatedLines={annotatedLines}
                         />
                       </TimeseriesWrapper>
                     </TimeseriesContainer>

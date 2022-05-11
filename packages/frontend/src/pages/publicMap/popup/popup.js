@@ -102,7 +102,6 @@ const Popup = ({
   useEffect(() => {
     const title = layers?.find((layer) => layer?.id === feature?.layer?.id)
       ?.lreProperties?.popup?.titleField;
-    console.log(title);
     setTitleField(
       (title &&
         feature?.properties[title] &&

@@ -8,8 +8,10 @@ import Loader from "../Loader";
 import { Typography } from "@material-ui/core";
 import { lineColors } from "../../utils";
 import { add } from "date-fns";
+import annotationPlugin from "chartjs-plugin-annotation";
 
 Chart.register(zoomPlugin);
+Chart.register(annotationPlugin);
 
 const TimeseriesLineChart = forwardRef(
   (
@@ -34,6 +36,8 @@ const TimeseriesLineChart = forwardRef(
       maxTicksYL = 11,
       maxTicksYR = 11,
       align = "center",
+      enableLegendClick = false,
+      annotatedLines = {},
     },
     ref
   ) => {
@@ -101,6 +105,7 @@ const TimeseriesLineChart = forwardRef(
         mode: "index",
       },
       plugins: {
+        annotation: annotatedLines,
         filler: {
           propagate: false,
         },
@@ -120,20 +125,24 @@ const TimeseriesLineChart = forwardRef(
         legend: {
           display: displayLegend,
           reverse: reverseLegend,
-          onClick: () =>
-            // e, legendItem, legend
-            {
-              return null;
-              // const currentIndex = legendItem.datasetIndex;
-              // ref.current.setDatasetVisibility(
-              //   currentIndex,
-              //   !ref.current.isDatasetVisible(currentIndex)
-              // );
-            },
+          ...(!enableLegendClick && {
+            onClick: () =>
+              // e, legendItem, legend
+              {
+                return null;
+                // const currentIndex = legendItem.datasetIndex;
+                // ref.current.setDatasetVisibility(
+                //   currentIndex,
+                //   !ref.current.isDatasetVisible(currentIndex)
+                // );
+              },
+          }),
           labels: {
-            filter: (legendItem) => {
-              return !legendItem.hidden;
-            },
+            ...(!enableLegendClick && {
+              filter: (legendItem) => {
+                return !legendItem.hidden;
+              },
+            }),
             usePointStyle: true,
             color: lineColors.darkGray,
           },

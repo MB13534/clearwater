@@ -91,6 +91,9 @@ const useMap = (ref, mapConfig) => {
   const { sources } = useSources();
   const { layers, setLayers } = useLayers();
 
+  const wells = sources.find((item) => item.id === "clearwater-wells")?.data
+    ?.features;
+
   const {
     addBuffersToMap,
     searchRadiusBuffers,
@@ -620,6 +623,7 @@ const useMap = (ref, mapConfig) => {
     setVirtualBoreCoordinates,
     virtualBoreVisible,
     setVirtualBoreVisible,
+    wells,
   };
 };
 

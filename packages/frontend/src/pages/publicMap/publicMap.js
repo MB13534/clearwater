@@ -116,6 +116,7 @@ const PublicMap = () => {
     setVirtualBoreVisible,
     virtualBoreCoordinates,
     setVirtualBoreCoordinates,
+    wells,
   } = useMap(mapContainer, INIT_MAP_CONFIG);
   const {
     filterValues,
@@ -396,6 +397,7 @@ const PublicMap = () => {
           dataVizWellNumber={dataVizWellNumber}
           dataVizGraphType={dataVizGraphType}
           onClose={() => setDataVizVisible(false)}
+          wells={wells}
         />
 
         {!measurementsVisible && (
