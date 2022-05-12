@@ -462,7 +462,7 @@ function NewWaterLevels() {
                 borderWidth: 2,
                 color: "white",
                 content: () =>
-                  "Austin: " + currentNdxGeologicFormations.top_austin,
+                  "Austin: " + currentNdxGeologicFormations.top_austin + " ft",
                 rotation: "auto",
               },
             },
@@ -485,7 +485,7 @@ function NewWaterLevels() {
                 borderWidth: 2,
                 color: "white",
                 content: () =>
-                  "Delrio: " + currentNdxGeologicFormations.top_delrio,
+                  "Delrio: " + currentNdxGeologicFormations.top_delrio + " ft",
                 rotation: "auto",
               },
             },
@@ -508,7 +508,9 @@ function NewWaterLevels() {
                 borderWidth: 2,
                 color: "white",
                 content: () =>
-                  "Edwards: " + currentNdxGeologicFormations.top_edwards,
+                  "Edwards: " +
+                  currentNdxGeologicFormations.top_edwards +
+                  " ft",
                 rotation: "auto",
               },
             },
@@ -531,7 +533,9 @@ function NewWaterLevels() {
                 borderWidth: 2,
                 color: "white",
                 content: () =>
-                  "Glen Rose: " + currentNdxGeologicFormations.top_glen_rose,
+                  "Glen Rose: " +
+                  currentNdxGeologicFormations.top_glen_rose +
+                  " ft",
                 rotation: "auto",
               },
             },
@@ -554,7 +558,9 @@ function NewWaterLevels() {
                 borderWidth: 2,
                 color: "white",
                 content: () =>
-                  "Hensell: " + currentNdxGeologicFormations.top_hensell,
+                  "Hensell: " +
+                  currentNdxGeologicFormations.top_hensell +
+                  " ft",
                 rotation: "auto",
               },
             },
@@ -577,7 +583,9 @@ function NewWaterLevels() {
                 borderWidth: 2,
                 color: "black",
                 content: () =>
-                  "Hosston: " + currentNdxGeologicFormations.top_hosston,
+                  "Hosston: " +
+                  currentNdxGeologicFormations.top_hosston +
+                  " ft",
                 rotation: "auto",
               },
             },
@@ -600,7 +608,9 @@ function NewWaterLevels() {
                 borderWidth: 2,
                 color: "white",
                 content: () =>
-                  "Pearsall: " + currentNdxGeologicFormations.top_pearsall,
+                  "Pearsall: " +
+                  currentNdxGeologicFormations.top_pearsall +
+                  " ft",
                 rotation: "auto",
               },
             },
@@ -623,7 +633,7 @@ function NewWaterLevels() {
                 borderWidth: 2,
                 color: "black",
                 content: () =>
-                  "Walnut: " + currentNdxGeologicFormations.top_walnut,
+                  "Walnut: " + currentNdxGeologicFormations.top_walnut + " ft",
                 rotation: "auto",
               },
             },
@@ -648,7 +658,9 @@ function NewWaterLevels() {
                 borderRadius: 10,
                 borderWidth: 2,
                 content: () =>
-                  "Top of Screen: " + currentTableLabel?.screen_top_depth_ft,
+                  "Top of Screen: " +
+                  currentTableLabel?.screen_top_depth_ft +
+                  " ft",
                 rotation: "auto",
               },
             },
@@ -674,7 +686,8 @@ function NewWaterLevels() {
                 borderWidth: 2,
                 content: () =>
                   "Bottom of Screen: " +
-                  currentTableLabel.screen_bottom_depth_ft,
+                  currentTableLabel.screen_bottom_depth_ft +
+                  " ft",
                 rotation: "auto",
               },
             },
