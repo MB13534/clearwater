@@ -38,6 +38,7 @@ const TimeseriesLineChart = forwardRef(
       align = "center",
       enableLegendClick = false,
       annotatedLines = {},
+      beginAtZero = false,
     },
     ref
   ) => {
@@ -153,10 +154,11 @@ const TimeseriesLineChart = forwardRef(
         zoom: {
           pan: {
             enabled: true,
-            mode: "x",
+            mode: "xy",
           },
           zoom: {
-            mode: "x",
+            mode: "xy",
+            overScaleMode: "y",
             wheel: {
               enabled: false,
             },
@@ -203,6 +205,7 @@ const TimeseriesLineChart = forwardRef(
           stacked: stacked,
         },
         yL: {
+          beginAtZero: beginAtZero,
           position: "left",
           reverse: yLReverse,
           display: true,

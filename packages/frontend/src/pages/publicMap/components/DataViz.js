@@ -386,7 +386,7 @@ const DataViz = ({
               borderWidth: 2,
               pointHoverRadius: 9,
               pointRadius: 7,
-              fill: true,
+              fill: "start",
               maxBarThickness: 25,
             },
           ],
@@ -400,17 +400,17 @@ const DataViz = ({
                 yScaleID: "yL",
                 yMin: currentNdxGeologicFormations.top_austin,
                 yMax: currentNdxGeologicFormations.top_austin,
-                borderColor: "#008B00",
+                borderColor: "#94CE94",
                 borderWidth: 3,
                 display: false,
                 label: {
                   position: "90%",
                   enabled: true,
-                  backgroundColor: "#008B00",
-                  borderColor: "#008B00",
+                  backgroundColor: "#94CE94",
+                  borderColor: "#94CE94",
                   borderRadius: 10,
                   borderWidth: 2,
-                  color: "white",
+                  color: "black",
                   content: () =>
                     "Austin: " +
                     currentNdxGeologicFormations.top_austin +
@@ -425,14 +425,14 @@ const DataViz = ({
                 yScaleID: "yL",
                 yMin: currentNdxGeologicFormations.top_delrio,
                 yMax: currentNdxGeologicFormations.top_delrio,
-                borderColor: "#8B7355",
+                borderColor: "#E8BA6C",
                 borderWidth: 3,
                 display: false,
                 label: {
                   position: "80%",
                   enabled: true,
-                  backgroundColor: "#8B7355",
-                  borderColor: "#8B7355",
+                  backgroundColor: "#E8BA6C",
+                  borderColor: "#E8BA6C",
                   borderRadius: 10,
                   borderWidth: 2,
                   color: "white",
@@ -450,14 +450,14 @@ const DataViz = ({
                 yScaleID: "yL",
                 yMin: currentNdxGeologicFormations.top_edwards,
                 yMax: currentNdxGeologicFormations.top_edwards,
-                borderColor: "#A9A9A9",
+                borderColor: "#C5FBC7",
                 borderWidth: 3,
                 display: false,
                 label: {
                   position: "70%",
                   enabled: true,
-                  backgroundColor: "#A9A9A9",
-                  borderColor: "#A9A9A9",
+                  backgroundColor: "#C5FBC7",
+                  borderColor: "#C5FBC7",
                   borderRadius: 10,
                   borderWidth: 2,
                   color: "black",
@@ -475,14 +475,14 @@ const DataViz = ({
                 yScaleID: "yL",
                 yMin: currentNdxGeologicFormations.top_walnut,
                 yMax: currentNdxGeologicFormations.top_walnut,
-                borderColor: "#CD8500",
+                borderColor: "#097608",
                 borderWidth: 3,
                 display: false,
                 label: {
                   position: "60%",
                   enabled: true,
-                  backgroundColor: "#CD8500",
-                  borderColor: "#CD8500",
+                  backgroundColor: "#097608",
+                  borderColor: "#097608",
                   borderRadius: 10,
                   borderWidth: 2,
                   color: "white",
@@ -500,17 +500,17 @@ const DataViz = ({
                 yScaleID: "yL",
                 yMin: currentNdxGeologicFormations.top_glen_rose,
                 yMax: currentNdxGeologicFormations.top_glen_rose,
-                borderColor: "#6E8B3D",
+                borderColor: "#99DEF5",
                 borderWidth: 3,
                 display: false,
                 label: {
                   position: "50%",
                   enabled: true,
-                  backgroundColor: "#6E8B3D",
-                  borderColor: "#6E8B3D",
+                  backgroundColor: "#99DEF5",
+                  borderColor: "#99DEF5",
                   borderRadius: 10,
                   borderWidth: 2,
-                  color: "white",
+                  color: "black",
                   content: () =>
                     "Glen Rose: " +
                     currentNdxGeologicFormations.top_glen_rose +
@@ -525,14 +525,14 @@ const DataViz = ({
                 yScaleID: "yL",
                 yMin: currentNdxGeologicFormations.top_hensell,
                 yMax: currentNdxGeologicFormations.top_hensell,
-                borderColor: "#8B3A3A",
+                borderColor: "#C454C4",
                 borderWidth: 3,
                 display: false,
                 label: {
                   position: "40%",
                   enabled: true,
-                  backgroundColor: "#8B3A3A",
-                  borderColor: "#8B3A3A",
+                  backgroundColor: "#C454C4",
+                  borderColor: "#C454C4",
                   borderRadius: 10,
                   borderWidth: 2,
                   color: "white",
@@ -550,17 +550,17 @@ const DataViz = ({
                 yScaleID: "yL",
                 yMin: currentNdxGeologicFormations.top_pearsall,
                 yMax: currentNdxGeologicFormations.top_pearsall,
-                borderColor: "#9370DB",
+                borderColor: "#DFE094",
                 borderWidth: 3,
                 display: false,
                 label: {
                   position: "30%",
                   enabled: true,
-                  backgroundColor: "#9370DB",
-                  borderColor: "#9370DB",
+                  backgroundColor: "#DFE094",
+                  borderColor: "#DFE094",
                   borderRadius: 10,
                   borderWidth: 2,
-                  color: "white",
+                  color: "black",
                   content: () =>
                     "Pearsall: " +
                     currentNdxGeologicFormations.top_pearsall +
@@ -575,17 +575,17 @@ const DataViz = ({
                 yScaleID: "yL",
                 yMin: currentNdxGeologicFormations.top_hosston,
                 yMax: currentNdxGeologicFormations.top_hosston,
-                borderColor: lineColors.cyan,
+                borderColor: "#403ECD",
                 borderWidth: 3,
                 display: false,
                 label: {
                   position: "20%",
                   enabled: true,
-                  backgroundColor: lineColors.cyan,
-                  borderColor: lineColors.cyan,
+                  backgroundColor: "#403ECD",
+                  borderColor: "#403ECD",
                   borderRadius: 10,
                   borderWidth: 2,
-                  color: "black",
+                  color: "white",
                   content: () =>
                     "Hosston: " +
                     currentNdxGeologicFormations.top_hosston +
@@ -1095,6 +1095,7 @@ const DataViz = ({
                               : "center"
                           }
                           annotatedLines={annotatedLines}
+                          beginAtZero={dataVizGraphType === "count_waterlevels"}
                         />
                       </TimeseriesWrapper>
                     </TimeseriesContainer>
