@@ -105,7 +105,10 @@ const TimeseriesLineChart = forwardRef(
         mode: "index",
       },
       plugins: {
-        annotation: annotatedLines,
+        annotation: {
+          ...{ drawTime: "afterDatasetsDraw" },
+          ...annotatedLines,
+        },
         filler: {
           propagate: false,
         },

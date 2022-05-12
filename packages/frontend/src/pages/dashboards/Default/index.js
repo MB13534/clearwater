@@ -280,6 +280,25 @@ function Default() {
     }
   );
 
+  const { data: geologicFormations } = useQuery(
+    ["data-wells-formations-crosstab"],
+    async () => {
+      try {
+        const { data } = await axios.get(
+          `${process.env.REACT_APP_ENDPOINT}/api/data-wells-formations-crosstab`
+        );
+
+        return data;
+      } catch (err) {
+        console.error(err);
+      }
+    },
+    {
+      keepPreviousData: true,
+      refetchOnWindowFocus: false,
+    }
+  );
+
   //paramaters in picker that are selected by user
   const [selectedWQParameter, setSelectedWQParameter] = useState(6);
   const { data: wQparameterOptions } = useQuery(
@@ -357,7 +376,11 @@ function Default() {
   const [annotatedLines, setAnnotatedLines] = useState({});
   const [filteredMutatedGraphData, setFilteredMutatedGraphData] = useState({});
   useEffect(() => {
-    if (currentSelectedTimeseriesData?.length && currentTableLabel) {
+    if (
+      currentSelectedTimeseriesData?.length &&
+      currentTableLabel &&
+      geologicFormations
+    ) {
       //mutate data for chartJS to use
       let graphData;
       if (radioValue === "has_production") {
@@ -497,6 +520,10 @@ function Default() {
           ],
         };
       } else if (radioValue === "has_waterlevels") {
+        const currentNdxGeologicFormations = geologicFormations.filter(
+          (location) => location.well_ndx === currentTableLabel.well_ndx
+        )[0];
+
         graphData = {
           labels: currentSelectedTimeseriesData.map(
             (item) => new Date(item.collected_date)
@@ -516,6 +543,190 @@ function Default() {
 
         const annotations = {
           annotations: {
+            ...(currentNdxGeologicFormations.top_austin !== null && {
+              topAustinLine: {
+                type: "line",
+                yScaleID: "yL",
+                yMin: currentNdxGeologicFormations.top_austin,
+                yMax: currentNdxGeologicFormations.top_austin,
+                borderColor: lineColors.red,
+                borderWidth: 3,
+                display: false,
+                label: {
+                  position: "90%",
+                  enabled: true,
+                  backgroundColor: lineColors.red,
+                  borderColor: lineColors.red,
+                  borderRadius: 10,
+                  borderWidth: 2,
+                  color: "white",
+                  content: () =>
+                    "Austin: " + currentNdxGeologicFormations.top_austin,
+                  rotation: "auto",
+                },
+              },
+            }),
+            ...(currentNdxGeologicFormations.top_delrio !== null && {
+              topDelrioLine: {
+                type: "line",
+                yScaleID: "yL",
+                yMin: currentNdxGeologicFormations.top_delrio,
+                yMax: currentNdxGeologicFormations.top_delrio,
+                borderColor: lineColors.green,
+                borderWidth: 3,
+                display: false,
+                label: {
+                  position: "80%",
+                  enabled: true,
+                  backgroundColor: lineColors.green,
+                  borderColor: lineColors.green,
+                  borderRadius: 10,
+                  borderWidth: 2,
+                  color: "white",
+                  content: () =>
+                    "Delrio: " + currentNdxGeologicFormations.top_delrio,
+                  rotation: "auto",
+                },
+              },
+            }),
+            ...(currentNdxGeologicFormations.top_edwards !== null && {
+              topEdwardsLine: {
+                type: "line",
+                yScaleID: "yL",
+                yMin: currentNdxGeologicFormations.top_edwards,
+                yMax: currentNdxGeologicFormations.top_edwards,
+                borderColor: lineColors.orange,
+                borderWidth: 3,
+                display: false,
+                label: {
+                  position: "70%",
+                  enabled: true,
+                  backgroundColor: lineColors.orange,
+                  borderColor: lineColors.orange,
+                  borderRadius: 10,
+                  borderWidth: 2,
+                  color: "white",
+                  content: () =>
+                    "Edwards: " + currentNdxGeologicFormations.top_edwards,
+                  rotation: "auto",
+                },
+              },
+            }),
+            ...(currentNdxGeologicFormations.top_glen_rose !== null && {
+              topGlenRoseLine: {
+                type: "line",
+                yScaleID: "yL",
+                yMin: currentNdxGeologicFormations.top_glen_rose,
+                yMax: currentNdxGeologicFormations.top_glen_rose,
+                borderColor: lineColors.blue,
+                borderWidth: 3,
+                display: false,
+                label: {
+                  position: "60%",
+                  enabled: true,
+                  backgroundColor: lineColors.blue,
+                  borderColor: lineColors.blue,
+                  borderRadius: 10,
+                  borderWidth: 2,
+                  color: "white",
+                  content: () =>
+                    "Glen Rose: " + currentNdxGeologicFormations.top_glen_rose,
+                  rotation: "auto",
+                },
+              },
+            }),
+            ...(currentNdxGeologicFormations.top_hensell !== null && {
+              topHensellLine: {
+                type: "line",
+                yScaleID: "yL",
+                yMin: currentNdxGeologicFormations.top_hensell,
+                yMax: currentNdxGeologicFormations.top_hensell,
+                borderColor: lineColors.purple,
+                borderWidth: 3,
+                display: false,
+                label: {
+                  position: "50%",
+                  enabled: true,
+                  backgroundColor: lineColors.purple,
+                  borderColor: lineColors.purple,
+                  borderRadius: 10,
+                  borderWidth: 2,
+                  color: "white",
+                  content: () =>
+                    "Hensell: " + currentNdxGeologicFormations.top_hensell,
+                  rotation: "auto",
+                },
+              },
+            }),
+            ...(currentNdxGeologicFormations.top_hosston !== null && {
+              topHosstonLine: {
+                type: "line",
+                yScaleID: "yL",
+                yMin: currentNdxGeologicFormations.top_hosston,
+                yMax: currentNdxGeologicFormations.top_hosston,
+                borderColor: lineColors.cyan,
+                borderWidth: 3,
+                display: false,
+                label: {
+                  position: "240%",
+                  enabled: true,
+                  backgroundColor: lineColors.cyan,
+                  borderColor: lineColors.cyan,
+                  borderRadius: 10,
+                  borderWidth: 2,
+                  color: "black",
+                  content: () =>
+                    "Hosston: " + currentNdxGeologicFormations.top_hosston,
+                  rotation: "auto",
+                },
+              },
+            }),
+            ...(currentNdxGeologicFormations.top_pearsall !== null && {
+              topPearsallLine: {
+                type: "line",
+                yScaleID: "yL",
+                yMin: currentNdxGeologicFormations.top_pearsall,
+                yMax: currentNdxGeologicFormations.top_pearsall,
+                borderColor: lineColors.pink,
+                borderWidth: 3,
+                display: false,
+                label: {
+                  position: "30%",
+                  enabled: true,
+                  backgroundColor: lineColors.pink,
+                  borderColor: lineColors.pink,
+                  borderRadius: 10,
+                  borderWidth: 2,
+                  color: "white",
+                  content: () =>
+                    "Pearsall: " + currentNdxGeologicFormations.top_pearsall,
+                  rotation: "auto",
+                },
+              },
+            }),
+            ...(currentNdxGeologicFormations.top_walnut !== null && {
+              topWalnutLine: {
+                type: "line",
+                yScaleID: "yL",
+                yMin: currentNdxGeologicFormations.top_walnut,
+                yMax: currentNdxGeologicFormations.top_walnut,
+                borderColor: lineColors.yellow,
+                borderWidth: 3,
+                display: false,
+                label: {
+                  position: "20%",
+                  enabled: true,
+                  backgroundColor: lineColors.yellow,
+                  borderColor: lineColors.yellow,
+                  borderRadius: 10,
+                  borderWidth: 2,
+                  color: "black",
+                  content: () =>
+                    "Walnut: " + currentNdxGeologicFormations.top_walnut,
+                  rotation: "auto",
+                },
+              },
+            }),
             ...(currentTableLabel.screen_top_depth_ft !== null && {
               topOfScreenLine: {
                 type: "line",
@@ -529,7 +740,7 @@ function Default() {
                 display: false,
                 label: {
                   position: "start",
-                  yAdjust: -20,
+                  yAdjust: -15,
                   enabled: true,
                   backgroundColor: "black",
                   borderColor: "black",
@@ -554,7 +765,7 @@ function Default() {
                 display: false,
                 label: {
                   position: "end",
-                  yAdjust: 20,
+                  yAdjust: 15,
                   enabled: true,
                   backgroundColor: "black",
                   borderColor: "black",
@@ -608,13 +819,57 @@ function Default() {
     }
   }, [currentSelectedTimeseriesData, selectedWQParameter, currentTableLabel]); // eslint-disable-line
 
-  const handleToggleAnnotation = () => {
+  const handleToggleAnnotation = (lineLabel) => {
     setAnnotatedLines((prevState) => {
       let newState = { ...prevState };
-      newState.annotations.topOfScreenLine.display =
-        !newState.annotations.topOfScreenLine.display;
-      newState.annotations.bottomOfScreenLine.display =
-        !newState.annotations.bottomOfScreenLine.display;
+
+      if (lineLabel === "Screening Interval") {
+        newState.annotations.topOfScreenLine.display =
+          !newState.annotations.topOfScreenLine.display;
+        newState.annotations.bottomOfScreenLine.display =
+          !newState.annotations.bottomOfScreenLine.display;
+      }
+      if (lineLabel === "Geologic Formations") {
+        if (newState?.annotations?.topHosstonLine?.display !== undefined) {
+          newState.annotations.topHosstonLine.display =
+            !newState.annotations.topHosstonLine.display;
+        }
+        if (newState?.annotations?.topPearsallLine?.display !== undefined) {
+          newState.annotations.topPearsallLine.display =
+            !newState.annotations.topPearsallLine.display;
+        }
+
+        if (newState?.annotations?.topHensellLine?.display !== undefined) {
+          newState.annotations.topHensellLine.display =
+            !newState.annotations.topHensellLine.display;
+        }
+
+        if (newState?.annotations?.topGlenRoseLine?.display !== undefined) {
+          newState.annotations.topGlenRoseLine.display =
+            !newState.annotations.topGlenRoseLine.display;
+        }
+
+        if (newState?.annotations?.topWalnutLine?.display !== undefined) {
+          newState.annotations.topWalnutLine.display =
+            !newState.annotations.topWalnutLine.display;
+        }
+
+        if (newState?.annotations?.topEdwardsLine?.display !== undefined) {
+          newState.annotations.topEdwardsLine.display =
+            !newState.annotations.topEdwardsLine.display;
+        }
+
+        if (newState?.annotations?.topDelrioLine?.display !== undefined) {
+          newState.annotations.topDelrioLine.display =
+            !newState.annotations.topDelrioLine.display;
+        }
+
+        if (newState?.annotations?.topAustinLine?.display !== undefined) {
+          newState.annotations.topAustinLine.display =
+            !newState.annotations.topAustinLine.display;
+        }
+      }
+
       return newState;
     });
   };
@@ -1061,8 +1316,18 @@ function Default() {
                                   flexGrow: 1,
                                   maxWidth: "calc(100% - 110px)",
                                   display: "flex",
-                                  flexDirection: "column",
-                                  justifyContent: "center",
+                                  flexDirection:
+                                    radioValue === "has_waterlevels"
+                                      ? "row"
+                                      : "column",
+                                  justifyContent:
+                                    radioValue === "has_waterlevels"
+                                      ? "start"
+                                      : "center",
+                                  alignItems:
+                                    radioValue === "has_waterlevels"
+                                      ? "center"
+                                      : "start",
                                 }}
                               >
                                 {radioValue === "has_wqdata" &&
@@ -1109,10 +1374,17 @@ function Default() {
                                     <>
                                       <Button
                                         size="small"
-                                        style={{ width: "180px" }}
+                                        style={{
+                                          width: "200px",
+                                          marginRight: "20px",
+                                        }}
                                         color="primary"
                                         variant="contained"
-                                        onClick={handleToggleAnnotation}
+                                        onClick={() =>
+                                          handleToggleAnnotation(
+                                            "Screening Interval"
+                                          )
+                                        }
                                         disabled={
                                           currentTableLabel?.screen_bottom_depth_ft ===
                                             null ||
@@ -1121,6 +1393,19 @@ function Default() {
                                         }
                                       >
                                         Toggle Screening Interval
+                                      </Button>
+                                      <Button
+                                        size="small"
+                                        style={{ width: "200px" }}
+                                        color="primary"
+                                        variant="contained"
+                                        onClick={() =>
+                                          handleToggleAnnotation(
+                                            "Geologic Formations"
+                                          )
+                                        }
+                                      >
+                                        Toggle Geologic Formations
                                       </Button>
                                     </>
                                   )}
