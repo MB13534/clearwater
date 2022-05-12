@@ -230,6 +230,8 @@ const DataViz = ({
       //mutate data for chartJS to use
       let graphData;
       if (dataVizGraphType === "count_production") {
+        setAnnotatedLines({});
+
         graphData = {
           labels: currentSelectedTimeseriesData.map(
             (item) => new Date(item.report_date)
@@ -380,7 +382,10 @@ const DataViz = ({
               backgroundColor: lighten(lineColors.blue, 0.5),
               borderColor: lineColors.blue,
               data: currentSelectedTimeseriesData.map((item) => item.dtw_ft),
+              pointStyle: "circle",
               borderWidth: 2,
+              pointHoverRadius: 9,
+              pointRadius: 7,
               fill: true,
               maxBarThickness: 25,
             },
@@ -653,6 +658,8 @@ const DataViz = ({
           (item) => item.wq_parameter_ndx === selectedWQParameter
         );
 
+        setAnnotatedLines({});
+
         graphData =
           parameterFilteredData.length === 0
             ? []
@@ -681,6 +688,7 @@ const DataViz = ({
 
       setFilteredMutatedGraphData(graphData);
     } else {
+      setAnnotatedLines({});
       setFilteredMutatedGraphData(null);
     }
   }, [

@@ -436,6 +436,8 @@ function NewWaterLevels() {
               borderColor: lineColors.blue,
               data: currentSelectedTimeseriesData.map((item) => item.dtw_ft),
               borderWidth: 2,
+              pointHoverRadius: 9,
+              pointRadius: 7,
               fill: true,
               maxBarThickness: 25,
             },
@@ -700,6 +702,7 @@ function NewWaterLevels() {
 
       setFilteredMutatedGraphData(graphData);
     } else {
+      setAnnotatedLines({});
       setFilteredMutatedGraphData(null);
     }
   }, [currentSelectedTimeseriesData, currentTableLabel, geologicFormations]); // eslint-disable-line
