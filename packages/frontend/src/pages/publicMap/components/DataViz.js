@@ -395,14 +395,14 @@ const DataViz = ({
                 yScaleID: "yL",
                 yMin: currentNdxGeologicFormations.top_austin,
                 yMax: currentNdxGeologicFormations.top_austin,
-                borderColor: lineColors.red,
+                borderColor: "#008B00",
                 borderWidth: 3,
                 display: false,
                 label: {
                   position: "90%",
                   enabled: true,
-                  backgroundColor: lineColors.red,
-                  borderColor: lineColors.red,
+                  backgroundColor: "#008B00",
+                  borderColor: "#008B00",
                   borderRadius: 10,
                   borderWidth: 2,
                   color: "white",
@@ -420,19 +420,19 @@ const DataViz = ({
                 yScaleID: "yL",
                 yMin: currentNdxGeologicFormations.top_delrio,
                 yMax: currentNdxGeologicFormations.top_delrio,
-                borderColor: lineColors.green,
+                borderColor: "#8B7355",
                 borderWidth: 3,
                 display: false,
                 label: {
                   position: "80%",
                   enabled: true,
-                  backgroundColor: lineColors.green,
-                  borderColor: lineColors.green,
+                  backgroundColor: "#8B7355",
+                  borderColor: "#8B7355",
                   borderRadius: 10,
                   borderWidth: 2,
                   color: "white",
                   content: () =>
-                    "Delrio: " +
+                    "Del Rio: " +
                     currentNdxGeologicFormations.top_delrio +
                     " ft",
                   rotation: "auto",
@@ -445,20 +445,45 @@ const DataViz = ({
                 yScaleID: "yL",
                 yMin: currentNdxGeologicFormations.top_edwards,
                 yMax: currentNdxGeologicFormations.top_edwards,
-                borderColor: lineColors.orange,
+                borderColor: "#A9A9A9",
                 borderWidth: 3,
                 display: false,
                 label: {
                   position: "70%",
                   enabled: true,
-                  backgroundColor: lineColors.orange,
-                  borderColor: lineColors.orange,
+                  backgroundColor: "#A9A9A9",
+                  borderColor: "#A9A9A9",
+                  borderRadius: 10,
+                  borderWidth: 2,
+                  color: "black",
+                  content: () =>
+                    "Edwards: " +
+                    currentNdxGeologicFormations.top_edwards +
+                    " ft",
+                  rotation: "auto",
+                },
+              },
+            }),
+            ...(currentNdxGeologicFormations.top_walnut !== null && {
+              topWalnutLine: {
+                type: "line",
+                yScaleID: "yL",
+                yMin: currentNdxGeologicFormations.top_walnut,
+                yMax: currentNdxGeologicFormations.top_walnut,
+                borderColor: "#CD8500",
+                borderWidth: 3,
+                display: false,
+                label: {
+                  position: "60%",
+                  enabled: true,
+                  backgroundColor: "#CD8500",
+                  borderColor: "#CD8500",
                   borderRadius: 10,
                   borderWidth: 2,
                   color: "white",
                   content: () =>
-                    "Edwards: " +
-                    currentNdxGeologicFormations.top_edwards +
+                    "Walnut: " +
+                    currentNdxGeologicFormations.top_walnut +
                     " ft",
                   rotation: "auto",
                 },
@@ -470,14 +495,14 @@ const DataViz = ({
                 yScaleID: "yL",
                 yMin: currentNdxGeologicFormations.top_glen_rose,
                 yMax: currentNdxGeologicFormations.top_glen_rose,
-                borderColor: lineColors.blue,
+                borderColor: "#6E8B3D",
                 borderWidth: 3,
                 display: false,
                 label: {
-                  position: "60%",
+                  position: "50%",
                   enabled: true,
-                  backgroundColor: lineColors.blue,
-                  borderColor: lineColors.blue,
+                  backgroundColor: "#6E8B3D",
+                  borderColor: "#6E8B3D",
                   borderRadius: 10,
                   borderWidth: 2,
                   color: "white",
@@ -495,20 +520,45 @@ const DataViz = ({
                 yScaleID: "yL",
                 yMin: currentNdxGeologicFormations.top_hensell,
                 yMax: currentNdxGeologicFormations.top_hensell,
-                borderColor: lineColors.purple,
+                borderColor: "#8B3A3A",
                 borderWidth: 3,
                 display: false,
                 label: {
-                  position: "50%",
+                  position: "40%",
                   enabled: true,
-                  backgroundColor: lineColors.purple,
-                  borderColor: lineColors.purple,
+                  backgroundColor: "#8B3A3A",
+                  borderColor: "#8B3A3A",
                   borderRadius: 10,
                   borderWidth: 2,
                   color: "white",
                   content: () =>
                     "Hensell: " +
                     currentNdxGeologicFormations.top_hensell +
+                    " ft",
+                  rotation: "auto",
+                },
+              },
+            }),
+            ...(currentNdxGeologicFormations.top_pearsall !== null && {
+              topPearsallLine: {
+                type: "line",
+                yScaleID: "yL",
+                yMin: currentNdxGeologicFormations.top_pearsall,
+                yMax: currentNdxGeologicFormations.top_pearsall,
+                borderColor: "#9370DB",
+                borderWidth: 3,
+                display: false,
+                label: {
+                  position: "30%",
+                  enabled: true,
+                  backgroundColor: "#9370DB",
+                  borderColor: "#9370DB",
+                  borderRadius: 10,
+                  borderWidth: 2,
+                  color: "white",
+                  content: () =>
+                    "Pearsall: " +
+                    currentNdxGeologicFormations.top_pearsall +
                     " ft",
                   rotation: "auto",
                 },
@@ -524,7 +574,7 @@ const DataViz = ({
                 borderWidth: 3,
                 display: false,
                 label: {
-                  position: "240%",
+                  position: "20%",
                   enabled: true,
                   backgroundColor: lineColors.cyan,
                   borderColor: lineColors.cyan,
@@ -539,56 +589,7 @@ const DataViz = ({
                 },
               },
             }),
-            ...(currentNdxGeologicFormations.top_pearsall !== null && {
-              topPearsallLine: {
-                type: "line",
-                yScaleID: "yL",
-                yMin: currentNdxGeologicFormations.top_pearsall,
-                yMax: currentNdxGeologicFormations.top_pearsall,
-                borderColor: lineColors.pink,
-                borderWidth: 3,
-                display: false,
-                label: {
-                  position: "30%",
-                  enabled: true,
-                  backgroundColor: lineColors.pink,
-                  borderColor: lineColors.pink,
-                  borderRadius: 10,
-                  borderWidth: 2,
-                  color: "white",
-                  content: () =>
-                    "Pearsall: " +
-                    currentNdxGeologicFormations.top_pearsall +
-                    " ft",
-                  rotation: "auto",
-                },
-              },
-            }),
-            ...(currentNdxGeologicFormations.top_walnut !== null && {
-              topWalnutLine: {
-                type: "line",
-                yScaleID: "yL",
-                yMin: currentNdxGeologicFormations.top_walnut,
-                yMax: currentNdxGeologicFormations.top_walnut,
-                borderColor: lineColors.yellow,
-                borderWidth: 3,
-                display: false,
-                label: {
-                  position: "20%",
-                  enabled: true,
-                  backgroundColor: lineColors.yellow,
-                  borderColor: lineColors.yellow,
-                  borderRadius: 10,
-                  borderWidth: 2,
-                  color: "black",
-                  content: () =>
-                    "Walnut: " +
-                    currentNdxGeologicFormations.top_walnut +
-                    " ft",
-                  rotation: "auto",
-                },
-              },
-            }),
+
             ...(currentTableLabel.screen_top_depth_ft !== null && {
               topOfScreenLine: {
                 type: "line",
