@@ -7,6 +7,7 @@ import { Chip as MuiChip } from "@material-ui/core";
 import { spacing } from "@material-ui/system";
 import { add } from "date-fns";
 import * as htmlToImage from "html-to-image";
+import jsPDF from "jspdf";
 
 export const scrollWindowToTop = (smooth = true) => {
   window.scrollTo({ top: 0, behavior: smooth ? "smooth" : "auto" });
@@ -79,27 +80,38 @@ export const formatBooleanTrueFalse = (value) => {
 //   });
 // };
 
-const saveAs = (blob, fileName) => {
-  var elem = window.document.createElement("a");
-  elem.href = blob;
-  elem.download = fileName;
-  elem.style = "display:none;";
-  (document.body || document.documentElement).appendChild(elem);
-  if (typeof elem.click === "function") {
-    elem.click();
-  } else {
-    elem.target = "_blank";
-    elem.dispatchEvent(
-      new MouseEvent("click", {
-        view: window,
-        bubbles: true,
-        cancelable: true,
-      })
-    );
-  }
-  URL.revokeObjectURL(elem.href);
-  elem.remove();
-};
+// const saveAs = (blob, fileName) => {
+//   var elem = window.document.createElement("a");
+//   elem.href = blob;
+//   elem.download = fileName;
+//   elem.style = "display:none;";
+//   (document.body || document.documentElement).appendChild(elem);
+//   if (typeof elem.click === "function") {
+//     elem.click();
+//   } else {
+//     elem.target = "_blank";
+//     elem.dispatchEvent(
+//       new MouseEvent("click", {
+//         view: window,
+//         bubbles: true,
+//         cancelable: true,
+//       })
+//     );
+//   }
+//   URL.revokeObjectURL(elem.href);
+//   elem.remove();
+// };
+
+// //todo debug all the errors that this causes
+// export const downloadRef = (title, extension, ref) => {
+//   htmlToImage.toPng(ref.current).then(function (canvas) {
+//     const newTitle = `${title} ${dateFormatter(
+//       new Date(),
+//       "MM/DD/YYYY, h:mm A"
+//     )}.${extension}`;
+//     saveAs(canvas, newTitle);
+//   });
+// };
 
 //todo debug all the errors that this causes
 export const downloadRef = (title, extension, ref) => {
@@ -108,7 +120,12 @@ export const downloadRef = (title, extension, ref) => {
       new Date(),
       "MM/DD/YYYY, h:mm A"
     )}.${extension}`;
-    saveAs(canvas, newTitle);
+    const pdf = new jsPDF("l", "pt", "a4", false);
+    pdf.addImage(canvas, "PNG", 10, 10, 822, 0, undefined, false);
+    pdf.save(
+      `${newTitle} ${dateFormatter(new Date(), "MM/DD/YYYY, h:mm A")}.pdf`
+    );
+    // saveAs(canvas, newTitle);
   });
 };
 

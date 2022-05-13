@@ -29,6 +29,7 @@ import TimeseriesLineChart from "../../../components/graphs/TimeseriesLineChart"
 import { customSecondary } from "../../../theme/variants";
 import IconButton from "@material-ui/core/IconButton";
 import { Close } from "@material-ui/icons";
+import ExpandButton from "../../../components/graphs/ExpandButton";
 
 const fadeIn = keyframes`
   from {
@@ -59,7 +60,7 @@ const OuterContainer = styled(Box)`
   bottom: 30px;
   z-index: 3;
   position: absolute;
-  max-height: 400px;
+  max-height: 100%;
   width: calc(100% - 49px - 49px);
   visibility: ${({ open }) => (open ? "visible" : "hidden")};
   animation: ${({ open }) => (open ? fadeIn : fadeOut)} 0.5s linear;
@@ -67,12 +68,12 @@ const OuterContainer = styled(Box)`
 `;
 
 const Viz = styled.div`
-  height: 400px;
+  height: ${({ height }) => height};
   max-width: 100%;
 `;
 
 const TimeseriesContainer = styled.div`
-  height: calc(500px - 146px);
+  height: calc(${({ height }) => height} - 146px);
   width: 100%;
 `;
 
@@ -98,8 +99,8 @@ const SidebarSection = styled(MuiTypography)`
 
 const CloseContainer = styled.div`
   position: absolute;
-  right: 0;
-  top: 0;
+  right: 32px;
+  top: 5px;
 `;
 
 const Grid = styled(MuiGrid)(spacing);
@@ -887,6 +888,23 @@ const DataViz = ({
     }
   }, [dataVizWellNumber, currentSelectedTimeseriesData, wells]);
 
+  const [dataVizHeight, setDataVizHeight] = useState({
+    viz: "400px",
+    timeSeries: "500px",
+  });
+
+  const handleExpand = () => {
+    let newState = { ...dataVizHeight };
+    if (newState.viz === "400px" && newState.timeSeries === "500px") {
+      newState.viz = "70vh";
+      newState.timeSeries = "1180px";
+    } else {
+      newState.viz = "400px";
+      newState.timeSeries = "500px";
+    }
+    setDataVizHeight(newState);
+  };
+
   return (
     <OuterContainer
       bgcolor="#ffffff"
@@ -894,21 +912,22 @@ const DataViz = ({
       borderRadius={4}
       open={open}
     >
-      {/*<Box display="flex" alignItems="center">*/}
-      {/*  <Box flexGrow={1}> </Box>*/}
-      {/*  <Box>*/}
-      {/*    <IconButton>*/}
-      {/*      <Close />*/}
-      {/*    </IconButton>*/}
-      {/*  </Box>*/}
-      {/*</Box>*/}
-
-      <Viz>
+      <Viz height={dataVizHeight.viz}>
         <Panel overflowY="scroll" overflowX="hidden">
           <CloseContainer>
-            <IconButton size="small" onClick={onClose}>
-              <Close />
-            </IconButton>
+            <ExpandButton
+              handleExpand={handleExpand}
+              expanded={dataVizHeight.viz !== "400px"}
+            />
+            <Tooltip title="Close" arrow>
+              <IconButton
+                size="small"
+                onClick={onClose}
+                style={{ marginLeft: "4px" }}
+              >
+                <Close />
+              </IconButton>
+            </Tooltip>
           </CloseContainer>
           <>
             {Boolean(filteredMutatedGraphData) ? (
@@ -922,7 +941,7 @@ const DataViz = ({
                       )}
                     </TitleContainer>
 
-                    <TimeseriesContainer>
+                    <TimeseriesContainer height={dataVizHeight.timeSeries}>
                       <span data-html2canvas-ignore="true">
                         <Grid container pb={2}>
                           <Grid

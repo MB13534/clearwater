@@ -13,6 +13,7 @@ import {
   Paper,
   Chip as MuiChip,
   Divider,
+  Tooltip,
 } from "@material-ui/core";
 import styled, { keyframes } from "styled-components";
 import axios from "axios";
@@ -20,7 +21,6 @@ import { spacing } from "@material-ui/system";
 import { useQuery } from "react-query";
 import IconButton from "@material-ui/core/IconButton";
 import { Close } from "@material-ui/icons";
-import SaveRefButton from "../../../components/graphs/SaveRefButton";
 import PrintRefButton from "../../../components/graphs/PrintRefButton";
 import moment from "moment";
 import mapboxgl from "mapbox-gl";
@@ -149,16 +149,18 @@ const VirtualBore = ({
       {Boolean(data) && (
         <OuterContainer bgcolor="#ffffff" open={open}>
           <CloseContainer>
-            <IconButton size="small" onClick={onClose}>
-              <Close />
-            </IconButton>
+            <Tooltip title="Close" arrow>
+              <IconButton size="small" onClick={onClose}>
+                <Close />
+              </IconButton>
+            </Tooltip>
           </CloseContainer>
           <Grid container mr={10} mt={1}>
             <Grid
               item
               style={{
                 flexGrow: 1,
-                maxWidth: "calc(100% - 150px)",
+                maxWidth: "calc(100% - 90px)",
                 display: "flex",
                 flexDirection: "column",
                 justifyContent: "center",
@@ -177,11 +179,11 @@ const VirtualBore = ({
                 ref={divSaveRef}
                 title="Virtual Bore"
               />
-              <SaveRefButton
-                data-html2canvas-ignore
-                ref={divSaveRef}
-                title="Virtual Bore"
-              />
+              {/*<SaveRefButton*/}
+              {/*  data-html2canvas-ignore*/}
+              {/*  ref={divSaveRef}*/}
+              {/*  title="Virtual Bore"*/}
+              {/*/>*/}
             </Grid>
           </Grid>
           <Paper ref={divSaveRef}>

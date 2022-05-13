@@ -14,7 +14,7 @@ const Tooltip = styled(MuiTooltip)(spacing);
 
 const SaveRefButton = forwardRef(({ theme, title }, ref) => {
   return (
-    <Tooltip title="Save PNG" arrow ml={2}>
+    <Tooltip title="Save PDF" arrow ml={2}>
       <IconButton
         onClick={() => downloadRef(title, "png", ref)}
         style={{
