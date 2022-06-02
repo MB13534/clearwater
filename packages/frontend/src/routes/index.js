@@ -21,6 +21,7 @@ import {
   Map,
   Share2,
   CreditCard,
+  Edit,
 } from "react-feather";
 
 import AuthGuard from "../components/AuthGuard";
@@ -55,6 +56,7 @@ import WaterQuality from "../pages/dashboards/data entry/WaterQuality";
 import CurrentExemptWellUseSummaryReport from "../pages/dataAccess/reports/CurrentExemptWellUseSummaryReport";
 import Rolodex from "../pages/dashboards/data entry/Rolodex";
 import NewWaterLevels from "../pages/dashboards/data entry/NewWaterLevels";
+import PermitsToWells from "../pages/dataAccess/associations";
 const Account = async(() => import("../pages/pages/Account"));
 const Profile = async(() => import("../pages/pages/Profile"));
 
@@ -120,7 +122,7 @@ const modelCrudRoutes = [...getCrudRoutes(CRUD_MODELS)];
 const dataManagementRoutes = {
   id: "Rolodex",
   icon: <CreditCard />,
-  path: "/data-access/rolodex",
+  path: "/data-management/rolodex",
   name: "Rolodex",
   component: Rolodex,
   guard: AdminGuard,
@@ -130,7 +132,7 @@ const dataManagementRoutes = {
 const dataEntryRoutes = {
   header: "Data Access",
   id: "Well Data Entry",
-  icon: <Share2 />,
+  icon: <Edit />,
   children: [
     {
       path: "/data-access/well-production-data-entry",
@@ -149,6 +151,22 @@ const dataEntryRoutes = {
       path: "/data-access/well-water-level-data-entry",
       name: "Water Level",
       component: NewWaterLevels,
+      guard: AdminGuard,
+      visibilityFilter: AdminVisibilityFilter,
+    },
+  ],
+  guard: AuthGuard,
+  visibilityFilter: UserVisibilityFilter,
+};
+
+const associationsRoutes = {
+  id: "Associations",
+  icon: <Share2 />,
+  children: [
+    {
+      path: "/data-management/permits-to-wells",
+      name: "Permits to Wells",
+      component: PermitsToWells,
       guard: AdminGuard,
       visibilityFilter: AdminVisibilityFilter,
     },
@@ -478,6 +496,7 @@ export const dashboardLayoutRoutes = [
   changelogRoutes,
   dataManagementRoutes,
   dataEntryRoutes,
+  associationsRoutes,
   reportsRoutes,
   // mapRoutes,
   timeseriesRoutes,
@@ -514,6 +533,7 @@ export const sidebarRoutes = [
   ...crudSidebarMenu,
   dataManagementRoutes,
   dataEntryRoutes,
+  // associationsRoutes,
   reportsRoutes,
   timeseriesRoutes,
   publicMapRoutes,
