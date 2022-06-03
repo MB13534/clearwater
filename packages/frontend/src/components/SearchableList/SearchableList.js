@@ -49,6 +49,7 @@ const SearchableList = ({
   valueField,
   primaryDisplayField,
   secondaryDisplayField,
+  tertiaryDisplayField,
   tooltipDisplayField,
   title,
   active = {},
@@ -103,9 +104,11 @@ const SearchableList = ({
           />
         </FormControl>
         <Flex justifyContent="start">
-          <IconButton onClick={handleSortDirection}>
-            <SortIcon color="primary" size="large" />
-          </IconButton>
+          <Tooltip title="Sort by Permit Name">
+            <IconButton onClick={handleSortDirection}>
+              <SortIcon color="primary" size="large" />
+            </IconButton>
+          </Tooltip>
           {sortDirection === "asc" ? (
             <UpIcon size="small" color="disabled" />
           ) : (
@@ -118,16 +121,18 @@ const SearchableList = ({
         {data
           .filter(
             (record) =>
-              record[primaryDisplayField].toLowerCase().includes(searchText) ||
+              record[primaryDisplayField]
+                .toLowerCase()
+                .includes(searchText.toLowerCase()) ||
               record[secondaryDisplayField]
                 .toString()
                 .toLowerCase()
-                .includes(searchText) ||
+                .includes(searchText.toLowerCase()) ||
               (record[tooltipDisplayField] &&
                 record[tooltipDisplayField]
                   .join(",")
                   .toLowerCase()
-                  .includes(searchText))
+                  .includes(searchText.toLowerCase()))
           )
           .sort((a, b) => {
             if (sortDirection === "asc") {
@@ -182,7 +187,13 @@ const SearchableList = ({
                 </ListItemAvatar>
                 <ListItemText
                   primary={record[primaryDisplayField]}
-                  secondary={`${record[secondaryDisplayField]} (af)`}
+                  secondary={
+                    <>
+                      {record[secondaryDisplayField]}
+                      <br />
+                      {record[tertiaryDisplayField]} (af)
+                    </>
+                  }
                 />
               </ListItem>
             </Tooltip>

@@ -2,7 +2,7 @@ const express = require('express');
 const Sequelize = require('sequelize');
 const Op = Sequelize.Op;
 const {checkAccessToken} = require('../../core/middleware/auth.js');
-const {permits_to_wells_test: model} = require('../../core/models');
+const {permits_to_wells: model} = require('../../core/models');
 
 const router = express.Router();
 

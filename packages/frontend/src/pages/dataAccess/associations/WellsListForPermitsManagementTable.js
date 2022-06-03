@@ -73,10 +73,6 @@ const WellsListForPermitsManagementTable = ({
 
   const columns = [
     {
-      title: "CUWCD Well Index",
-      field: "well_ndx",
-    },
-    {
       title: "CUWCD Well Number",
       field: "cuwcd_well_number",
     },

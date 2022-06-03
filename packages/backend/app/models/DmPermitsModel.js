@@ -79,6 +79,9 @@ module.exports = (sequelize, DataTypes) => {
       deleted_by: {
         type: TEXT,
       },
+      permit_holder_name: {
+        type: TEXT,
+      },
     },
     {
       defaultScope: {

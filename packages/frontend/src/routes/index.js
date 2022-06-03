@@ -533,7 +533,7 @@ export const sidebarRoutes = [
   ...crudSidebarMenu,
   dataManagementRoutes,
   dataEntryRoutes,
-  // associationsRoutes,
+  associationsRoutes,
   reportsRoutes,
   timeseriesRoutes,
   publicMapRoutes,

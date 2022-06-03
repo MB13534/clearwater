@@ -1,7 +1,7 @@
 module.exports = (sequelize, DataTypes) => {
   const {INTEGER, BOOLEAN} = DataTypes;
   const PermitsToWells = sequelize.define(
-    'permits_to_wells_test',
+    'permits_to_wells',
     {
       permit_ndx: {
         type: INTEGER,

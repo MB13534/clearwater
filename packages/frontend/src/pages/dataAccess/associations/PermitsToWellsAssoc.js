@@ -191,7 +191,8 @@ const PermitsToWellsAssoc = () => {
             data={Permits}
             valueField="permit_ndx"
             primaryDisplayField="permit_number"
-            secondaryDisplayField="permitted_value"
+            secondaryDisplayField="permit_holder_name"
+            tertiaryDisplayField="permitted_value"
             tooltipDisplayField="assoc_wells"
             active={activePermit}
             onClick={handlePermitsSelect}
@@ -206,7 +207,9 @@ const PermitsToWellsAssoc = () => {
 
               {activePermit.permit_number && (
                 <Box marginTop={2} marginBottom={2} marginLeft={2}>
-                  <Chip label={activePermit.permit_number} />
+                  <Chip
+                    label={`${activePermit.permit_number} / ${activePermit.permit_holder_name}`}
+                  />
                 </Box>
               )}
             </Flex>
@@ -228,8 +231,7 @@ const PermitsToWellsAssoc = () => {
             ) : (
               <>
                 <Typography variant="body1" paragraph>
-                  Please select a permit from the permits list to associate them
-                  with wells.
+                  Select a permit from the left to associate them with wells.
                 </Typography>
               </>
             )}
