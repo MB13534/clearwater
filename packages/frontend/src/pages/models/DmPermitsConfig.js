@@ -3,7 +3,7 @@ import { CRUD_FIELD_TYPES } from "../../constants";
 import { add } from "date-fns";
 
 export const displayName = (row) => {
-  return `${row.permit_ndx}`;
+  return `${row.permit_number} / ${row.permit_holder_name}`;
 };
 
 // export const sortBy = {
@@ -45,16 +45,16 @@ export function columns(modelName) {
     //   align: "center",
     //   renderCell: Renderers.StatusDotRenderer,
     // },
-    {
-      field: "permit_id",
-      headerName: "Permit Id",
-      width: 150,
-    },
-    {
-      field: "permit_year",
-      headerName: "Permit Year",
-      width: 160,
-    },
+    // {
+    //   field: "permit_id",
+    //   headerName: "Permit Id",
+    //   width: 150,
+    // },
+    // {
+    //   field: "permit_year",
+    //   headerName: "Permit Year",
+    //   width: 160,
+    // },
     {
       field: "permit_type_ndx",
       headerName: "Permit Type",
@@ -93,6 +93,30 @@ export function columns(modelName) {
       lookupValue: "use_desc",
     },
     {
+      field: "permit_holder_name",
+      headerName: "Permit Holder",
+      width: 200,
+    },
+    // {
+    //   field: "rolo_ndx",
+    //   headerName: "Permit Holder",
+    //   width: 200,
+    //   renderCell: (params) =>
+    //     Renderers.FormatIndexFromSplitString(
+    //       Renderers.DropdownValueRenderer(params),
+    //       0,
+    //       "; "
+    //     ),
+    //   lookupModel: "ui_list_permit_holders",
+    //   lookupKey: "rolo_ndx",
+    //   lookupValue: "rolo_text",
+    // },
+    {
+      field: "assoc_wells",
+      headerName: "Associated Wells",
+      width: 220,
+    },
+    {
       field: "expiration_date",
       headerName: "Expiration Date",
       width: 200,
@@ -106,25 +130,6 @@ export function columns(modelName) {
     {
       field: "exportable_amount",
       headerName: "Exportable Amount",
-      width: 220,
-    },
-    {
-      field: "rolo_ndx",
-      headerName: "Permit Holder",
-      width: 200,
-      renderCell: (params) =>
-        Renderers.FormatIndexFromSplitString(
-          Renderers.DropdownValueRenderer(params),
-          0,
-          "; "
-        ),
-      lookupModel: "ui_list_permit_holders",
-      lookupKey: "rolo_ndx",
-      lookupValue: "rolo_text",
-    },
-    {
-      field: "assoc_wells",
-      headerName: "Associated Wells",
       width: 220,
     },
     {

@@ -129,6 +129,22 @@ const dataManagementRoutes = {
   visibilityFilter: AdminVisibilityFilter,
 };
 
+const associationsRoutes = {
+  id: "Associations",
+  icon: <Share2 />,
+  children: [
+    {
+      path: "/data-management/permits-to-wells",
+      name: "Permits to Wells",
+      component: PermitsToWells,
+      guard: AdminGuard,
+      visibilityFilter: AdminVisibilityFilter,
+    },
+  ],
+  guard: AdminGuard,
+  visibilityFilter: AdminVisibilityFilter,
+};
+
 const dataEntryRoutes = {
   header: "Data Access",
   id: "Well Data Entry",
@@ -151,22 +167,6 @@ const dataEntryRoutes = {
       path: "/data-access/well-water-level-data-entry",
       name: "Water Level",
       component: NewWaterLevels,
-      guard: AdminGuard,
-      visibilityFilter: AdminVisibilityFilter,
-    },
-  ],
-  guard: AuthGuard,
-  visibilityFilter: UserVisibilityFilter,
-};
-
-const associationsRoutes = {
-  id: "Associations",
-  icon: <Share2 />,
-  children: [
-    {
-      path: "/data-access/permits-to-wells",
-      name: "Permits to Wells",
-      component: PermitsToWells,
       guard: AdminGuard,
       visibilityFilter: AdminVisibilityFilter,
     },
@@ -495,8 +495,8 @@ export const dashboardLayoutRoutes = [
   mainRoutes,
   changelogRoutes,
   dataManagementRoutes,
-  dataEntryRoutes,
   associationsRoutes,
+  dataEntryRoutes,
   reportsRoutes,
   // mapRoutes,
   timeseriesRoutes,
@@ -532,8 +532,8 @@ export const sidebarRoutes = [
   mainRoutes,
   ...crudSidebarMenu,
   dataManagementRoutes,
-  dataEntryRoutes,
   associationsRoutes,
+  dataEntryRoutes,
   reportsRoutes,
   timeseriesRoutes,
   publicMapRoutes,
