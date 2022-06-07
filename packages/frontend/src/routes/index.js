@@ -164,7 +164,7 @@ const associationsRoutes = {
   icon: <Share2 />,
   children: [
     {
-      path: "/data-management/permits-to-wells",
+      path: "/data-access/permits-to-wells",
       name: "Permits to Wells",
       component: PermitsToWells,
       guard: AdminGuard,

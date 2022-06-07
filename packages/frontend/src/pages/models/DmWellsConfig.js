@@ -3,6 +3,7 @@ import { Renderers } from "../../components/crud/ResultsRenderers";
 import { CRUD_FIELD_TYPES } from "../../constants";
 import LatLongMap from "../../components/map/LatLongMap";
 import { Grid } from "@material-ui/core";
+import Upload from "../dataAccess/uploads/Upload";
 
 export const displayName = (row) => {
   return `${row.cuwcd_well_number}`;
@@ -33,18 +34,6 @@ export function columns(modelName) {
         return Renderers.ActionsRenderer(params, modelName);
       },
     },
-    // {
-    //   field: "content_node_statuses.name",
-    //   renderHeader: Renderers.StatusHelpIconRenderer,
-    //   width: 20,
-    //   sortable: false,
-    //   disableColumnMenu: true,
-    //   disableReorder: true,
-    //   filterable: false,
-    //   resizeable: false,
-    //   align: "center",
-    //   renderCell: Renderers.StatusDotRenderer,
-    // },
     {
       field: "cuwcd_well_number",
       headerName: "CUWCD Well Number",
@@ -207,29 +196,6 @@ export function columns(modelName) {
       headerName: "Original Registration Notes",
       width: 270,
     },
-    // {
-    //   field: "well_ndx",
-    //   headerName: "Well Index",
-    //   width: 125,
-    // },
-    // {
-    //   field: "id",
-    //   headerName: "ID",
-    //   width: 100,
-    //   renderCell: Renderers.IdRenderer,
-    // },
-    // {
-    //   field: "created_at",
-    //   headerName: "Created At",
-    //   width: 250,
-    //   renderCell: Renderers.DateRenderer,
-    // },
-    // {
-    //   field: "updated_at",
-    //   headerName: "Updated At",
-    //   width: 200,
-    //   renderCell: Renderers.DateRenderer,
-    // },
   ];
 }
 export const fields = [
@@ -504,21 +470,17 @@ export const fields = [
     isOpen: true,
   },
   {
-    name: "Attachments",
-    key: "list_of_attachments",
-    required: false,
-    type: CRUD_FIELD_TYPES.READ_ONLY_ARRAY_OF_LINKS,
-    cols: 12,
-    isOpen: true,
+    type: CRUD_FIELD_TYPES.SECTION_HEADER,
+    title: "Files and Attachments",
   },
-  // {
-  //   name: "Well Index",
-  //   key: "well_ndx",
-  //   required: true,
-  //   type: CRUD_FIELD_TYPES.TEXT,
-  //   cols: 12,
-  //   isOpen: true,
-  // },
+  {
+    type: CRUD_FIELD_TYPES.CUSTOM,
+    component: (config) => (
+      <Grid item xs={12}>
+        <Upload config={config} />
+      </Grid>
+    ),
+  },
 ];
 
 const config = {
