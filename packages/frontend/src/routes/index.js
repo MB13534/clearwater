@@ -57,6 +57,7 @@ import CurrentExemptWellUseSummaryReport from "../pages/dataAccess/reports/Curre
 import Rolodex from "../pages/dashboards/data entry/Rolodex";
 import NewWaterLevels from "../pages/dashboards/data entry/NewWaterLevels";
 import PermitsToWells from "../pages/dataAccess/associations";
+import WellOwnerSearchReport from "../pages/dataAccess/reports/WellOwnerSearchReport";
 const Account = async(() => import("../pages/pages/Account"));
 const Profile = async(() => import("../pages/pages/Profile"));
 
@@ -190,30 +191,14 @@ const reportsRoutes = {
       component: CurrentExemptWellUseSummaryReport,
     },
     {
-      path: "/data-access/pdi",
+      path: "/data-access/reports/pdi",
       name: "PDI",
       component: PDI,
     },
     {
-      path: "/data-access/reports/production",
-      name: "Production",
-      component: Blank,
-      guard: DeveloperGuard,
-      visibilityFilter: DeveloperVisibilityFilter,
-    },
-    {
-      path: "/data-access/reports/permits",
-      name: "Permits",
-      component: Blank,
-      guard: DeveloperGuard,
-      visibilityFilter: DeveloperVisibilityFilter,
-    },
-    {
-      path: "/data-access/reports/ect",
-      name: "Ect...",
-      component: Blank,
-      guard: DeveloperGuard,
-      visibilityFilter: DeveloperVisibilityFilter,
+      path: "/data-access/reports/well-owner-search",
+      name: "Well Owner Search",
+      component: WellOwnerSearchReport,
     },
   ],
   guard: AdminGuard,
