@@ -75,7 +75,7 @@ const Label = styled(Typography)`
 `;
 
 const Upload = ({ config }) => {
-  const { cuwcd_well_number: wellName, well_ndx: wellNdx } = config.data;
+  const { well_ndx: wellNdx } = config.data;
 
   const { getAccessTokenSilently } = useAuth0();
   const { doToast } = useApp();
@@ -129,7 +129,7 @@ const Upload = ({ config }) => {
 
         {
           well_ndx: wellNdx,
-          attachment_desc: `${wellName} ${fileName}`,
+          attachment_desc: `${fileName}`,
           attachment_filepath: fileLocation,
           attachment_notes: "Added through UI",
         },
