@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import AWS from "aws-sdk";
 import { useApp } from "../../../AppProvider";
 import axios from "axios";
@@ -6,25 +6,36 @@ import { useAuth0 } from "@auth0/auth0-react";
 import { File, Folder, Upload as UploadIcon } from "react-feather";
 import {
   Box,
-  Chip,
+  Chip as MuiChip,
   Typography,
   Button as MuiButton,
   List,
-  ListItem,
-  ListItemIcon,
-  ListItemText,
   Grid,
 } from "@material-ui/core";
 import styled from "styled-components/macro";
 import { spacing } from "@material-ui/system";
 import { useQuery } from "react-query";
-import FolderIcon from "@material-ui/icons/Folder";
 import IconButton from "@material-ui/core/IconButton";
-import { ArrowDropDown, ArrowRight } from "@material-ui/icons";
+import {
+  ArrowDropDown,
+  ArrowRight,
+  Delete as MuiDelete,
+} from "@material-ui/icons";
 import { rgba } from "polished";
 import Loader from "../../../components/Loader";
+import DialogTitle from "@material-ui/core/DialogTitle";
+import DialogContent from "@material-ui/core/DialogContent";
+import DialogContentText from "@material-ui/core/DialogContentText";
+import DialogActions from "@material-ui/core/DialogActions";
+import Dialog from "@material-ui/core/Dialog";
+import { Alert, AlertTitle } from "@material-ui/lab";
 
 const Button = styled(MuiButton)(spacing);
+const Chip = styled(MuiChip)(spacing);
+
+const Delete = styled(MuiDelete)`
+  color: #bc1a3d;
+`;
 
 const FieldItem = styled.div`
   border-left: 3px solid ${(props) => props.theme.palette.background.toolbar};
@@ -81,6 +92,7 @@ const Upload = ({ config }) => {
   const { doToast } = useApp();
 
   const [selectedFile, setSelectedFile] = useState(null);
+  //attachments accordion
   const [isOpen, setIsOpen] = useState(true);
 
   //query for files attached to this current well
@@ -114,14 +126,44 @@ const Upload = ({ config }) => {
     setSelectedFile(e.target.files[0]);
   };
 
-  const handleDelete = () => {
+  const [conflictAlert, setConflictAlert] = useState(false);
+  useEffect(() => {
+    let conflictNdx;
+    if (selectedFile) {
+      conflictNdx =
+        attachmentsData.filter(
+          (attachment) => attachment.attachment_desc === selectedFile.name
+        )[0]?.att_ndx || false;
+    } else {
+      conflictNdx = false;
+    }
+
+    setConflictAlert(conflictNdx);
+  }, [selectedFile, attachmentsData]);
+
+  const handleUnselect = () => {
     setSelectedFile(null);
+  };
+
+  const [fileToDelete, setFileToDelete] = useState({});
+  const handleDelete = (e, file) => {
+    e.preventDefault();
+    setDeleteDialogOpen(true);
+    setFileToDelete(file);
   };
 
   async function writeUrlToTable(fileName, fileLocation) {
     try {
       const token = await getAccessTokenSilently();
       const headers = { Authorization: `Bearer ${token}` };
+
+      if (conflictAlert) {
+        await axios.patch(
+          `${process.env.REACT_APP_ENDPOINT}/api/wells-to-attachments/${conflictAlert}`,
+          {},
+          { headers }
+        );
+      }
 
       //links url of attachment in S3 to wells_to_attachments table
       await axios.post(
@@ -161,6 +203,7 @@ const Upload = ({ config }) => {
       doToast("warning", "No file selected");
       return null;
     }
+
     setIsUploading(true);
     S3.upload(
       {
@@ -174,7 +217,7 @@ const Upload = ({ config }) => {
           const message = err?.message ?? "Something went wrong";
           doToast("error", message);
         } else {
-          doToast("success", "New file was uploaded to the database");
+          doToast("success", "File was uploaded successfully");
           const fileLocation = data.Location;
 
           writeUrlToTable(file.name, fileLocation);
@@ -185,8 +228,68 @@ const Upload = ({ config }) => {
     );
   };
 
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+
+  const handleCloseDialog = () => {
+    setDeleteDialogOpen(false);
+  };
+
+  const handleAgree = async () => {
+    handleCloseDialog();
+
+    try {
+      if (fileToDelete) {
+        const token = await getAccessTokenSilently();
+        const headers = { Authorization: `Bearer ${token}` };
+        await axios.patch(
+          `${process.env.REACT_APP_ENDPOINT}/api/wells-to-attachments/${fileToDelete.att_ndx}`,
+          {},
+          { headers }
+        );
+        //refetches attachmentsData to include newly added attachment
+        await refetch();
+        doToast("success", "Record was deleted successfully");
+      } else {
+        doToast("error", "Something went wrong");
+      }
+    } catch (err) {
+      console.error(err);
+      const message = err?.message ?? "Something went wrong";
+      doToast("error", message);
+    }
+  };
+
+  const ConfirmDeleteDialog = () => {
+    return (
+      <Dialog open={deleteDialogOpen} onClose={handleCloseDialog}>
+        <DialogTitle style={{ textAlign: "center" }}>
+          {"Delete Record"}
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText style={{ textAlign: "center" }}>
+            Are you sure you want to delete{" "}
+            <strong>{fileToDelete.attachment_desc}</strong>?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseDialog}>Cancel</Button>
+          <Button
+            variant="outlined"
+            onClick={handleAgree}
+            className="error"
+            autoFocus
+          >
+            Yes, delete record
+          </Button>
+        </DialogActions>
+      </Dialog>
+    );
+  };
+
   return (
     <>
+      <ConfirmDeleteDialog />
+
       <Grid
         item
         xs={12}
@@ -223,18 +326,23 @@ const Upload = ({ config }) => {
                 <List style={{ padding: 0 }}>
                   {attachmentsData.map((item) => {
                     return (
-                      <ListItem
-                        button
-                        component="a"
-                        href={item.attachment_filepath}
-                        target="_blank"
-                        key={item.att_ndx}
-                      >
-                        <ListItemIcon>
-                          <FolderIcon />
-                        </ListItemIcon>
-                        <ListItemText primary={item.attachment_desc} />
-                      </ListItem>
+                      <div key={item.att_ndx}>
+                        <Chip
+                          mb={2}
+                          label={item.attachment_desc}
+                          color="primary"
+                          icon={
+                            <Folder style={{ "&&": { color: "orange" } }} />
+                          }
+                          clickable={true}
+                          component="a"
+                          href={item.attachment_filepath}
+                          target="_blank"
+                          onDelete={(e) => handleDelete(e, item)}
+                          variant="outlined"
+                          deleteIcon={<Delete />}
+                        />
+                      </div>
                     );
                   })}
                 </List>
@@ -278,16 +386,28 @@ const Upload = ({ config }) => {
             {isUploading ? (
               <Loader />
             ) : selectedFile ? (
-              <Chip
-                pr={5}
-                label={selectedFile.name}
-                clickable={false}
-                color="primary"
-                icon={<Folder />}
-                onDelete={handleDelete}
-                variant="outlined"
-                size="small"
-              />
+              <>
+                <Chip
+                  label={selectedFile.name}
+                  clickable={false}
+                  color="primary"
+                  icon={<Folder />}
+                  onDelete={handleUnselect}
+                  variant="outlined"
+                  size="small"
+                />
+
+                {conflictAlert && (
+                  <Alert severity="warning" style={{ marginTop: "8px" }}>
+                    <AlertTitle>Warning</AlertTitle>
+                    <strong>
+                      **There is already a file with the same name in this
+                      location.** —{" "}
+                    </strong>
+                    proceeding will overwrite the existing file.
+                  </Alert>
+                )}
+              </>
             ) : (
               <Typography component="span" variant="subtitle2">
                 Select a file to attach it to the well

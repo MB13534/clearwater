@@ -9,9 +9,11 @@ router.use(
   checkAccessToken(process.env.AUTH0_DOMAIN, process.env.AUTH0_AUDIENCE)
 );
 
-router.get('/', (req, res, next) => {
+router.get('/:ndx', (req, res, next) => {
+  const where = {};
+  where.well_ndx = req.params.ndx;
   model
-    .findAll()
+    .findAll({where})
     .then((data) => {
       res.json(data);
     })
@@ -20,11 +22,11 @@ router.get('/', (req, res, next) => {
     });
 });
 
-router.get('/:ndx', (req, res, next) => {
+router.patch('/:ndx', (req, res, next) => {
   const where = {};
-  where.well_ndx = req.params.ndx;
+  where.att_ndx = req.params.ndx;
   model
-    .findAll({where})
+    .update({removed: true}, {where})
     .then((data) => {
       res.json(data);
     })
