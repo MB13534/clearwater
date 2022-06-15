@@ -49,34 +49,65 @@ const getLegendOptions = (layer) => {
 
   const colorsExpression = [...color];
 
-  // remove some unused parts of the expression
-  colorsExpression.splice(0, 2);
+  let legendOptions;
+
+  if (colorsExpression[0] === "case") {
+    // remove some unused parts of the expression
+    colorsExpression.splice(0, 1);
+
+    legendOptions = colorsExpression
+      .map((value, index) => {
+        if (index < colorsExpression.length - 1 && index % 2 === 0) {
+          return {
+            color: colorsExpression[index + 1],
+            text: Array.isArray(value)
+              ? (index > 1 ? colorsExpression[index - 2][2] : 0) +
+                (index >= colorsExpression.length - 3
+                  ? "+"
+                  : " - " + value[2]) +
+                " in"
+              : value,
+            // text: Array.isArray(value)
+            //   ? (index > 1 ? colorsExpression[index - 2][2] : "") +
+            //     (index >= colorsExpression.length - 3
+            //       ? "+"
+            //       : " " + value[0] + " " + value[2]) +
+            //     " in"
+            //   : value,
+          };
+        }
+        return null;
+      })
+      .filter((d) => d !== null);
+  } else {
+    // remove some unused parts of the expression
+    colorsExpression.splice(0, 2);
+
+    /**
+     * Loop through the mapbox expression and pull out the color and the
+     * category it is associated with
+     * The expression that is being parsed is in a format like
+     * [["Industrial"], "#1f78b4", ["Ag/Irrigation"],"#b2df8a"]
+     * so even odd indexes in the array represent categories and even number
+     * indexes represent the associated color
+     * As a result we have to loop through the expression and merge
+     * two items into a single one
+     */
+    legendOptions = colorsExpression
+      .map((value, index) => {
+        if (index < colorsExpression.length - 1 && index % 2 === 0) {
+          return {
+            color: colorsExpression[index + 1],
+            text: Array.isArray(value) ? value?.join(", ") : value,
+          };
+        }
+        return null;
+      })
+      .filter((d) => d !== null);
+  }
 
   // grab the fallback value (i.e. what is used if a feature doesn't match any category)
   const fallbackValue = colorsExpression.splice(colorsExpression.length - 1, 1);
-
-  /**
-   * Loop through the mapbox expression and pull out the color and the
-   * category it is associated with
-   * The expression that is being parsed is in a format like
-   * [["Industrial"], "#1f78b4", ["Ag/Irrigation"],"#b2df8a"]
-   * so even odd indexes in the array represent categories and even number
-   * indexes represent the associated color
-   * As a result we have to loop through the expression and merge
-   * two items into a single one
-   */
-  const legendOptions = colorsExpression
-    .map((value, index) => {
-      if (index < colorsExpression.length - 1 && index % 2 === 0) {
-        return {
-          color: colorsExpression[index + 1],
-          text: Array.isArray(value) ? value?.join(", ") : value,
-        };
-      }
-      return null;
-    })
-    .filter((d) => d !== null);
-
   // Add the fallback value to the end of array
   legendOptions.push({ color: fallbackValue, text: "N/A Value" });
   return legendOptions;
@@ -151,7 +182,10 @@ const LayerLegend = ({ item, open, onOpacityChange }) => {
  * [] Add support for layers search
  */
 const LayersControl = ({ items, onLayerChange, onOpacityChange }) => {
-  const [expandedItems, setExpandedItems] = useState(["Clearwater Wells"]);
+  const [expandedItems, setExpandedItems] = useState([
+    "Clearwater Wells",
+    "Search Circle Radius",
+  ]);
 
   /**
    * Generate a unique list of items to display in the layer

@@ -3,6 +3,7 @@ const {checkAccessToken, checkRoles} = require('../../core/middleware/auth.js');
 const {
   ui_list_wells_table,
   list_aquifers,
+  ui_nws_grids_summary_table,
   /*MJB hide aggregated system control per client (probably temporary)*/
   // list_aggregate_systems,
 } = require('../../core/models');
@@ -105,6 +106,8 @@ const toGeoJSON = ({data, geometryField}) => {
 router.get('/sources', async (req, res, next) => {
   try {
     const wellsData = await ui_list_wells_table.findAll();
+    const nwsGridsSummaryData = await ui_nws_grids_summary_table.findAll();
+
     const finalSources = sources.map((source) => {
       if (source.id === 'clearwater-wells') {
         return {
@@ -112,6 +115,15 @@ router.get('/sources', async (req, res, next) => {
           data: toGeoJSON({
             data: wellsData.map(({dataValues}) => dataValues),
             geometryField: 'location_geometry',
+          }),
+        };
+      }
+      if (source.id === 'NWS-rainfall-accumulation') {
+        return {
+          ...source,
+          data: toGeoJSON({
+            data: nwsGridsSummaryData.map(({dataValues}) => dataValues),
+            geometryField: 'geometry',
           }),
         };
       }
