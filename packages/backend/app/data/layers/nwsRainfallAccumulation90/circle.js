@@ -30,7 +30,7 @@ module.exports = {
     visibility: 'none',
   },
   lreProperties: {
-    layerGroup: 'NWS-rainfall-accumulation-90',
+    // layerGroup: 'NWS-rainfall-accumulation-90',
     popup: {
       // titleField: 'cuwcd_well_number',
       excludeFields: ['lat', 'lon', 'geometry', 'xymeters'],

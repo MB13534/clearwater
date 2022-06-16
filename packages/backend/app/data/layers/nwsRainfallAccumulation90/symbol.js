@@ -1,6 +1,6 @@
 module.exports = {
   id: 'NWS-rainfall-accumulation-90-symbol',
-  name: 'NWS Rainfall Accumulation for the Last 90 Days',
+  name: 'NWS Rainfall Accumulation for the Last 90 Days Labels',
   type: 'symbol',
   source: 'NWS-rainfall-accumulation',
   drawOrder: -100,
@@ -18,7 +18,7 @@ module.exports = {
     'text-halo-width': 3,
   },
   lreProperties: {
-    layerGroup: 'NWS-rainfall-accumulation-90',
+    // layerGroup: 'NWS-rainfall-accumulation-90',
     popup: {
       // excludePopup: true,
     },

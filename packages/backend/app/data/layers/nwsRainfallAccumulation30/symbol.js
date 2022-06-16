@@ -18,7 +18,7 @@ module.exports = {
     'text-halo-width': 3,
   },
   lreProperties: {
-    layerGroup: 'NWS-rainfall-accumulation-30',
+    // layerGroup: 'NWS-rainfall-accumulation-30',
     popup: {
       // excludePopup: true,
     },
