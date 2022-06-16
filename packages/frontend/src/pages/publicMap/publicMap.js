@@ -365,6 +365,7 @@ const PublicMap = () => {
             bufferValues={searchRadiusBuffers}
             layers={layers}
             onBasemapChange={updateBasemap}
+            filters={filterValues}
             onBufferValuesChange={updateSearchRadiusBuffers}
             onClearBuffers={handleClearSearchRadiusBuffers}
             onEnableSearchRadiusControl={handleEnableSearchRadiusControl}

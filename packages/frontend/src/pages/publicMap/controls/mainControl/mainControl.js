@@ -45,6 +45,7 @@ const MainControl = ({
   bufferValues,
   layers,
   onBasemapChange,
+  filters,
   onBufferValuesChange,
   onClearBuffers,
   onLayerChange,
@@ -83,6 +84,7 @@ const MainControl = ({
               items={basemaps}
               value={activeBasemap}
               onBasemapChange={onBasemapChange}
+              filters={filters}
             />
           </AccordionDetails>
         </Accordion>

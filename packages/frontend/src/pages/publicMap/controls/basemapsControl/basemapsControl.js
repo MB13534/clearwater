@@ -36,13 +36,16 @@ const BasemapPreview = styled.div`
   }
 `;
 
-const BasemapsControl = ({ items, onBasemapChange, value }) => {
+const BasemapsControl = ({ items, onBasemapChange, value, filters }) => {
   return (
     <Box p={1} mb={2}>
       <BasemapItems>
         {items?.map((item) => {
           return (
-            <BasemapItem key={item.name} onClick={() => onBasemapChange(item)}>
+            <BasemapItem
+              key={item.name}
+              onClick={() => onBasemapChange(item, filters)}
+            >
               <Typography variant="body2" gutterBottom>
                 {item.name}
               </Typography>

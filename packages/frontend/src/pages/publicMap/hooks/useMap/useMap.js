@@ -437,7 +437,9 @@ const useMap = (ref, mapConfig) => {
       });
       map.setFilter("clearwater-wells-circle", mapFilterExpression);
       map.setFilter("clearwater-wells-symbol", mapFilterExpression);
-      mapLogger.log("Filters updated on the clearwater-wells-circle layer");
+      mapLogger.log(
+        "Filters updated on the clearwater-wells-circle/symbol layer"
+      );
     }
   };
 
@@ -547,7 +549,7 @@ const useMap = (ref, mapConfig) => {
     }
   };
 
-  const updateBasemap = (style) => {
+  const updateBasemap = (style, filters) => {
     map?.setStyle(style.url);
 
     /**
@@ -563,6 +565,14 @@ const useMap = (ref, mapConfig) => {
         setActiveBasemap(style.style);
         setDataAdded(false);
         loadMapData();
+
+        //after the data is loaded into the map, apply all of the current user selected filters
+        const checkDataAdded = setInterval(() => {
+          if (dataAdded) {
+            clearInterval(checkDataAdded);
+            updateLayerFilters(filters);
+          }
+        }, 0);
       }
     }, 1000);
   };
