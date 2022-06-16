@@ -10,14 +10,16 @@ import {
   Slider,
   Typography as MuiTypography,
 } from "@material-ui/core";
-// import SearchIcon from "@material-ui/icons/Search";
 
 import ExpandMore from "@material-ui/icons/ExpandMore";
 import ChevronRight from "@material-ui/icons/ChevronRight";
 import styled from "styled-components/macro";
 import { spacing } from "@material-ui/system";
+import { Label } from "@material-ui/icons";
+import MuiButton from "@material-ui/core/Button";
 
 const Typography = styled(MuiTypography)(spacing);
+const Button = styled(MuiButton)(spacing);
 
 /**
  * Utility used to translate a Mapbox paint style
@@ -159,24 +161,6 @@ const LayerSlider = ({ item, onOpacityChange }) => {
   ) : null;
 };
 
-const LayerLegend = ({ item, open, onOpacityChange }) => {
-  if (!open) return null;
-  const legendItems = getLegendOptions(item);
-  return (
-    <Box display="flex" flexDirection="column" gridRowGap={4} mb={2} mx={11}>
-      {legendItems.map(({ color, text }) => (
-        <Box key={text} display="flex" alignItems="center" gridColumnGap={8}>
-          <LegendSymbol color={color} />
-          <Typography color="textSecondary" variant="body2">
-            {text}
-          </Typography>
-        </Box>
-      ))}
-      <LayerSlider item={item} onOpacityChange={onOpacityChange} />
-    </Box>
-  );
-};
-
 /**
  * TODOS
  * [] Add support for layers search
@@ -217,7 +201,12 @@ const LayersControl = ({ items, onLayerChange, onOpacityChange }) => {
    * Handler that controls the visibility of each layer group
    */
   const handleVisibilityChange = (item) => {
-    const itemId = item?.lreProperties?.layerGroup || item.id;
+    const itemId =
+      item?.lreProperties?.labelGroup ||
+      (item?.lreProperties?.labelGroup && item.type === "symbol")
+        ? item?.lreProperties?.labelGroup
+        : item?.lreProperties?.layerGroup || item.id;
+
     onLayerChange({
       id: itemId,
       visible: item?.layout?.visibility === "none",
@@ -240,6 +229,62 @@ const LayersControl = ({ items, onLayerChange, onOpacityChange }) => {
       return newValues;
     });
   };
+
+  const LayerLegend = ({ item, open, onOpacityChange }) => {
+    if (!open) return null;
+    const legendItems = getLegendOptions(item);
+    return (
+      <>
+        <Box
+          display="flex"
+          flexDirection="column"
+          gridRowGap={4}
+          mb={2}
+          mx={11}
+        >
+          {legendItems.map(({ color, text }) => (
+            <Box
+              key={text}
+              display="flex"
+              alignItems="center"
+              gridColumnGap={8}
+            >
+              <LegendSymbol color={color} />
+              <Typography color="textSecondary" variant="body2">
+                {text}
+              </Typography>
+            </Box>
+          ))}
+          {items.find(
+            (layer) =>
+              layer?.lreProperties?.layerGroup ===
+                item.lreProperties?.layerGroup &&
+              layer.lreProperties?.labelGroup
+          ) && (
+            <Button
+              mt={1}
+              startIcon={<Label color="primary" />}
+              variant="outlined"
+              onClick={() => {
+                handleVisibilityChange(
+                  items.find(
+                    (layer) =>
+                      layer?.lreProperties?.layerGroup ===
+                        item.lreProperties?.layerGroup &&
+                      layer.lreProperties?.labelGroup
+                  )
+                );
+              }}
+            >
+              Toggle Labels
+            </Button>
+          )}
+          <LayerSlider item={item} onOpacityChange={onOpacityChange} />
+        </Box>
+      </>
+    );
+  };
+
   return (
     <Box display="flex" flexDirection="column">
       <List dense>

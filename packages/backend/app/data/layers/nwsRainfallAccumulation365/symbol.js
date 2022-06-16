@@ -18,7 +18,8 @@ module.exports = {
     'text-halo-width': 3,
   },
   lreProperties: {
-    // layerGroup: 'NWS-rainfall-accumulation-365',
+    layerGroup: 'NWS-rainfall-accumulation-365',
+    labelGroup: 'NWS-rainfall-accumulation-365-symbol',
     popup: {
       // excludePopup: true,
     },

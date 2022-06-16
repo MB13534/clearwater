@@ -495,12 +495,17 @@ const useMap = (ref, mapConfig) => {
      * The ID that is passed to the handler will either be the ID for
      * the layer or an ID for a layer group
      */
-    const groupedLayerIds = layers
-      ?.filter((layer) => {
-        const key = layer?.lreProperties?.layerGroup || layer.id;
-        return key === id;
-      })
-      .map(({ id }) => id);
+    const groupedLayerIds = layers.find(
+      //if the id is a label group, then we should only toggle the label and not the whole layer group
+      (layer) => layer.id === id && layer?.lreProperties?.labelGroup
+    )
+      ? [id]
+      : layers
+          ?.filter((layer) => {
+            const key = layer?.lreProperties?.layerGroup || layer.id;
+            return key === id;
+          })
+          .map(({ id }) => id);
 
     if (!!map) {
       /**
