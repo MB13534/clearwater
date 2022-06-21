@@ -30,6 +30,15 @@ module.exports = {
     visibility: 'none',
   },
   lreProperties: {
+    booleanToggle: [
+      'in_edwards',
+      {
+        all: 'CUWCD Management Area',
+        true: 'Edwards Aquifer',
+        false: 'Trinity Aquifer',
+      },
+      'Major Aquifer Filter',
+    ],
     layerGroup: 'NWS-rainfall-accumulation-30',
     popup: {
       // titleField: 'cuwcd_well_number',

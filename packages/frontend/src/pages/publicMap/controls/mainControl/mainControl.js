@@ -50,6 +50,7 @@ const MainControl = ({
   onClearBuffers,
   onLayerChange,
   onOpacityChange,
+  onBooleanChange,
   onResetBuffers,
   onEnableSearchRadiusControl,
   value,
@@ -109,6 +110,7 @@ const MainControl = ({
             items={layers}
             onLayerChange={onLayerChange}
             onOpacityChange={onOpacityChange}
+            onBooleanChange={onBooleanChange}
           />
         </AccordionDetails>
       </Accordion>

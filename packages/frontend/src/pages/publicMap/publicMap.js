@@ -98,6 +98,7 @@ const PublicMap = () => {
     updateLayerStyles,
     updateLayerVisibility,
     updateLayerOpacity,
+    updateLayerBooleanFilter,
     updateBasemap,
     measurementsVisible,
     handleClearMeasurements,
@@ -371,6 +372,7 @@ const PublicMap = () => {
             onEnableSearchRadiusControl={handleEnableSearchRadiusControl}
             onLayerChange={updateLayerVisibility}
             onOpacityChange={updateLayerOpacity}
+            onBooleanChange={updateLayerBooleanFilter}
             onResetBuffers={resetSearchRadiusBuffers}
             value={filterValues?.search?.value}
           />

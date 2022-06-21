@@ -554,6 +554,36 @@ const useMap = (ref, mapConfig) => {
     }
   };
 
+  const updateLayerBooleanFilter = ({ filterField, value }) => {
+    const groupedLayerIds = layers
+      .filter(
+        //if the id is a label group, then we should only toggle the label and not the whole layer group
+        (layer) => {
+          return (
+            layer?.lreProperties?.booleanToggle &&
+            layer?.lreProperties?.booleanToggle[0] === filterField
+          );
+        }
+      )
+      .map((item) => item.id);
+
+    if (!!map) {
+      if (value === "true") {
+        groupedLayerIds.map((layer) =>
+          map.setFilter(layer, ["==", ["get", filterField], true])
+        );
+      }
+      if (value === "false") {
+        groupedLayerIds.map((layer) =>
+          map.setFilter(layer, ["==", ["get", filterField], false])
+        );
+      }
+      if (value === "all") {
+        groupedLayerIds.map((layer) => map.setFilter(layer, null));
+      }
+    }
+  };
+
   const updateBasemap = (style, filters) => {
     map?.setStyle(style.url);
 
@@ -619,6 +649,7 @@ const useMap = (ref, mapConfig) => {
     updateLayerStyles,
     updateLayerVisibility,
     updateLayerOpacity,
+    updateLayerBooleanFilter,
     measurementsVisible,
     setMeasurementsVisible,
     polygonRef,

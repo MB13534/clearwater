@@ -19,6 +19,15 @@ module.exports = {
   },
   lreProperties: {
     layerGroup: 'NWS-rainfall-accumulation-90',
+    booleanToggle: [
+      'in_edwards',
+      {
+        all: 'CUWCD Management Area',
+        true: 'Edwards Aquifer',
+        false: 'Trinity Aquifer',
+      },
+      'Major Aquifer Filter',
+    ],
     labelGroup: 'NWS-rainfall-accumulation-90-symbol',
     popup: {
       // excludePopup: true,

@@ -3,12 +3,15 @@ import {
   Box,
   Checkbox,
   IconButton,
-  List,
-  ListItem,
+  List as MuiList,
+  ListItem as MuiListItem,
   ListItemText,
   ListItemSecondaryAction,
   Slider,
   Typography as MuiTypography,
+  RadioGroup,
+  FormControlLabel,
+  Radio,
 } from "@material-ui/core";
 
 import ExpandMore from "@material-ui/icons/ExpandMore";
@@ -17,9 +20,25 @@ import styled from "styled-components/macro";
 import { spacing } from "@material-ui/system";
 import { Label } from "@material-ui/icons";
 import MuiButton from "@material-ui/core/Button";
+import { customSecondary } from "../../../../theme/variants";
 
+const SidebarSection = styled(MuiTypography)`
+  ${spacing}
+  color: ${() => customSecondary[500]};
+  padding: ${(props) => props.theme.spacing(1)}px
+    ${(props) => props.theme.spacing(5)}px
+    ${(props) => props.theme.spacing(0)}px;
+  opacity: 0.9;
+  font-weight: ${(props) => props.theme.typography.fontWeightBold};
+  display: block;
+`;
+
+const List = styled(MuiList)(spacing);
 const Typography = styled(MuiTypography)(spacing);
 const Button = styled(MuiButton)(spacing);
+const ListItem = styled(MuiListItem)`
+  padding: 0;
+`;
 
 /**
  * Utility used to translate a Mapbox paint style
@@ -146,9 +165,7 @@ const LayerSlider = ({ item, onOpacityChange }) => {
 
   return layerFillOpacity || layerFillOpacity === 0 ? (
     <Box mb={-2}>
-      <Typography id="fill-opacity" mt={1} mb={-1}>
-        Fill Opacity
-      </Typography>
+      <SidebarSection id="fill-opacity">Fill Opacity</SidebarSection>
       <Slider
         valueLabelDisplay="auto"
         value={+(item.paint["fill-opacity"] * 100).toFixed(0)}
@@ -165,11 +182,89 @@ const LayerSlider = ({ item, onOpacityChange }) => {
  * TODOS
  * [] Add support for layers search
  */
-const LayersControl = ({ items, onLayerChange, onOpacityChange }) => {
+const LayersControl = ({
+  items,
+  onLayerChange,
+  onOpacityChange,
+  onBooleanChange,
+}) => {
   const [expandedItems, setExpandedItems] = useState([
     "Clearwater Wells",
     "Search Circle Radius",
   ]);
+
+  const [value, setValue] = useState("all");
+
+  const handleBooleanChange = (
+    event,
+    newValue,
+    item,
+    filterField,
+    onBooleanChange,
+    setValue
+  ) => {
+    setValue(newValue);
+
+    onBooleanChange({
+      filterField: filterField,
+      value: newValue,
+    });
+  };
+
+  const BooleanToggle = ({ item, onBooleanChange }) => {
+    const booleanToggle = item?.lreProperties?.booleanToggle || false;
+
+    if (booleanToggle) {
+      const [field, labels, title] = booleanToggle;
+
+      return (
+        <List disablePadding key={field}>
+          <RadioGroup
+            aria-label="data"
+            name="data"
+            value={value}
+            onChange={(event, newValue) =>
+              handleBooleanChange(
+                event,
+                newValue,
+                item,
+                field,
+                onBooleanChange,
+                setValue
+              )
+            }
+          >
+            <SidebarSection>{title}</SidebarSection>
+
+            <ListItem style={{ marginTop: "4px" }}>
+              <FormControlLabel
+                value="all"
+                control={<Radio />}
+                label={labels["all"]}
+              />
+            </ListItem>
+            <ListItem>
+              <FormControlLabel
+                value="true"
+                control={<Radio />}
+                label={labels["true"]}
+              />
+            </ListItem>
+
+            <ListItem>
+              <FormControlLabel
+                value="false"
+                control={<Radio />}
+                label={labels["false"]}
+              />
+            </ListItem>
+          </RadioGroup>
+        </List>
+      );
+    }
+
+    return null;
+  };
 
   /**
    * Generate a unique list of items to display in the layer
@@ -255,6 +350,7 @@ const LayersControl = ({ items, onLayerChange, onOpacityChange }) => {
               </Typography>
             </Box>
           ))}
+          <BooleanToggle item={item} onBooleanChange={onBooleanChange} />
           {items.find(
             (layer) =>
               layer?.lreProperties?.layerGroup ===
@@ -262,9 +358,10 @@ const LayersControl = ({ items, onLayerChange, onOpacityChange }) => {
               layer.lreProperties?.labelGroup
           ) && (
             <Button
-              mt={1}
+              // mt={1}
               startIcon={<Label color="primary" />}
               variant="outlined"
+              size="small"
               onClick={() => {
                 handleVisibilityChange(
                   items.find(

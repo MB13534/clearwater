@@ -1,5 +1,5 @@
 module.exports = (sequelize, DataTypes) => {
-  const {TEXT, NUMBER, GEOMETRY, DATE} = DataTypes;
+  const {TEXT, NUMBER, GEOMETRY, DATE, BOOLEAN} = DataTypes;
   const UiNwsGridsSummaryTable = sequelize.define(
     'ui_nws_grids_summary_table',
     {
@@ -39,6 +39,9 @@ module.exports = (sequelize, DataTypes) => {
       },
       last_updated: {
         type: DATE,
+      },
+      in_edwards: {
+        type: BOOLEAN,
       },
     },
     {
