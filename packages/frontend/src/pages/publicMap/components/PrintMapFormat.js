@@ -19,9 +19,7 @@ const PrintMapFormat = forwardRef(({ title, mapImg, map }, ref) => {
   strWidth = (strWidth * 1000) / map.getCanvas().width;
   scale.style.width = `${strWidth}px`;
 
-  const legend = Array.from(document.querySelectorAll(".Mui-checked"))
-    .map((item) => item.parentElement.parentElement.nextElementSibling)
-    .filter((item) => item);
+  const legend = Array.from(document.querySelectorAll(".print-legend"));
 
   return (
     <Box style={{ padding: "32px" }} ref={ref}>
@@ -29,7 +27,7 @@ const PrintMapFormat = forwardRef(({ title, mapImg, map }, ref) => {
         <Grid container justify={"space-between"} alignItems={"center"}>
           <Grid item xs={3} style={{ textAlign: "left" }}>
             <img
-              src="/static/img/clearwater-logo-full.png"
+              src={"/static/img/clearwater-logo-full.png"}
               width="200px"
               alt={"Clearwater Underground Water Conservation District"}
             />
@@ -78,9 +76,9 @@ const PrintMapFormat = forwardRef(({ title, mapImg, map }, ref) => {
         <Grid item xs={2} style={{ textAlign: "right" }}>
           <div style={{ textAlign: "right" }}>
             <img
-              src="/static/img/lrewater-logo-full.png"
+              src={"/static/img/lrewater-logo-full.png"}
               width="75px"
-              alt={"LRE Water"}
+              alt="LRE Water"
             />
           </div>
         </Grid>

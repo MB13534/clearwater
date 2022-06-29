@@ -18,7 +18,7 @@ module.exports = {
       '#009AFF',
       ['>=', ['get', 'accumulated_365day'], 26.0],
       '#0030FF',
-      'white',
+      'black',
     ],
     'circle-radius': 8,
     'circle-stroke-width': 1,

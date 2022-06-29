@@ -179,144 +179,6 @@ const LayerSlider = ({ item, onOpacityChange }) => {
   ) : null;
 };
 
-const handleBooleanChange = (
-  event,
-  newValue,
-  item,
-  filterField,
-  onBooleanChange,
-  setValue
-) => {
-  setValue(newValue);
-
-  onBooleanChange({
-    filterField: filterField,
-    value: newValue,
-  });
-};
-
-const BooleanToggle = ({ item, onBooleanChange, value, setValue }) => {
-  const booleanToggle = item?.lreProperties?.booleanToggle || false;
-
-  if (booleanToggle) {
-    const [field, labels, title] = booleanToggle;
-
-    return (
-      <List disablePadding key={field}>
-        <RadioGroup
-          aria-label="data"
-          name="data"
-          value={value}
-          onChange={(event, newValue) =>
-            handleBooleanChange(
-              event,
-              newValue,
-              item,
-              field,
-              onBooleanChange,
-              setValue
-            )
-          }
-        >
-          <SidebarSection>{title}</SidebarSection>
-
-          <ListItem style={{ marginTop: "4px", paddingLeft: 0 }}>
-            <FormControlLabel
-              value="all"
-              control={<Radio />}
-              label={labels["all"]}
-            />
-          </ListItem>
-          <ListItem style={{ paddingLeft: 0 }}>
-            <FormControlLabel
-              value="true"
-              control={<Radio />}
-              label={labels["true"]}
-            />
-          </ListItem>
-
-          <ListItem style={{ paddingLeft: 0 }}>
-            <FormControlLabel
-              value="false"
-              control={<Radio />}
-              label={labels["false"]}
-            />
-          </ListItem>
-        </RadioGroup>
-      </List>
-    );
-  }
-
-  return null;
-};
-
-const LayerLegend = ({
-  item,
-  open,
-  onOpacityChange,
-  onBooleanChange,
-  value,
-  setValue,
-  handleVisibilityChange,
-  items,
-}) => {
-  if (!open) return null;
-  const legendItems = getLegendOptions(item);
-  return (
-    <>
-      <Box display="flex" flexDirection="column" gridRowGap={4} mb={2} mx={11}>
-        {legendItems.map(({ color, text }) => (
-          <Box
-            className="print-legend"
-            // mb={1}
-            key={text}
-            display="flex"
-            alignItems="center"
-            gridColumnGap={8}
-          >
-            <LegendSymbol color={color} />
-            <Typography color="textSecondary" variant="body2">
-              {text}
-            </Typography>
-          </Box>
-        ))}
-
-        <BooleanToggle
-          item={item}
-          onBooleanChange={onBooleanChange}
-          value={value}
-          setValue={setValue}
-        />
-        {items.find(
-          (layer) =>
-            layer?.lreProperties?.layerGroup ===
-              item.lreProperties?.layerGroup && layer.lreProperties?.labelGroup
-        ) && (
-          <Button
-            // mt={1}
-            startIcon={<Label color="primary" />}
-            variant="outlined"
-            size="small"
-            onClick={() => {
-              handleVisibilityChange(
-                items.find(
-                  (layer) =>
-                    layer?.lreProperties?.layerGroup ===
-                      item.lreProperties?.layerGroup &&
-                    layer.lreProperties?.labelGroup
-                )
-              );
-            }}
-          >
-            Toggle Labels
-          </Button>
-        )}
-        <LayerSlider item={item} onOpacityChange={onOpacityChange} />
-      </Box>
-    </>
-  );
-};
-
 /**
  * TODOS
  * [] Add support for layers search
@@ -333,6 +195,77 @@ const LayersControl = ({
   ]);
 
   const [value, setValue] = useState("all");
+
+  const handleBooleanChange = (
+    event,
+    newValue,
+    item,
+    filterField,
+    onBooleanChange,
+    setValue
+  ) => {
+    setValue(newValue);
+
+    onBooleanChange({
+      filterField: filterField,
+      value: newValue,
+    });
+  };
+
+  const BooleanToggle = ({ item, onBooleanChange }) => {
+    const booleanToggle = item?.lreProperties?.booleanToggle || false;
+
+    if (booleanToggle) {
+      const [field, labels, title] = booleanToggle;
+
+      return (
+        <List disablePadding key={field}>
+          <RadioGroup
+            aria-label="data"
+            name="data"
+            value={value}
+            onChange={(event, newValue) =>
+              handleBooleanChange(
+                event,
+                newValue,
+                item,
+                field,
+                onBooleanChange,
+                setValue
+              )
+            }
+          >
+            <SidebarSection>{title}</SidebarSection>
+
+            <ListItem style={{ marginTop: "4px" }}>
+              <FormControlLabel
+                value="all"
+                control={<Radio />}
+                label={labels["all"]}
+              />
+            </ListItem>
+            <ListItem>
+              <FormControlLabel
+                value="true"
+                control={<Radio />}
+                label={labels["true"]}
+              />
+            </ListItem>
+
+            <ListItem>
+              <FormControlLabel
+                value="false"
+                control={<Radio />}
+                label={labels["false"]}
+              />
+            </ListItem>
+          </RadioGroup>
+        </List>
+      );
+    }
+
+    return null;
+  };
 
   /**
    * Generate a unique list of items to display in the layer
@@ -393,6 +326,66 @@ const LayersControl = ({
     });
   };
 
+  const LayerLegend = ({ item, open, onOpacityChange }) => {
+    if (!open) return null;
+    const legendItems = getLegendOptions(item);
+    return (
+      <>
+        <Box
+          display="flex"
+          flexDirection="column"
+          gridRowGap={4}
+          mb={2}
+          mx={11}
+        >
+          <div className="print-legend">
+            {legendItems.map(({ color, text }) => (
+              <Box
+                mb={1}
+                key={text}
+                display="flex"
+                alignItems="center"
+                gridColumnGap={8}
+              >
+                <LegendSymbol color={color} />
+                <Typography color="textSecondary" variant="body2">
+                  {text}
+                </Typography>
+              </Box>
+            ))}
+          </div>
+          <BooleanToggle item={item} onBooleanChange={onBooleanChange} />
+          {items.find(
+            (layer) =>
+              layer?.lreProperties?.layerGroup ===
+                item.lreProperties?.layerGroup &&
+              layer.lreProperties?.labelGroup
+          ) && (
+            <Button
+              // mt={1}
+              startIcon={<Label color="primary" />}
+              variant="outlined"
+              size="small"
+              onClick={() => {
+                handleVisibilityChange(
+                  items.find(
+                    (layer) =>
+                      layer?.lreProperties?.layerGroup ===
+                        item.lreProperties?.layerGroup &&
+                      layer.lreProperties?.labelGroup
+                  )
+                );
+              }}
+            >
+              Toggle Labels
+            </Button>
+          )}
+          <LayerSlider item={item} onOpacityChange={onOpacityChange} />
+        </Box>
+      </>
+    );
+  };
+
   return (
     <Box display="flex" flexDirection="column">
       <List dense>
@@ -443,11 +436,6 @@ const LayersControl = ({
                   open={open}
                   item={item}
                   onOpacityChange={onOpacityChange}
-                  onBooleanChange={onBooleanChange}
-                  value={value}
-                  setValue={setValue}
-                  handleVisibilityChange={handleVisibilityChange}
-                  items={items}
                 />
               </Box>
             );
