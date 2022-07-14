@@ -1,4 +1,4 @@
-import React, { forwardRef } from "react";
+import React, { forwardRef, useRef } from "react";
 
 import { Typography, Divider, Box, Grid as MuiGrid } from "@material-ui/core";
 
@@ -19,17 +19,17 @@ const PrintMapFormat = forwardRef(({ title, mapImg, map }, ref) => {
   strWidth = (strWidth * 1000) / map.getCanvas().width;
   scale.style.width = `${strWidth}px`;
 
-  const legend = Array.from(document.querySelectorAll(".print-legend"));
+  const legend = useRef(Array.from(document.querySelectorAll(".print-legend")));
 
   return (
     <Box style={{ padding: "32px" }} ref={ref}>
       <Centered>
-        <Grid container justify={"space-between"} alignItems={"center"}>
+        <Grid container justify="space-between" alignItems="center">
           <Grid item xs={3} style={{ textAlign: "left" }}>
             <img
               src={"/static/img/clearwater-logo-full.png"}
               width="200px"
-              alt={"Clearwater Underground Water Conservation District"}
+              alt="Clearwater Underground Water Conservation District"
             />
           </Grid>
           <Grid item xs={6}>
@@ -63,7 +63,7 @@ const PrintMapFormat = forwardRef(({ title, mapImg, map }, ref) => {
       >
         <Grid item xs={7} style={{ textAlign: "left" }}>
           <Grid container>
-            {legend.map((item, index) => (
+            {legend.current.map((item, index) => (
               <Grid item xs={6} key={index}>
                 <span dangerouslySetInnerHTML={{ __html: item.outerHTML }} />
               </Grid>

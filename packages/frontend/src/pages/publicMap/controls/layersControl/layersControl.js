@@ -268,7 +268,6 @@ const LayerLegend = ({
         {legendItems.map(({ color, text }) => (
           <Box
             className="print-legend"
-            // mb={1}
             key={text}
             display="flex"
             alignItems="center"
