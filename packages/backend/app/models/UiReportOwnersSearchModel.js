@@ -55,6 +55,9 @@ module.exports = (sequelize, DataTypes) => {
       agg_system_name: {
         type: TEXT,
       },
+      general_notes: {
+        type: TEXT,
+      },
     },
     {
       schema: 'client_clearwater',

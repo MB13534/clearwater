@@ -131,6 +131,14 @@ const WellOwnerSearchReport = () => {
       title: "Agg System",
       field: "agg_system_name",
     },
+    {
+      title: "Notes",
+      field: "general_notes",
+      cellStyle: {
+        width: 300,
+        minWidth: 300,
+      },
+    },
   ];
 
   const filterData = (data) => {
