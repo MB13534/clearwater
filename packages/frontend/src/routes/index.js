@@ -58,6 +58,7 @@ import Rolodex from "../pages/dashboards/data entry/Rolodex";
 import NewWaterLevels from "../pages/dashboards/data entry/NewWaterLevels";
 import PermitsToWells from "../pages/dataAccess/associations";
 import WellOwnerSearchReport from "../pages/dataAccess/reports/WellOwnerSearchReport";
+import WaterQualityPDFReport from "../pages/dataAccess/reports/WaterQualityPDFReport";
 const Account = async(() => import("../pages/pages/Account"));
 const Profile = async(() => import("../pages/pages/Profile"));
 
@@ -199,6 +200,11 @@ const reportsRoutes = {
       path: "/data-access/reports/well-owner-search",
       name: "Well Owner Search",
       component: WellOwnerSearchReport,
+    },
+    {
+      path: "/data-access/reports/water-quality-pdf",
+      name: "Water Quality PDF",
+      component: WaterQualityPDFReport,
     },
   ],
   guard: AdminGuard,

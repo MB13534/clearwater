@@ -12,7 +12,7 @@ import { useReactToPrint } from "react-to-print";
 
 const Tooltip = styled(MuiTooltip)(spacing);
 
-const PrintRefButton = forwardRef(({ theme, title }, ref) => {
+const PrintRefButton = forwardRef(({ theme, title, style }, ref) => {
   const handlePrintMapClick = useReactToPrint({
     content: () => ref.current,
   });
@@ -25,6 +25,7 @@ const PrintRefButton = forwardRef(({ theme, title }, ref) => {
             theme.palette.type === "dark"
               ? "rgba(255, 255, 255, 0.5)"
               : "rgb(117, 117, 117)",
+          ...style,
         }}
         aria-label="print graph"
         component="span"
