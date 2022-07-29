@@ -49,7 +49,7 @@ const Table = ({
         emptyRowsWhenPaging: false,
         exportAllData: true,
         columnsButton: true,
-        exportButton: true,
+        exportButton: { csv: true },
         pageSize: pageSize,
         pageSizeOptions: [5, 10, 30, 60],
         padding: "dense",

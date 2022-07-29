@@ -25,6 +25,7 @@ import { useAuth0 } from "@auth0/auth0-react";
 import moment from "moment";
 import PrintRefButton from "../../../components/graphs/PrintRefButton";
 import { makeStyles } from "@material-ui/core/styles";
+import { dateFormatter } from "../../../utils";
 
 const useStyles = makeStyles((theme) => ({
   marginBottom: {
@@ -81,7 +82,16 @@ const WaterQualityPDFReport = () => {
           `${process.env.REACT_APP_ENDPOINT}/api/ui-report-wq-pdf`,
           { headers }
         );
-        return data;
+        const dateConvertedData = data.map((obj) => {
+          return {
+            ...obj,
+            test_datetime: dateFormatter(
+              obj.test_datetime,
+              "MM/DD/YYYY, h:mm A"
+            ),
+          };
+        });
+        return dateConvertedData;
       } catch (err) {
         console.error(err);
       }
@@ -480,7 +490,7 @@ const WaterQualityPDFReport = () => {
                       variant="body2"
                       className={classes.boldBigLineHeight}
                     >
-                      {moment(selectedRecord.test_datetime).format("M/D/YYYY")}
+                      {selectedRecord.test_datetime}
                     </Typography>
                   </Grid>
 
