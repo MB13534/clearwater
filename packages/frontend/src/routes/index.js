@@ -60,6 +60,7 @@ import PermitsToWells from "../pages/dataAccess/associations";
 import WellOwnerSearchReport from "../pages/dataAccess/reports/WellOwnerSearchReport";
 import WaterQualityPDFReport from "../pages/dataAccess/reports/WaterQualityPDFReport";
 import WaterQualityComparison from "../pages/dataAccess/timeseriesGraphs/WaterQualityComparison";
+import AllWellsReport from "../pages/dataAccess/reports/AllWellsReport";
 const Account = async(() => import("../pages/pages/Account"));
 const Profile = async(() => import("../pages/pages/Profile"));
 
@@ -183,9 +184,19 @@ const reportsRoutes = {
   icon: <FileText />,
   children: [
     {
+      path: "/data-access/reports/all-wells",
+      name: "All Wells",
+      component: AllWellsReport,
+    },
+    {
       path: "/data-access/reports/all-permits",
       name: "All Permits",
       component: UiReportAllPermitsReport,
+    },
+    {
+      path: "/data-access/reports/well-owners",
+      name: "Well Owners",
+      component: WellOwnerSearchReport,
     },
     {
       path: "/data-access/reports/current-exempt-well-use",
@@ -193,19 +204,14 @@ const reportsRoutes = {
       component: CurrentExemptWellUseSummaryReport,
     },
     {
-      path: "/data-access/reports/pdi",
-      name: "PDI",
-      component: PDI,
-    },
-    {
-      path: "/data-access/reports/well-owner-search",
-      name: "Well Owner Search",
-      component: WellOwnerSearchReport,
-    },
-    {
       path: "/data-access/reports/water-quality-pdf",
       name: "Water Quality PDF",
       component: WaterQualityPDFReport,
+    },
+    {
+      path: "/data-access/reports/pdi",
+      name: "PDI",
+      component: PDI,
     },
   ],
   guard: AdminGuard,

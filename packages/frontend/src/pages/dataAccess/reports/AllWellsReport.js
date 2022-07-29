@@ -1,12 +1,9 @@
-import React, { useState } from "react";
+import React from "react";
 import { useQuery } from "react-query";
 
 import {
   Breadcrumbs as MuiBreadcrumbs,
   Divider as MuiDivider,
-  FormControlLabel,
-  Paper,
-  Switch,
   Typography,
 } from "@material-ui/core";
 
@@ -31,26 +28,19 @@ const TableWrapper = styled.div`
 const Divider = styled(MuiDivider)(spacing);
 const Breadcrumbs = styled(MuiBreadcrumbs)(spacing);
 
-const FilterOptions = styled(Paper)`
-  margin-bottom: 16px;
-  padding: 16px;
-`;
-
 //388px
-const WellOwnerSearchReport = () => {
+const AllWellsReport = () => {
   const { getAccessTokenSilently } = useAuth0();
 
-  const [showPermitted, setShowPermitted] = useState(false);
-
   const { data, isFetching, error } = useQuery(
-    ["ui-report-owners-search"],
+    ["ui-report-all-wells-for-download"],
     async () => {
       try {
         const token = await getAccessTokenSilently();
         const headers = { Authorization: `Bearer ${token}` };
 
         const { data } = await axios.get(
-          `${process.env.REACT_APP_ENDPOINT}/api/ui-report-owners-search`,
+          `${process.env.REACT_APP_ENDPOINT}/api/ui-report-all-wells-for-download`,
           { headers }
         );
         return data;
@@ -68,20 +58,83 @@ const WellOwnerSearchReport = () => {
 
   const tabColumns = [
     {
-      title: "Well",
+      title: "CUWCD Well Number",
       field: "cuwcd_well_number",
+    },
+    {
+      title: "State Well Number",
+      field: "state_well_number",
     },
     {
       title: "Well Name",
       field: "well_name",
     },
     {
+      title: "Is Exempt?",
+      field: "exempt",
+      type: "boolean",
+    },
+    {
+      title: "Primary Use",
+      field: "primary_use",
+    },
+    {
+      title: "Secondary Use",
+      field: "secondary_use",
+    },
+    {
+      title: "Longitude",
+      field: "longitude_dd",
+    },
+    {
+      title: "Latitude",
+      field: "latitude_dd",
+    },
+    {
+      title: "Well Status",
+      field: "well_status_desc",
+    },
+    {
       title: "Aquifer",
       field: "aquifer_name",
     },
     {
-      title: "Well Use",
-      field: "well_use",
+      title: "Aquifer Group",
+      field: "aquifer_group",
+    },
+    {
+      title: "Elevation (ft msl)",
+      field: "elevation_ftabmsl",
+    },
+    {
+      title: "Well Depth (ft)",
+      field: "well_depth_ft",
+    },
+    {
+      title: "Screen Top Depth (ft)",
+      field: "screen_top_depth_ft",
+    },
+    {
+      title: "Screen Bottom Depth (ft)",
+      field: "screen_bottom_depth_ft",
+    },
+    {
+      title: "Driller",
+      field: "driller",
+    },
+    {
+      title: "Date Drilled",
+      field: "date_drilled",
+      type: "date",
+    },
+    {
+      title: "Drillers Log?",
+      field: "drillers_log",
+      type: "boolean",
+    },
+    {
+      title: "Organization",
+      field: "organization",
     },
     {
       title: "Last Name",
@@ -92,48 +145,8 @@ const WellOwnerSearchReport = () => {
       field: "firstname",
     },
     {
-      title: "Organization",
-      field: "organization",
-    },
-    {
-      title: "Address",
-      field: "address",
-    },
-    {
-      title: "City",
-      field: "city",
-    },
-    {
-      title: "State",
-      field: "state",
-    },
-    {
-      title: "Zip",
-      field: "zip",
-    },
-    {
-      title: "Email",
-      field: "email",
-    },
-    {
-      title: "Phone",
-      field: "phone",
-    },
-    {
-      title: "Permit",
-      field: "permit_number",
-    },
-    {
-      title: "Permit Holder",
-      field: "permit_holder_name",
-    },
-    {
-      title: "Agg System",
-      field: "agg_system_name",
-    },
-    {
       title: "Notes",
-      field: "general_notes",
+      field: "notes",
       cellStyle: {
         width: 300,
         minWidth: 300,
@@ -141,66 +154,30 @@ const WellOwnerSearchReport = () => {
     },
   ];
 
-  const filterData = (data) => {
-    if (!showPermitted) {
-      return data;
-    }
-    return data.filter((item) => item.is_permitted);
-  };
-
   return (
     <>
-      <Helmet title="Well Owners Report" />
+      <Helmet title="All Wells Report" />
       <Typography variant="h3" gutterBottom display="inline">
-        Well Owners Report
+        All Wells Report
       </Typography>
 
       <Breadcrumbs aria-label="Breadcrumb" mt={2}>
         <Link component={NavLink} exact to="/dashboard">
           Dashboard
         </Link>
-        <Typography>Well Owners</Typography>
+        <Typography>All Wells</Typography>
       </Breadcrumbs>
 
       <Divider my={6} />
 
-      <FilterOptions>
-        <Typography variant="h6" gutterBottom>
-          Filter Options
-        </Typography>
-        <FormControlLabel
-          value="end"
-          control={
-            <Switch
-              checked={showPermitted}
-              onChange={() => setShowPermitted(!showPermitted)}
-              color="primary"
-              name="checkedB"
-              inputProps={{ "aria-label": "primary checkbox" }}
-            />
-          }
-          label={
-            showPermitted ? (
-              <>
-                Toggle to view <em>all</em> wells
-              </>
-            ) : (
-              <>
-                Toggle to view only <em>permitted</em> wells
-              </>
-            )
-          }
-          labelPlacement="end"
-        />
-      </FilterOptions>
-
       <Panel>
         <TableWrapper>
           <Table
-            label="Well Owners Report"
+            options={{ filtering: true }}
+            label="All Wells Report"
             isLoading={isFetching}
             columns={tabColumns}
-            data={filterData(data)}
+            data={data}
             height="600px"
           />
         </TableWrapper>
@@ -209,4 +186,4 @@ const WellOwnerSearchReport = () => {
   );
 };
 
-export default WellOwnerSearchReport;
+export default AllWellsReport;
