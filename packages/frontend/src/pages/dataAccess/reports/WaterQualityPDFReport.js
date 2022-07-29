@@ -296,7 +296,7 @@ const WaterQualityPDFReport = () => {
               <PrintRefButton
                 data-html2canvas-ignore
                 ref={divSaveRef}
-                title="Virtual Bore"
+                title="PDF Print"
                 style={{ position: "absolute", top: "5px", right: "5px" }}
               />
               <CardContent style={{ width: "100%", padding: "20px 50px" }}>

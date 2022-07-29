@@ -59,6 +59,7 @@ import NewWaterLevels from "../pages/dashboards/data entry/NewWaterLevels";
 import PermitsToWells from "../pages/dataAccess/associations";
 import WellOwnerSearchReport from "../pages/dataAccess/reports/WellOwnerSearchReport";
 import WaterQualityPDFReport from "../pages/dataAccess/reports/WaterQualityPDFReport";
+import WaterQualityComparison from "../pages/dataAccess/timeseriesGraphs/WaterQualityComparison";
 const Account = async(() => import("../pages/pages/Account"));
 const Profile = async(() => import("../pages/pages/Profile"));
 
@@ -216,23 +217,13 @@ const timeseriesRoutes = {
   icon: <Activity />,
   children: [
     {
-      path: "/data-access/graphs/streamflow",
-      name: "Streamflow",
-      component: Blank,
-    },
-    {
-      path: "/data-access/graphs/flow-vs-targets",
-      name: "Flow vs Targets",
-      component: Blank,
-    },
-    {
-      path: "/data-access/graphs/temperature",
-      name: "Temperature",
-      component: Blank,
+      path: "/data-access/time-series/water-quality",
+      name: "Water Quality",
+      component: WaterQualityComparison,
     },
   ],
-  guard: DeveloperGuard,
-  visibilityFilter: DeveloperVisibilityFilter,
+  guard: AdminGuard,
+  visibilityFilter: AdminVisibilityFilter,
 };
 
 // const mapRoutes = {

@@ -1,7 +1,7 @@
 module.exports = (sequelize, DataTypes) => {
   const {INTEGER, TEXT, NUMBER, GEOMETRY, BOOLEAN, UUID, BIGINT, DATE} =
     DataTypes;
-  const UiListWells = sequelize.define(
+  const UiListWellsTable = sequelize.define(
     'ui_list_wells_table',
     {
       well_ndx: {
@@ -155,5 +155,5 @@ module.exports = (sequelize, DataTypes) => {
     }
   );
 
-  return UiListWells;
+  return UiListWellsTable;
 };

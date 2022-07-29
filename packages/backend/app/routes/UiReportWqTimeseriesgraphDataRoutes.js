@@ -1,6 +1,6 @@
 const express = require('express');
 const {checkAccessToken} = require('../../core/middleware/auth.js');
-const {ui_report_wq_pdf: model} = require('../../core/models');
+const {ui_report_wq_timeseriesgraph_data: model} = require('../../core/models');
 const {Op} = require('sequelize');
 
 const router = express.Router();
@@ -21,18 +21,19 @@ router.get('/', (req, res, next) => {
     });
 });
 
-router.get('/:wells/:startDate/:endDate', (req, res, next) => {
+router.get('/:parameter/:wells/:startDate/:endDate', (req, res, next) => {
   model
     .findAll({
       where: {
-        well_ndx: {
+        wq_parameter_ndx: req.params.parameter,
+        cuwcd_well_number: {
           [Op.in]: req.params.wells.split(','),
         },
-        test_datetime: {
+        test_date: {
           [Op.between]: [req.params.startDate, req.params.endDate],
         },
       },
-      order: [['test_datetime', 'desc']],
+      order: [['test_date', 'desc']],
     })
     .then((data) => {
       res.json(data);

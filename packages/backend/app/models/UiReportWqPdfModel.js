@@ -1,5 +1,5 @@
 module.exports = (sequelize, DataTypes) => {
-  const {DOUBLE, TEXT, DATE, REAL} = DataTypes;
+  const {DOUBLE, TEXT, DATE, REAL, INTEGER} = DataTypes;
   const UiReportWqPdf = sequelize.define(
     'ui_report_wq_pdf',
     {
@@ -84,6 +84,12 @@ module.exports = (sequelize, DataTypes) => {
       },
       tested_by: {
         type: TEXT,
+      },
+      aquifer_ndx: {
+        type: INTEGER,
+      },
+      well_ndx: {
+        type: INTEGER,
       },
     },
     {

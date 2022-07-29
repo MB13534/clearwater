@@ -177,10 +177,10 @@ export const lineColors = {
   royalBlue: "#000075",
   lightBlue: "#74E0FF",
   gray: "#8D9093",
+  black: "#000000",
   lightGray: "#eee",
   darkGray: "#222",
   white: "#fff",
-  black: "#000000",
 };
 
 export const dateFormatter = (date, format) => {
@@ -250,6 +250,49 @@ export const isTouchScreenDevice = () => {
     "ontouchstart" in window ||
     navigator.maxTouchPoints ||
     navigator.msMaxTouchPoints
+  );
+};
+
+export const downloadChartImage = (title, extension, ref) => {
+  const base64 = ref.current.toBase64Image();
+  const downloadLink = document.createElement("a");
+  downloadLink.href = base64;
+  downloadLink.download = `${title} ${dateFormatter(
+    new Date(),
+    "MM/DD/YYYY, h:mm A"
+  )}.${extension}`;
+  downloadLink.click();
+};
+
+/**
+ * Utility method for extracting the date in "YYYY-MM-DD" format
+ * Ideal for extracting the date for a Material-UI date picker
+ * @param {*} date
+ */
+export const extractDate = (date) => {
+  if (date) {
+    const properDate = new Date(date);
+    const year = properDate.getFullYear();
+    const month =
+      properDate.getMonth() + 1 < 10
+        ? `0${properDate.getMonth() + 1}`
+        : properDate.getMonth() + 1;
+    const day =
+      properDate.getDate() < 10
+        ? `0${properDate.getDate()}`
+        : properDate.getDate();
+    return `${year}-${month}-${day}`;
+  }
+  return "";
+};
+
+export const groupByValue = (array, key) => {
+  return Object.values(
+    array.reduce((acc, curr) => {
+      if (!acc[curr[key]]) acc[curr[key]] = [];
+      acc[curr[key]].push(curr);
+      return acc;
+    }, {})
   );
 };
 
