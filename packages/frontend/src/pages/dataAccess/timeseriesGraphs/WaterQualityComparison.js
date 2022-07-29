@@ -14,6 +14,7 @@ import {
   Accordion,
   AccordionDetails,
   Breadcrumbs as MuiBreadcrumbs,
+  Chip,
   Divider as MuiDivider,
   Grid as MuiGrid,
   lighten,
@@ -34,6 +35,8 @@ import { NavLink } from "react-router-dom";
 import { useAuth0 } from "@auth0/auth0-react";
 import TimeseriesLineChartCompare from "../../../components/graphs/TimeseriesLineChartCompare";
 import moment from "moment";
+import { Block } from "@material-ui/icons";
+import { customSecondary } from "../../../theme/variants";
 
 const Grid = styled(MuiGrid)(spacing);
 const Typography = styled(MuiTypography)(spacing);
@@ -156,11 +159,11 @@ const WaterQualityComparison = () => {
     }
   );
 
-  const filterWellsByParameter = (wells, parameter) => {
-    return wells.filter((well) =>
-      well.wq_parameter_ndx_array.includes(parameter)
-    );
-  };
+  // const filterWellsByParameter = (wells, parameter) => {
+  //   return wells.filter((well) =>
+  //     well.wq_parameter_ndx_array.includes(parameter)
+  //   );
+  // };
 
   const filterWellsByAquifers = (wells, aquifers) => {
     return wells.filter((well) => aquifers.includes(well.aquifer_ndx));
@@ -171,9 +174,9 @@ const WaterQualityComparison = () => {
     setFilterValues((prevState) => {
       let newValues = { ...prevState };
 
-      if (name === "parameter") {
-        setSelectedWells([]);
-      }
+      // if (name === "parameter") {
+      //   setSelectedWells([]);
+      // }
 
       if (name === "aquifers") {
         setSelectedWells([]);
@@ -400,6 +403,32 @@ const WaterQualityComparison = () => {
 
                       <Grid item xs={12}>
                         <Autocomplete
+                          renderTags={(value, getTagProps) => {
+                            return value.map((option, index) => (
+                              <Chip
+                                key={option.well_ndx}
+                                label={
+                                  option.cuwcd_well_number +
+                                  " / " +
+                                  option?.well_name
+                                }
+                                icon={
+                                  <Block
+                                    style={{
+                                      visibility:
+                                        option.wq_parameter_ndx_array.includes(
+                                          filterValues.parameter
+                                        )
+                                          ? "hidden"
+                                          : "visible",
+                                      fill: customSecondary[500],
+                                    }}
+                                  />
+                                }
+                                {...getTagProps({ index })}
+                              />
+                            ));
+                          }}
                           multiple
                           disableCloseOnSelect
                           style={{
@@ -407,17 +436,43 @@ const WaterQualityComparison = () => {
                             margin: "10px 0 10px 4px",
                             width: "calc(100% - 8px)",
                           }}
-                          options={filterWellsByParameter(
-                            filterWellsByAquifers(Wells, filterValues.aquifers),
-                            filterValues.parameter
-                          )}
+                          options={
+                            filterWellsByAquifers(Wells, filterValues.aquifers)
+                            //   filterWellsByParameter(
+                            //   filterWellsByAquifers(Wells, filterValues.aquifers),
+                            //   filterValues.parameter
+                            // )
+                          }
                           getOptionLabel={(option) =>
                             option.cuwcd_well_number + " / " + option?.well_name
                           }
+                          renderOption={(option) => (
+                            <>
+                              <Block
+                                style={{
+                                  visibility:
+                                    option.wq_parameter_ndx_array.includes(
+                                      filterValues.parameter
+                                    )
+                                      ? "hidden"
+                                      : "visible",
+                                  fill: customSecondary[500],
+                                }}
+                              />
+                              <div>
+                                {" "}
+                                {option.cuwcd_well_number +
+                                  " / " +
+                                  option?.well_name}
+                              </div>
+                            </>
+                          )}
                           id="wells"
                           name="wells"
                           value={selectedWells}
-                          getOptionDisabled={() => selectedWells.length > 21}
+                          getOptionDisabled={(option) =>
+                            selectedWells.length > 21
+                          }
                           onChange={(event, newValue) => {
                             setSelectedWells(newValue);
                           }}
