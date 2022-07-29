@@ -287,16 +287,16 @@ const WaterQualityComparison = () => {
 
   return (
     <>
-      <Helmet title="Time Series Comparisons" />
+      <Helmet title="Water Quality Comparisons" />
       <Typography variant="h3" gutterBottom display="inline">
-        Time Series Comparisons
+        Water Quality Comparisons
       </Typography>
 
       <Breadcrumbs aria-label="Breadcrumb" mt={2}>
         <Link component={NavLink} exact to="/dashboard">
           Dashboard
         </Link>
-        <Typography>Time Series Comparisons</Typography>
+        <Typography>Water Quality Comparisons</Typography>
       </Breadcrumbs>
 
       <Divider my={6} />

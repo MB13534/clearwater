@@ -21,6 +21,9 @@ module.exports = (sequelize, DataTypes) => {
       },
     },
     {
+      defaultScope: {
+        order: [['display_order', 'asc']],
+      },
       schema: 'client_clearwater',
       timestamps: false,
       paranoid: true,
