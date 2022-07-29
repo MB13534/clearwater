@@ -52,6 +52,7 @@ const CommaSeparatedWellsSearch = ({ map }) => {
         layout: {
           "line-join": "round",
           "line-cap": "round",
+          visibility: "visible",
         },
         paint: {
           "line-color": lineColors.maroon,
@@ -104,6 +105,7 @@ const CommaSeparatedWellsSearch = ({ map }) => {
   const handleChange = (event) => {
     setValue(event?.target?.value);
     if (event?.target?.value === "") {
+      map.setLayoutProperty("boundingBox", "visibility", "visible");
       map?.flyTo({ center: [-97.99366949028948, 30.979780201064344], zoom: 8 });
     }
   };
@@ -132,6 +134,7 @@ const CommaSeparatedWellsSearch = ({ map }) => {
     ]);
 
     if (allCoords.length) {
+      map.setLayoutProperty("boundingBox", "visibility", "none");
       const bounds = allCoords.reduce(function (bounds, coord) {
         return bounds.extend(coord);
       }, new mapboxgl.LngLatBounds(allCoords[0], allCoords[0]));
