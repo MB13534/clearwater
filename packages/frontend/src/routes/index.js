@@ -61,6 +61,7 @@ import WellOwnerSearchReport from "../pages/dataAccess/reports/WellOwnerSearchRe
 import WaterQualityPDFReport from "../pages/dataAccess/reports/WaterQualityPDFReport";
 import WaterQualityComparison from "../pages/dataAccess/timeseriesGraphs/WaterQualityComparison";
 import AllWellsReport from "../pages/dataAccess/reports/AllWellsReport";
+import WaterLevelsReport from "../pages/dataAccess/reports/WaterLevelsReport";
 const Account = async(() => import("../pages/pages/Account"));
 const Profile = async(() => import("../pages/pages/Profile"));
 
@@ -197,6 +198,11 @@ const reportsRoutes = {
       path: "/data-access/reports/well-owners",
       name: "Well Owners",
       component: WellOwnerSearchReport,
+    },
+    {
+      path: "/data-access/reports/water-levels",
+      name: "Water Levels",
+      component: WaterLevelsReport,
     },
     {
       path: "/data-access/reports/current-exempt-well-use",
