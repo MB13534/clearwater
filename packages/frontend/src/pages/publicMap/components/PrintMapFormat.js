@@ -44,23 +44,45 @@ const PrintMapFormat = forwardRef(({ title, mapImg, map }, ref) => {
       </Centered>
       <Divider style={{ marginBottom: "8px" }} />
       <Centered>
-        <div style={{ maxHeight: "500px", overflow: "hidden" }}>
+        <div style={{ overflow: "hidden" }}>
           <img
             src={mapImg}
             style={{
-              width: "1000px",
-              height: "auto",
+              width: "100%",
+              maxHeight: "670px",
+              objectFit: "contain",
+              objectPosition: "left top",
             }}
             alt="Map"
           />
         </div>
       </Centered>
-      <Grid
-        container
-        mt={4}
-        justify={"space-between"}
-        alignItems={"flex-start"}
-      >
+      <Centered>
+        <Grid
+          container
+          justify="space-between"
+          alignItems="center"
+          style={{ pageBreakBefore: "always", paddingTop: "32px" }}
+        >
+          <Grid item xs={3} style={{ textAlign: "left" }}>
+            <img
+              src={"/static/img/clearwater-logo-full.png"}
+              width="200px"
+              alt="Clearwater Underground Water Conservation District"
+            />
+          </Grid>
+          <Grid item xs={6}>
+            <Typography variant="h5">CUWCD Map</Typography>
+            <Typography variant="h6">{title}</Typography>
+            <Typography variant="subtitle2">
+              Created: {moment().format("MMMM Do YYYY, h:mma")}
+            </Typography>
+          </Grid>
+          <Grid item xs={3} style={{ textAlign: "right" }} />
+        </Grid>
+      </Centered>
+      <Divider style={{ marginBottom: "8px" }} />
+      <Grid container mt={4} justify="space-between" alignItems="flex-start">
         <Grid item xs={7} style={{ textAlign: "left" }}>
           <Grid container>
             {legend.current.map((item, index) => (
