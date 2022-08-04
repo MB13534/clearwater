@@ -9,7 +9,7 @@ module.exports = {
   drawOrder: -100,
   legendOrder: 100,
   paint: {
-    'line-color': 'hsl(45.4,83.3%,47.1%)',
+    'line-color': '#ff9900',
     'line-dasharray': [2, 1],
     'line-width': 2,
   },
@@ -19,7 +19,7 @@ module.exports = {
   lreProperties: {
     layerGroup: 'Search Radius Rings',
     popup: {
-      blockPopup: true,
+      excludePopup: true,
     },
   },
 };

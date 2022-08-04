@@ -6,10 +6,10 @@ module.exports = {
   'source-layer': 'Bell_CAD_County_Boundary-5z61n9',
   paint: {
     'fill-color': 'hsl(330,53%,53%)',
-    'fill-opacity': 0.32,
+    'fill-opacity': 0,
   },
   layout: {
-    visibility: 'none',
+    visibility: 'visible',
   },
   lreProperties: {
     layerGroup: 'bell-county-boundary',

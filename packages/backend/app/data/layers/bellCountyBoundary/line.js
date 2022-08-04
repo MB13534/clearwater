@@ -8,7 +8,7 @@ module.exports = {
     'line-color': 'hsl(330,53%,53%)',
   },
   layout: {
-    visibility: 'none',
+    visibility: 'visible',
   },
   lreProperties: {
     layerGroup: 'bell-county-boundary',

@@ -305,6 +305,25 @@ const useMap = (ref, mapConfig) => {
         });
       });
 
+      map.on("click", "bell-parcels-fill", (e) => {
+        if (e.features.length === 0) return;
+
+        let clickedID = e.features[0].id;
+        let clickedCurrentState = e.features[0].state.clickToHighlight;
+
+        //adds hover-state border
+        map.setFeatureState(
+          {
+            source: "bell-parcels",
+            id: clickedID,
+            sourceLayer: "parcels",
+          },
+          {
+            clickToHighlight: !clickedCurrentState,
+          }
+        );
+      });
+
       map.on("click", (e) => {
         setVirtualBoreCoordinates({
           lat: e.lngLat.lat,
@@ -335,13 +354,12 @@ const useMap = (ref, mapConfig) => {
         const popupLayerIds = layers
           .filter((layer) => !layer?.lreProperties?.popup?.excludePopup)
           .map((layer) => layer.id);
-        if (
-          features.length > 0 &&
-          popupLayerIds.includes(features[0].layer.id)
-        ) {
-          const myFeatures = features.filter((feature) =>
-            popupLayerIds.includes(feature?.layer?.id)
-          );
+
+        const myFeatures = features.filter((feature) =>
+          popupLayerIds.includes(feature?.layer?.id)
+        );
+
+        if (myFeatures.length > 0) {
           // create popup node
           const popupNode = document.createElement("div");
           ReactDOM.render(

@@ -77,30 +77,45 @@ const getLegendOptions = (layer) => {
     // remove some unused parts of the expression
     colorsExpression.splice(0, 1);
 
-    legendOptions = colorsExpression
-      .map((value, index) => {
-        if (index < colorsExpression.length - 1 && index % 2 === 0) {
-          return {
-            color: colorsExpression[index + 1],
-            text: Array.isArray(value)
-              ? (index > 1 ? colorsExpression[index - 2][2] : 0) +
-                (index >= colorsExpression.length - 3
-                  ? "+"
-                  : " - " + value[2]) +
-                " in"
-              : value,
-            // text: Array.isArray(value)
-            //   ? (index > 1 ? colorsExpression[index - 2][2] : "") +
-            //     (index >= colorsExpression.length - 3
-            //       ? "+"
-            //       : " " + value[0] + " " + value[2]) +
-            //     " in"
-            //   : value,
-          };
-        }
-        return null;
-      })
-      .filter((d) => d !== null);
+    if (layer.id === "bell-parcels-fill") {
+      legendOptions = [
+        {
+          color:
+            layer.paint["fill-color"][layer.paint["fill-color"].length - 1],
+          text: layer.name,
+        },
+        {
+          color:
+            layer.paint["fill-color"][layer.paint["fill-color"].length - 2],
+          text: `Selected ${layer.name}`,
+        },
+      ];
+    } else {
+      legendOptions = colorsExpression
+        .map((value, index) => {
+          if (index < colorsExpression.length - 1 && index % 2 === 0) {
+            return {
+              color: colorsExpression[index + 1],
+              text: Array.isArray(value)
+                ? (index > 1 ? colorsExpression[index - 2][2] : 0) +
+                  (index >= colorsExpression.length - 3
+                    ? "+"
+                    : " - " + value[2]) +
+                  " in"
+                : value,
+              // text: Array.isArray(value)
+              //   ? (index > 1 ? colorsExpression[index - 2][2] : "") +
+              //     (index >= colorsExpression.length - 3
+              //       ? "+"
+              //       : " " + value[0] + " " + value[2]) +
+              //     " in"
+              //   : value,
+            };
+          }
+          return null;
+        })
+        .filter((d) => d !== null);
+    }
   } else {
     // remove some unused parts of the expression
     colorsExpression.splice(0, 2);
@@ -131,7 +146,10 @@ const getLegendOptions = (layer) => {
   // grab the fallback value (i.e. what is used if a feature doesn't match any category)
   const fallbackValue = colorsExpression.splice(colorsExpression.length - 1, 1);
   // Add the fallback value to the end of array
-  legendOptions.push({ color: fallbackValue, text: "N/A Value" });
+  if (layer.id !== "bell-parcels-fill") {
+    legendOptions.push({ color: fallbackValue, text: "N/A Value" });
+  }
+
   return legendOptions;
 };
 
@@ -169,7 +187,15 @@ const LayerSlider = ({ item, onOpacityChange }) => {
       <SidebarSection id="fill-opacity">Fill Opacity</SidebarSection>
       <Slider
         valueLabelDisplay="auto"
-        value={+(item.paint["fill-opacity"] * 100).toFixed(0)}
+        value={
+          +(
+            (typeof item.paint["fill-opacity"] === "number"
+              ? item.paint["fill-opacity"]
+              : item.paint["fill-opacity"][
+                  item.paint["fill-opacity"].length - 1
+                ]) * 100
+          ).toFixed(0)
+        }
         onChange={(event, newValue) =>
           handleSliderChange(event, newValue, item, onOpacityChange)
         }
@@ -329,6 +355,7 @@ const LayersControl = ({
   const [expandedItems, setExpandedItems] = useState([
     "Clearwater Wells",
     "Search Circle Radius",
+    "Bell CAD County Boundary",
   ]);
 
   const [value, setValue] = useState("all");
