@@ -77,7 +77,7 @@ const MainControl = ({
           <AccordionSummary expandIcon={<ExpandMore />}>
             <Box alignItems="center" display="flex" gridColumnGap={8}>
               <MapIcon />
-              <Typography variant="subtitle1">Basemaps</Typography>
+              <Typography variant="subtitle1">Standard Basemaps</Typography>
             </Box>
           </AccordionSummary>
           <AccordionDetails>

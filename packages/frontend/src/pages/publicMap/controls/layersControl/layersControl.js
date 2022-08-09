@@ -457,24 +457,29 @@ const LayersControl = ({
                       color: layerVisible ? "textPrimary" : "textSecondary",
                     }}
                   />
-                  <ListItemSecondaryAction
-                    onClick={() => handleExpandItem(item?.name)}
-                  >
-                    <IconButton edge="end" aria-label="delete">
-                      <LayerLegendIcon open={open} />
-                    </IconButton>
-                  </ListItemSecondaryAction>
+                  {!item?.lreProperties?.excludeLayerCollapse && (
+                    <ListItemSecondaryAction
+                      onClick={() => handleExpandItem(item?.name)}
+                    >
+                      <IconButton edge="end" aria-label="delete">
+                        <LayerLegendIcon open={open} />
+                      </IconButton>
+                    </ListItemSecondaryAction>
+                  )}
                 </ListItem>
-                <LayerLegend
-                  open={open}
-                  item={item}
-                  onOpacityChange={onOpacityChange}
-                  onBooleanChange={onBooleanChange}
-                  value={value}
-                  setValue={setValue}
-                  handleVisibilityChange={handleVisibilityChange}
-                  items={items}
-                />
+
+                {!item?.lreProperties?.excludeLayerCollapse && (
+                  <LayerLegend
+                    open={open}
+                    item={item}
+                    onOpacityChange={onOpacityChange}
+                    onBooleanChange={onBooleanChange}
+                    value={value}
+                    setValue={setValue}
+                    handleVisibilityChange={handleVisibilityChange}
+                    items={items}
+                  />
+                )}
               </Box>
             );
           })}

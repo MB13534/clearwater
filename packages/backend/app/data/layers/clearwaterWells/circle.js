@@ -4,7 +4,7 @@ module.exports = {
   type: 'circle',
   source: 'clearwater-wells',
   drawOrder: -100,
-  legendOrder: 100,
+  legendOrder: 120,
   paint: {
     'circle-color': '#1e8dd2',
     // 'circle-radius': [

@@ -4,7 +4,7 @@ module.exports = {
   type: 'symbol',
   source: 'clearwater-wells',
   drawOrder: -100,
-  legendOrder: 99,
+  legendOrder: 119,
   layout: {
     'text-field': ['get', 'cuwcd_well_number'],
     'text-size': 14,
@@ -21,5 +21,6 @@ module.exports = {
     popup: {
       excludePopup: true,
     },
+    excludeLayerCollapse: true,
   },
 };
