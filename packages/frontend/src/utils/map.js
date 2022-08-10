@@ -232,6 +232,20 @@ export const bellParcelsSymbol = {
   },
 };
 
+export const eagleView2022 = {
+  id: "eagleview-2022",
+  name: "Eagle View 2022 Imagery",
+  type: "raster",
+  source: "eagleview-2022",
+  paint: {},
+  layout: {
+    visibility: "none",
+  },
+  lreProperties: {
+    excludeLayerCollapse: true,
+  },
+};
+
 export const locationsRowTitles = {
   cuwcd_well_number: "CUWCD Well #",
   exempt: "Exempt?",

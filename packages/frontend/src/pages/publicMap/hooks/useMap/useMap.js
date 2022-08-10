@@ -192,7 +192,9 @@ const useMap = (ref, mapConfig) => {
           const { lreProperties, ...rest } = layer;
           const layerExists = map.getLayer(layer.id);
           if (!layerExists) {
-            map.addLayer(rest);
+            if (layer.id.includes("eagleview-"))
+              map.addLayer(rest, "gl-draw-polygon-fill-inactive.cold");
+            else map.addLayer(rest);
           }
         });
 

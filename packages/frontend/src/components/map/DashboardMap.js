@@ -16,13 +16,13 @@ import { STARTING_LOCATION } from "../../constants";
 import * as MapboxDrawGeodesic from "mapbox-gl-draw-geodesic";
 import { RulerControl } from "mapbox-gl-controls";
 import ResetZoomControl from "./ResetZoomControl";
-import ToggleBasemapControl from "./ToggleBasemapControl";
 import DragCircleControl from "./DragCircleControl";
 import {
   bellParcelsFill,
   bellParcelsLine,
   bellParcelsSymbol,
   DUMMY_BASEMAP_LAYERS,
+  eagleView2022,
   handleCopyCoords,
   locationsLabelsLayer,
   locationsLayer,
@@ -41,6 +41,7 @@ import Search from "./components/search";
 import { coordinatesGeocoder } from "../../pages/publicMap/hooks/useMap/mapUtils";
 import MeasurementsControl from "../../pages/publicMap/controls/MeasurementsControl";
 import ParcelsControl from "./ParcelsControl";
+import EagleViewControl from "./EagleViewControl";
 
 mapboxgl.accessToken = process.env.REACT_APP_MAPBOX_TOKEN;
 
@@ -77,6 +78,7 @@ const DashboardMap = ({
   const [mapIsLoaded, setMapIsLoaded] = useState(false);
 
   const [parcelsVisible, setParcelsVisible] = useState(false);
+  const [eagleViewVisible, setEagleViewVisible] = useState(false);
   const [measurementsVisible, setMeasurementsVisible] = useState(false);
   const polygonRef = useRef(null);
   const radiusRef = useRef(null);
@@ -171,12 +173,12 @@ const DashboardMap = ({
 
     //top right controls
     //loop through each base layer and add a layer toggle for that layer
-    DUMMY_BASEMAP_LAYERS.forEach((layer) => {
-      return map.addControl(
-        new ToggleBasemapControl(layer.url, layer.icon),
-        "top-right"
-      );
-    });
+    // DUMMY_BASEMAP_LAYERS.forEach((layer) => {
+    //   return map.addControl(
+    //     new ToggleBasemapControl(layer.url, layer.icon),
+    //     "top-right"
+    //   );
+    // });
 
     //bottom right controls
     //draw controls do not work correctly on touch screens
@@ -220,14 +222,28 @@ const DashboardMap = ({
   useEffect(() => {
     if (mapIsLoaded && data?.length > 0 && typeof map != "undefined") {
       if (!map.getSource("locations")) {
-        map.addSource("bell-parcels", {
-          type: "vector",
-          url: "mapbox://txclearwater.bell_cad_parcels",
-        });
+        if (!map.getSource("eagleview-2022")) {
+          map.addSource("eagleview-2022", {
+            id: "eagleview-2022",
+            type: "raster",
+            tiles: [
+              "https://svc.pictometry.com/Image/0E62A373-C685-DE24-B0F3-5457065B8906/tms/1.0.0/PICT-TXBELL21-FtF1JSWF8D/{z}/{x}/{y}.png",
+            ],
+            tileSize: 256,
+          });
+          map.addLayer(eagleView2022, "gl-draw-polygon-fill-inactive.cold");
+        }
 
-        map.addLayer(bellParcelsFill);
-        map.addLayer(bellParcelsLine);
-        map.addLayer(bellParcelsSymbol);
+        if (!map.getSource("bell-parcels")) {
+          map.addSource("bell-parcels", {
+            type: "vector",
+            url: "mapbox://txclearwater.bell_cad_parcels",
+          });
+
+          map.addLayer(bellParcelsFill);
+          map.addLayer(bellParcelsLine);
+          map.addLayer(bellParcelsSymbol);
+        }
 
         map.addSource("locations", {
           type: "geojson",
@@ -483,6 +499,11 @@ const DashboardMap = ({
     }
   }, [isLoading, mapIsLoaded, map, data]); // eslint-disable-line
 
+  const bellParcelLayers = [
+    "bell-parcels-fill",
+    "bell-parcels-line",
+    "bell-parcels-symbol",
+  ];
   useEffect(() => {
     if (
       map !== undefined &&
@@ -491,16 +512,26 @@ const DashboardMap = ({
       map.getLayer("bell-parcels-symbol")
     ) {
       if (!parcelsVisible) {
-        map.setLayoutProperty("bell-parcels-fill", "visibility", "none");
-        map.setLayoutProperty("bell-parcels-line", "visibility", "none");
-        map.setLayoutProperty("bell-parcels-symbol", "visibility", "none");
+        bellParcelLayers.forEach((layer) =>
+          map.setLayoutProperty(layer, "visibility", "none")
+        );
       } else {
-        map.setLayoutProperty("bell-parcels-fill", "visibility", "visible");
-        map.setLayoutProperty("bell-parcels-line", "visibility", "visible");
-        map.setLayoutProperty("bell-parcels-symbol", "visibility", "visible");
+        bellParcelLayers.forEach((layer) =>
+          map.setLayoutProperty(layer, "visibility", "visible")
+        );
       }
     }
   }, [parcelsVisible]); // eslint-disable-line
+
+  useEffect(() => {
+    if (map !== undefined && map.getLayer("eagleview-2022")) {
+      if (!eagleViewVisible) {
+        map.setLayoutProperty("eagleview-2022", "visibility", "none");
+      } else {
+        map.setLayoutProperty("eagleview-2022", "visibility", "visible");
+      }
+    }
+  }, [eagleViewVisible]); // eslint-disable-line
 
   //filters the table based on the selected radioValues filters
   useEffect(() => {
@@ -532,9 +563,15 @@ const DashboardMap = ({
         {radioValue === "search" && (
           <Search map={map} radioValue={radioValue} />
         )}
+        <EagleViewControl
+          open={eagleViewVisible}
+          onToggle={() => setEagleViewVisible(!eagleViewVisible)}
+        />
+
         <ParcelsControl
           open={parcelsVisible}
           onToggle={() => setParcelsVisible(!parcelsVisible)}
+          top={49}
         />
 
         <CoordinatesPopup

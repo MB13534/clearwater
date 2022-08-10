@@ -15,6 +15,7 @@ import {
   bellParcelsLine,
   bellParcelsSymbol,
   DUMMY_BASEMAP_LAYERS,
+  eagleView2022,
   handleCopyCoords,
   updateArea,
 } from "../../utils/map";
@@ -24,9 +25,9 @@ import { isTouchScreenDevice } from "../../utils";
 import MapboxGeocoder from "@mapbox/mapbox-gl-geocoder";
 import "@mapbox/mapbox-gl-geocoder/dist/mapbox-gl-geocoder.css";
 import { coordinatesGeocoder } from "../../pages/publicMap/hooks/useMap/mapUtils";
-import ToggleBasemapControl from "./ToggleBasemapControl";
 import ParcelsControl from "./ParcelsControl";
 import MeasurementsControl from "../../pages/publicMap/controls/MeasurementsControl";
+import EagleViewControl from "./EagleViewControl";
 
 mapboxgl.accessToken = process.env.REACT_APP_MAPBOX_TOKEN;
 
@@ -62,6 +63,7 @@ const Map = ({ config }) => {
   const [mapIsLoaded, setMapIsLoaded] = useState(false);
   const [measurementsVisible, setMeasurementsVisible] = useState(false);
   const [parcelsVisible, setParcelsVisible] = useState(false);
+  const [eagleViewVisible, setEagleViewVisible] = useState(false);
   const coordinatesContainerRef = useRef(null);
   const instructionsRef = useRef(null);
   const longRef = useRef(null);
@@ -168,12 +170,12 @@ const Map = ({ config }) => {
 
     //top right controls
     //loop through each base layer and add a layer toggle for that layer
-    DUMMY_BASEMAP_LAYERS.forEach((layer) => {
-      return map.addControl(
-        new ToggleBasemapControl(layer.url, layer.icon),
-        "top-right"
-      );
-    });
+    // [{ url: "outdoors-v11", icon: "park" }].forEach((layer) => {
+    //   return map.addControl(
+    //     new ToggleBasemapControl(layer.url, layer.icon),
+    //     "top-right"
+    //   );
+    // });
 
     //bottom right controls
     //draw controls do not work correctly on touch screens
@@ -234,6 +236,18 @@ const Map = ({ config }) => {
         getElevation(!config.data.elevation_ftabmsl);
       }
 
+      if (!map.getSource("eagleview-2022")) {
+        map.addSource("eagleview-2022", {
+          id: "eagleview-2022",
+          type: "raster",
+          tiles: [
+            "https://svc.pictometry.com/Image/0E62A373-C685-DE24-B0F3-5457065B8906/tms/1.0.0/PICT-TXBELL21-FtF1JSWF8D/{z}/{x}/{y}.png",
+          ],
+          tileSize: 256,
+        });
+        map.addLayer(eagleView2022, "gl-draw-polygon-fill-inactive.cold");
+      }
+
       if (!map.getSource("bell-parcels")) {
         map.addSource("bell-parcels", {
           type: "vector",
@@ -277,6 +291,11 @@ const Map = ({ config }) => {
     }
   }, [mapIsLoaded, map]); //eslint-disable-line
 
+  const bellParcelLayers = [
+    "bell-parcels-fill",
+    "bell-parcels-line",
+    "bell-parcels-symbol",
+  ];
   useEffect(() => {
     if (
       map !== undefined &&
@@ -285,16 +304,26 @@ const Map = ({ config }) => {
       map.getLayer("bell-parcels-symbol")
     ) {
       if (!parcelsVisible) {
-        map.setLayoutProperty("bell-parcels-fill", "visibility", "none");
-        map.setLayoutProperty("bell-parcels-line", "visibility", "none");
-        map.setLayoutProperty("bell-parcels-symbol", "visibility", "none");
+        bellParcelLayers.forEach((layer) =>
+          map.setLayoutProperty(layer, "visibility", "none")
+        );
       } else {
-        map.setLayoutProperty("bell-parcels-fill", "visibility", "visible");
-        map.setLayoutProperty("bell-parcels-line", "visibility", "visible");
-        map.setLayoutProperty("bell-parcels-symbol", "visibility", "visible");
+        bellParcelLayers.forEach((layer) =>
+          map.setLayoutProperty(layer, "visibility", "visible")
+        );
       }
     }
   }, [parcelsVisible]); // eslint-disable-line
+
+  useEffect(() => {
+    if (map !== undefined && map.getLayer("eagleview-2022")) {
+      if (!eagleViewVisible) {
+        map.setLayoutProperty("eagleview-2022", "visibility", "none");
+      } else {
+        map.setLayoutProperty("eagleview-2022", "visibility", "visible");
+      }
+    }
+  }, [eagleViewVisible]); // eslint-disable-line
 
   const handleClearMeasurements = () => {
     draw.deleteAll();
@@ -321,9 +350,15 @@ const Map = ({ config }) => {
         <AccordionDetails style={{ padding: "0" }}>
           <Container>
             <MapContainer ref={mapContainerRef}>
+              <EagleViewControl
+                open={eagleViewVisible}
+                onToggle={() => setEagleViewVisible(!eagleViewVisible)}
+              />
+
               <ParcelsControl
                 open={parcelsVisible}
                 onToggle={() => setParcelsVisible(!parcelsVisible)}
+                top={49}
               />
 
               <CoordinatesPopup
