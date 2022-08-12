@@ -806,7 +806,7 @@ const WaterQualityPDFReport = () => {
                       variant="body2"
                       className={classes.boldBigLineHeight}
                     >
-                      <u>Flouride (mg/L)</u>
+                      <u>Fluoride (mg/L)</u>
                     </Typography>
                   </Grid>
                   <Grid item xs={2}>
@@ -814,7 +814,7 @@ const WaterQualityPDFReport = () => {
                       variant="body2"
                       className={classes.boldBigLineHeight}
                     >
-                      {selectedRecord.flouride}
+                      {selectedRecord.fluoride}
                     </Typography>
                   </Grid>
                   <Grid item xs={5}>
